@@ -1,7 +1,7 @@
 ﻿import "./globals.css";
 
 export const metadata = {
-  metadataBase: new URL("https://orbit-lens.pages.dev"),
+  metadataBase: new URL("https://orbit-lens.brenychinfo.workers.dev/"),
   title: "Orbit Lens — AI Spatial Glasses Interface Concept",
   description:
     "A fictional AI spatial glasses product concept. Orbit Lens explores calm field-of-view intelligence, translucent interface layers and gesture-led product storytelling.",
@@ -9,7 +9,7 @@ export const metadata = {
     title: "Orbit Lens — AI Spatial Glasses Interface Concept",
     description:
       "A fictional AI spatial glasses product concept with a cinematic field-of-view interface, optical inspection mode and gesture-led spatial storytelling.",
-    url: "https://orbit-lens.pages.dev",
+    url: "https://orbit-lens.brenychinfo.workers.dev/",
     siteName: "Orbit Lens",
     images: [
       {
