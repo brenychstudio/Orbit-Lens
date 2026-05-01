@@ -158,90 +158,6 @@ function OpticalSweep({ accent }: { accent: string }) {
   );
 }
 
-function OpticalObjectTheater({
-  accent,
-  isInspectOpen,
-  viewportTier,
-}: {
-  accent: string;
-  isInspectOpen: boolean;
-  viewportTier: ViewportTier;
-}) {
-  const isMobile = viewportTier === "mobile";
-  const isTablet = viewportTier === "tablet";
-  const intensity = isInspectOpen ? 0.34 : isTablet ? 0.72 : 1;
-
-  return (
-    <div
-      className="orbit-object-theater pointer-events-none absolute inset-0 z-[8] overflow-hidden"
-      aria-hidden="true"
-    >
-      <motion.div
-        className="orbit-theater-lightwell absolute left-[58%] top-[43%] hidden h-[30rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full md:block"
-        style={{
-          background: `radial-gradient(circle, ${accent} 0%, rgba(255,255,255,0.08) 22%, transparent 68%)`,
-          opacity: 0.28 * intensity,
-        }}
-        animate={{
-          scale: [0.96, 1.04, 0.96],
-          x: ["-50%", "-49%", "-50%"],
-          y: ["-50%", "-51%", "-50%"],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="orbit-theater-plane absolute left-[60%] top-[38%] hidden h-[12rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rotate-[-4deg] rounded-full md:block"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.08), transparent)`,
-          opacity: 0.18 * intensity,
-        }}
-        animate={{
-          rotate: [-4, -2.6, -4],
-          scaleX: [0.94, 1.04, 0.94],
-        }}
-        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="orbit-theater-shadowbed absolute left-[60%] top-[67%] hidden h-[4rem] w-[42rem] -translate-x-1/2 rounded-full md:block"
-        style={{
-          background: `radial-gradient(ellipse, rgba(0,0,0,0.72) 0%, ${accent} 20%, rgba(0,0,0,0.2) 48%, transparent 76%)`,
-          opacity: 0.24 * intensity,
-        }}
-        animate={{
-          scaleX: [0.92, 1.06, 0.92],
-          opacity: [0.16 * intensity, 0.3 * intensity, 0.16 * intensity],
-        }}
-        transition={{ duration: 10.5, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="orbit-theater-trace absolute left-[20%] right-[10%] top-[51%] h-px md:left-[28%]"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.52), ${accent}, transparent)`,
-          opacity: isMobile ? 0.18 : 0.34 * intensity,
-        }}
-        animate={{
-          scaleX: [0.82, 1, 0.82],
-          opacity: isMobile
-            ? [0.1, 0.18, 0.1]
-            : [0.14 * intensity, 0.38 * intensity, 0.14 * intensity],
-        }}
-        transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <div
-        className="absolute inset-0 md:hidden"
-        style={{
-          background: `radial-gradient(circle at 58% 44%, ${accent} 0%, transparent 42%)`,
-          opacity: isInspectOpen ? 0.08 : 0.14,
-        }}
-      />
-    </div>
-  );
-}
-
 function OrbitFieldRail({
   accent,
   copy,
@@ -532,11 +448,47 @@ export function OrbitExperience() {
                 isVisible={!isInspectOpen && viewportTier === "desktop"}
               />
 
-              <OpticalObjectTheater
-                accent={activeMode.accent}
-                isInspectOpen={isInspectOpen}
-                viewportTier={viewportTier}
-              />
+              <AnimatePresence mode="wait" custom={transitionDirection}>
+                <motion.div
+                  key={`product-${activeMode.id}`}
+                  className="absolute left-[62%] top-[56%] z-10 h-[15rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:left-[58%] sm:top-[50%] sm:h-[24rem] sm:w-[46rem] md:top-[48%] md:h-[29rem] md:w-[56rem] lg:h-[38rem] lg:w-[74rem] [mask-image:radial-gradient(ellipse_at_center,black_46%,transparent_78%)]"
+                  initial={{
+                    opacity: 0,
+                    x: transitionDirection * 58,
+                    scale: 0.965,
+                    filter: "blur(18px)",
+                  }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                    scale: [0.992, 1, 0.992],
+                    filter: "blur(0px)",
+                    y: [8, -8, 8],
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: transitionDirection * -54,
+                    scale: 1.02,
+                    filter: "blur(16px)",
+                  }}
+                  transition={{
+                    opacity: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                    x: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
+                    filter: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
+                    scale: { duration: 8.5, repeat: Infinity, ease: "easeInOut" },
+                    y: { duration: 8.5, repeat: Infinity, ease: "easeInOut" },
+                  }}
+                >
+                  <Image
+                    src="/glasses/orbit-lens-hero-16x9.png"
+                    alt="Orbit Lens AI spatial glasses"
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-contain opacity-[0.94] mix-blend-lighten drop-shadow-[0_42px_150px_rgba(0,0,0,0.82)]"
+                  />
+                </motion.div>
+              </AnimatePresence>
 
               <motion.div
                 className="absolute left-1/2 top-[50%] z-[9] h-px w-[76%] -translate-x-1/2"
