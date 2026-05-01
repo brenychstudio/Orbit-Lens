@@ -125,4 +125,4 @@ Orbit Lens is a fictional concept project. It is not affiliated with any existin
 
 ## Credits
 
-Concept, creative direction and front-end development by Concept2048 / Brenych Studio.
+Concept, creative direction and front-end development by Brenych Studio.
