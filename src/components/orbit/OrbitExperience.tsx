@@ -451,41 +451,65 @@ export function OrbitExperience() {
               <AnimatePresence mode="wait" custom={transitionDirection}>
                 <motion.div
                   key={`product-${activeMode.id}`}
-                  className="absolute left-[62%] top-[56%] z-10 h-[15rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:left-[58%] sm:top-[50%] sm:h-[24rem] sm:w-[46rem] md:top-[48%] md:h-[29rem] md:w-[56rem] lg:h-[38rem] lg:w-[74rem] [mask-image:radial-gradient(ellipse_at_center,black_46%,transparent_78%)]"
+                  className="pointer-events-none absolute left-[62%] top-[56%] z-10 h-[15rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:left-[59%] sm:top-[50%] sm:h-[24rem] sm:w-[46rem] md:left-[61%] md:top-[48%] md:h-[29rem] md:w-[56rem] lg:left-[62%] lg:h-[37rem] lg:w-[72rem] [mask-image:radial-gradient(ellipse_at_center,black_48%,transparent_80%)]"
                   initial={{
                     opacity: 0,
-                    x: transitionDirection * 58,
-                    scale: 0.965,
-                    filter: "blur(18px)",
+                    x: transitionDirection * 48,
+                    scale: 0.975,
+                    filter: "blur(16px)",
                   }}
                   animate={{
-                    opacity: 1,
+                    opacity: isInspectOpen ? 0.48 : 1,
                     x: 0,
                     scale: [0.992, 1, 0.992],
-                    filter: "blur(0px)",
-                    y: [8, -8, 8],
+                    filter: isInspectOpen ? "blur(1px) brightness(0.72)" : "blur(0px) brightness(1)",
+                    y: [5, -5, 5],
                   }}
                   exit={{
                     opacity: 0,
-                    x: transitionDirection * -54,
-                    scale: 1.02,
-                    filter: "blur(16px)",
+                    x: transitionDirection * -48,
+                    scale: 1.012,
+                    filter: "blur(14px)",
                   }}
                   transition={{
                     opacity: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
                     x: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
                     filter: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
-                    scale: { duration: 8.5, repeat: Infinity, ease: "easeInOut" },
-                    y: { duration: 8.5, repeat: Infinity, ease: "easeInOut" },
+                    scale: { duration: 9.5, repeat: Infinity, ease: "easeInOut" },
+                    y: { duration: 9.5, repeat: Infinity, ease: "easeInOut" },
                   }}
                 >
+                  <motion.div
+                    className="absolute left-1/2 top-[62%] z-0 h-[4.5rem] w-[78%] -translate-x-1/2 rounded-full blur-2xl"
+                    style={{
+                      background: `radial-gradient(ellipse, ${activeMode.accent} 0%, rgba(255,255,255,0.08) 22%, rgba(0,0,0,0.18) 52%, transparent 74%)`,
+                    }}
+                    animate={{
+                      opacity: isInspectOpen ? [0.04, 0.08, 0.04] : [0.1, 0.2, 0.1],
+                      scaleX: [0.92, 1.06, 0.92],
+                    }}
+                    transition={{ duration: 8.8, repeat: Infinity, ease: "easeInOut" }}
+                  />
+
+                  <motion.div
+                    className="absolute left-[10%] right-[6%] top-[50%] z-[2] h-px"
+                    style={{
+                      background: `linear-gradient(90deg, transparent, ${activeMode.accent}, rgba(255,255,255,0.5), ${activeMode.accent}, transparent)`,
+                    }}
+                    animate={{
+                      opacity: isInspectOpen ? [0.04, 0.1, 0.04] : [0.12, 0.32, 0.12],
+                      scaleX: [0.88, 1, 0.88],
+                    }}
+                    transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
+                  />
+
                   <Image
                     src="/glasses/orbit-lens-hero-16x9.png"
                     alt="Orbit Lens AI spatial glasses"
                     fill
                     priority
                     sizes="100vw"
-                    className="object-contain opacity-[0.94] mix-blend-lighten drop-shadow-[0_42px_150px_rgba(0,0,0,0.82)]"
+                    className="relative z-[1] object-contain opacity-[0.94] mix-blend-lighten drop-shadow-[0_42px_150px_rgba(0,0,0,0.82)]"
                   />
                 </motion.div>
               </AnimatePresence>
