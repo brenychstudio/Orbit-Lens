@@ -724,6 +724,387 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
   );
 }
 
+const privacyTrustNodes = [
+  {
+    label: "Capture",
+    value: "Visible",
+    className: "left-[53.5%] top-[34%]",
+    tone: "rgba(210, 232, 255, 0.84)",
+    side: "public" as const,
+    repelX: -9,
+    repelY: 5,
+    delay: 0.2,
+  },
+  {
+    label: "Context",
+    value: "Local",
+    className: "left-[58.5%] top-[54%]",
+    tone: "rgba(226, 220, 190, 0.78)",
+    side: "public" as const,
+    repelX: -11,
+    repelY: 7,
+    delay: 0.45,
+  },
+  {
+    label: "Memory",
+    value: "Manual",
+    className: "left-[51.5%] top-[66%]",
+    tone: "rgba(255, 255, 255, 0.66)",
+    side: "public" as const,
+    repelX: -8,
+    repelY: -5,
+    delay: 0.68,
+  },
+  {
+    label: "Consent",
+    value: "Required",
+    className: "right-[15.5%] top-[34%]",
+    tone: "rgba(220, 236, 255, 0.78)",
+    side: "private" as const,
+    repelX: 10,
+    repelY: 4,
+    delay: 0.95,
+  },
+  {
+    label: "Passive Recording",
+    value: "Off",
+    className: "right-[12.8%] top-[58%]",
+    tone: "rgba(255, 255, 255, 0.62)",
+    side: "private" as const,
+    repelX: 12,
+    repelY: -5,
+    delay: 1.15,
+  },
+  {
+    label: "Private Field",
+    value: "Held",
+    className: "right-[21%] top-[70%]",
+    tone: "rgba(226, 220, 190, 0.72)",
+    side: "private" as const,
+    repelX: 8,
+    repelY: 6,
+    delay: 1.35,
+  },
+];
+
+function TrustBoundarySystem({ accent }: { accent: string }) {
+  const boundaryRef = useRef<HTMLDivElement | null>(null);
+  const [pointer, setPointer] = useState({ x: 0, y: 0, active: false });
+  const pendingPointerRef = useRef(pointer);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const schedulePointerUpdate = (next: { x: number; y: number; active: boolean }) => {
+      pendingPointerRef.current = next;
+
+      if (rafRef.current !== null) return;
+
+      rafRef.current = window.requestAnimationFrame(() => {
+        setPointer(pendingPointerRef.current);
+        rafRef.current = null;
+      });
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const element = boundaryRef.current;
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const isInside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+
+      if (!isInside) {
+        schedulePointerUpdate({ x: 0, y: 0, active: false });
+        return;
+      }
+
+      const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+
+      schedulePointerUpdate({
+        x: Math.max(-1, Math.min(1, x)),
+        y: Math.max(-1, Math.min(1, y)),
+        active: true,
+      });
+    };
+
+    const handlePointerLeave = () => {
+      schedulePointerUpdate({ x: 0, y: 0, active: false });
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerleave", handlePointerLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", handlePointerLeave);
+
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  const privatePressure = pointer.active ? Math.max(0, pointer.x) : 0;
+  const boundaryShift = pointer.active ? pointer.x * 10 : 0;
+  const boundaryPulse = pointer.active ? 1 : 0;
+
+  return (
+    <motion.div
+      ref={boundaryRef}
+      className="pointer-events-none absolute inset-0 z-[22] hidden lg:block"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+      aria-hidden="true"
+    >
+      {/* Public / private field labels */}
+      <motion.p
+        className="absolute left-[50.2%] top-[25.5%] text-[0.54rem] uppercase tracking-[0.34em] text-white/26"
+        initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
+        animate={{ opacity: 0.44, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      >
+        Public context
+      </motion.p>
+
+      <motion.p
+        className="absolute right-[13.5%] top-[25.5%] text-right text-[0.54rem] uppercase tracking-[0.34em] text-white/26"
+        initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
+        animate={{ opacity: 0.44, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.9, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      >
+        Private field
+      </motion.p>
+
+      {/* Private protected zone */}
+      <motion.div
+        className="orbit-trust-private-zone absolute right-[7.8%] top-[22%] h-[56%] w-[30%] rounded-[3.2rem]"
+        style={{
+          background: `radial-gradient(ellipse at 52% 48%, rgba(255,255,255,0.05), ${accent}12 26%, rgba(0,0,0,0.28) 62%, rgba(0,0,0,0.04) 100%)`,
+          boxShadow: `inset 0 0 80px rgba(255,255,255,0.035), 0 0 95px ${accent}16`,
+        }}
+        initial={{ opacity: 0, scale: 0.96, filter: "blur(18px)" }}
+        animate={{
+          opacity: pointer.active ? [0.24, 0.42, 0.28] : [0.16, 0.28, 0.18],
+          scale: pointer.active ? [0.98, 1.025, 0.98] : [0.97, 1.01, 0.97],
+          x: privatePressure * 8,
+          filter: pointer.active
+            ? ["blur(13px)", "blur(7px)", "blur(13px)"]
+            : ["blur(16px)", "blur(10px)", "blur(16px)"],
+        }}
+        transition={{
+          opacity: { duration: 6.8, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: 7.6, repeat: Infinity, ease: "easeInOut" },
+          filter: { duration: 7.6, repeat: Infinity, ease: "easeInOut" },
+          x: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+        }}
+      />
+
+      {/* Trust boundary line */}
+      <motion.div
+        className="absolute right-[38.4%] top-[24%] h-[50%] w-px overflow-hidden"
+        style={{
+          background: "rgba(255,255,255,0.08)",
+        }}
+        initial={{ opacity: 0, scaleY: 0.72, filter: "blur(8px)" }}
+        animate={{
+          opacity: pointer.active ? 0.68 : 0.38,
+          scaleY: pointer.active ? 1.06 : 1,
+          x: boundaryShift,
+          filter: pointer.active ? "blur(0.5px)" : "blur(1.5px)",
+        }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.span
+          className="absolute inset-x-0 top-0 h-[38%]"
+          style={{
+            background: `linear-gradient(180deg, transparent, ${accent}, rgba(255,255,255,0.5), transparent)`,
+          }}
+          animate={{ y: ["-100%", "285%"], opacity: [0, 0.72 + boundaryPulse * 0.2, 0] }}
+          transition={{
+            duration: pointer.active ? 2.9 : 5.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </motion.div>
+
+      {/* Boundary halo */}
+      <motion.div
+        className="absolute right-[34.8%] top-[36%] h-[11rem] w-[11rem] rounded-full border border-white/[0.05]"
+        style={{
+          boxShadow: `0 0 70px ${accent}18, inset 0 0 55px rgba(255,255,255,0.035)`,
+        }}
+        initial={{ opacity: 0, scale: 0.86 }}
+        animate={{
+          opacity: pointer.active ? [0.18, 0.36, 0.2] : [0.1, 0.22, 0.12],
+          scale: pointer.active ? [0.94, 1.08, 0.94] : [0.9, 1.02, 0.9],
+          x: boundaryShift * 0.8,
+          y: pointer.active ? pointer.y * 8 : 0,
+        }}
+        transition={{
+          opacity: { duration: 6.4, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: 6.4, repeat: Infinity, ease: "easeInOut" },
+          x: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+        }}
+      />
+
+      {/* Visible trust state main signal */}
+      <motion.div
+        className="orbit-trust-signal absolute right-[14.6%] top-[41.5%] w-[22rem] px-5 py-4"
+        initial={{ opacity: 0, y: 16, scale: 0.985, filter: "blur(14px)" }}
+        animate={{
+          opacity: 1,
+          y: pointer.active ? pointer.y * 3 : 0,
+          x: pointer.active ? pointer.x * 4 : 0,
+          scale: pointer.active ? 1.012 : 1,
+          filter: "blur(0px)",
+        }}
+        transition={{ duration: 0.75, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <motion.span
+              className="h-2 w-2 rounded-full"
+              style={{
+                background: accent,
+                boxShadow: `0 0 18px ${accent}`,
+              }}
+              animate={{
+                opacity: [0.48, 1, 0.58],
+                scale: [0.88, 1.18, 0.88],
+              }}
+              transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/42">
+              Visible trust state
+            </p>
+          </div>
+
+          <p className="text-[0.52rem] uppercase tracking-[0.26em] text-white/28">
+            User controlled
+          </p>
+        </div>
+
+        <p className="mt-4 max-w-[18.5rem] text-sm leading-6 text-white/58">
+          Capture, memory and context access remain visible to the user.
+        </p>
+      </motion.div>
+
+      {/* Trust nodes */}
+      {privacyTrustNodes.map((item, index) => {
+        const repelX =
+          pointer.active
+            ? pointer.x * item.repelX + (item.side === "private" ? privatePressure * 8 : -privatePressure * 6)
+            : 0;
+        const repelY = pointer.active ? pointer.y * item.repelY : 0;
+
+        return (
+          <motion.div
+            key={item.label}
+            className={`orbit-trust-node absolute z-[23] ${item.className} ${
+              item.side === "private" ? "text-right" : "text-left"
+            }`}
+            initial={{ opacity: 0, y: 12, filter: "blur(12px)" }}
+            animate={{
+              opacity: pointer.active ? 0.9 : 0.68,
+              x: repelX,
+              y: repelY,
+              filter: pointer.active ? "blur(0px)" : "blur(0.6px)",
+            }}
+            transition={{
+              duration: 0.72,
+              delay: item.delay,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <motion.p
+              className="text-[0.5rem] uppercase tracking-[0.28em] text-white/24"
+              animate={{ opacity: [0.22, 0.4, 0.26] }}
+              transition={{
+                duration: 5.4 + index * 0.3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              {item.label}
+            </motion.p>
+
+            <motion.p
+              className="mt-1 text-[0.74rem] uppercase tracking-[0.2em]"
+              style={{
+                color: item.tone,
+                textShadow: `0 0 16px ${item.tone}`,
+              }}
+              animate={{
+                opacity: [0.58, 0.92, 0.68],
+                y: [0, -1.2, 0],
+              }}
+              transition={{
+                duration: 6 + index * 0.35,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              {item.value}
+            </motion.p>
+          </motion.div>
+        );
+      })}
+
+      {/* Cursor-responsive protected field trace */}
+      <motion.div
+        className="absolute right-[33.8%] top-[48%] h-px w-[26%]"
+        style={{
+          background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.12), ${accent}, transparent)`,
+        }}
+        initial={{ opacity: 0, scaleX: 0.75, filter: "blur(8px)" }}
+        animate={{
+          opacity: pointer.active ? [0.2, 0.46, 0.22] : [0.1, 0.25, 0.12],
+          scaleX: pointer.active ? [0.86, 1.04, 0.88] : [0.78, 0.94, 0.8],
+          x: boundaryShift * 0.9,
+          filter: pointer.active ? ["blur(2px)", "blur(0.5px)", "blur(2px)"] : ["blur(5px)", "blur(2px)", "blur(5px)"],
+        }}
+        transition={{
+          opacity: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
+          scaleX: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
+          filter: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
+          x: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+        }}
+      />
+
+      {/* Lower trust strip */}
+      <motion.div
+        className="absolute bottom-[23.5%] right-[12.5%] flex items-center gap-3 rounded-full border border-white/[0.07] bg-black/[0.12] px-4 py-2 backdrop-blur-[14px]"
+        initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
+        animate={{
+          opacity: pointer.active ? 0.84 : 0.58,
+          y: pointer.active ? -2 : 0,
+          filter: "blur(0px)",
+        }}
+        transition={{ duration: 0.72, delay: 1.15, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{
+            background: accent,
+            boxShadow: `0 0 14px ${accent}`,
+          }}
+        />
+        <span className="text-[0.54rem] uppercase tracking-[0.26em] text-white/38">
+          Consent visible / passive recording off
+        </span>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function RecallConsoleV2({ accent }: { accent: string }) {
   const message =
     "Memory opens only after a direct request. The field keeps context visible, controlled and temporary.";
@@ -1141,6 +1522,7 @@ export function OrbitExperience() {
   const isRecallField = activeMode.id === "recall";
   const isCreateField = activeMode.id === "create";
   const isFocusField = activeMode.id === "focus";
+  const isPrivacyField = activeMode.id === "privacy";
 
   useEffect(() => {
     const syncViewportTier = () => {
@@ -1327,6 +1709,7 @@ export function OrbitExperience() {
                   !isRecallField &&
                   !isCreateField &&
                   !isFocusField &&
+                  !isPrivacyField &&
                   !isInspectOpen &&
                   viewportTier === "desktop"
                 }
@@ -1353,6 +1736,12 @@ export function OrbitExperience() {
                     key="focus-quieting-system"
                     accent={activeMode.accent}
                   />
+                ) : null}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {isPrivacyField && !isInspectOpen && viewportTier === "desktop" ? (
+                  <TrustBoundarySystem key="trust-boundary-system" accent={activeMode.accent} />
                 ) : null}
               </AnimatePresence>
 
@@ -1580,7 +1969,11 @@ export function OrbitExperience() {
                 </motion.div>
               ) : null}
 
-              {!isAccessField && !isRecallField && !isCreateField && !isFocusField ? (
+              {!isAccessField &&
+              !isRecallField &&
+              !isCreateField &&
+              !isFocusField &&
+              !isPrivacyField ? (
                 <>
                   <FloatingGlassChip className="left-[7%] top-[52%] hidden md:block" delay={0.2}>
                     {copy.leftCard}
@@ -1594,7 +1987,7 @@ export function OrbitExperience() {
                 </>
               ) : null}
 
-              {!isRecallField && !isCreateField && !isFocusField ? (
+              {!isRecallField && !isCreateField && !isFocusField && !isPrivacyField ? (
                 <motion.div
                   className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"
                   style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}

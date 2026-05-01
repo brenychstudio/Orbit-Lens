@@ -308,3 +308,64 @@ button {
     opacity: 0;
   }
 }
+/* Orbit Lens — Field 06 Trust Boundary System */
+.orbit-trust-private-zone {
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.orbit-trust-node {
+  text-rendering: geometricPrecision;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.12);
+  mix-blend-mode: screen;
+}
+
+.orbit-trust-signal {
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.034), rgba(255, 255, 255, 0.012)),
+    radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.08), transparent 38%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 26px 92px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(18px);
+}
+
+.orbit-trust-signal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.075),
+    transparent
+  );
+  opacity: 0.38;
+  transform: translateX(-42%);
+  animation: orbit-trust-signal-sweep 8.5s ease-in-out infinite;
+}
+
+@keyframes orbit-trust-signal-sweep {
+  0% {
+    transform: translateX(-48%);
+    opacity: 0;
+  }
+
+  28% {
+    opacity: 0.3;
+  }
+
+  58% {
+    transform: translateX(46%);
+    opacity: 0.16;
+  }
+
+  100% {
+    transform: translateX(74%);
+    opacity: 0;
+  }
+}
