@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
 import { ModeInteractiveOverlay } from "@/components/orbit/ModeInteractiveOverlay";
@@ -168,6 +168,627 @@ function OpticalSweep({ accent }: { accent: string }) {
   );
 }
 
+const field04ReferenceItems = [
+  {
+    title: "Mountain Light",
+    meta: "Landscape / saved",
+    src: "/interface/create-mode-framing-16x9.png",
+  },
+  {
+    title: "City Route",
+    meta: "Context / pinned",
+    src: "/interface/vision-mode-city-16x9.png",
+  },
+  {
+    title: "Caption Field",
+    meta: "Language / reference",
+    src: "/interface/spatial-cards-overview-16x9.png",
+  },
+  {
+    title: "Memory Trace",
+    meta: "Recall / manual",
+    src: "/interface/recall-mode-memory-16x9.png",
+  },
+  {
+    title: "Quiet Signal",
+    meta: "Focus / low noise",
+    src: "/interface/focus-mode-minimal-16x9.png",
+  },
+  {
+    title: "Visible Trust",
+    meta: "Privacy / indicator",
+    src: "/interface/privacy-visible-capture-16x9.png",
+  },
+];
+
+type ReferenceOrbitSlot = {
+  x: number;
+  y: number;
+  scale: number;
+  opacity: number;
+  blur: string;
+  rotateY: number;
+  rotateZ: number;
+  zIndex: number;
+};
+
+function getReferenceOrbitSlot(
+  offset: number,
+  isHovering: boolean,
+): ReferenceOrbitSlot {
+  const hoverBoost = isHovering ? 1 : 0;
+
+  if (offset === 0) {
+    return {
+      x: -42,
+      y: -30,
+      scale: isHovering ? 1.04 : 1,
+      opacity: 0.94,
+      blur: "blur(0px)",
+      rotateY: isHovering ? -4 : -2,
+      rotateZ: -0.8,
+      zIndex: 8,
+    };
+  }
+
+  if (offset === 1) {
+    return {
+      x: 205 + hoverBoost * 10,
+      y: -82,
+      scale: 0.7,
+      opacity: 0.44,
+      blur: "blur(1.4px)",
+      rotateY: -14,
+      rotateZ: 2.4,
+      zIndex: 5,
+    };
+  }
+
+  if (offset === -1) {
+    return {
+      x: -230 - hoverBoost * 8,
+      y: 84,
+      scale: 0.76,
+      opacity: 0.52,
+      blur: "blur(0.8px)",
+      rotateY: 12,
+      rotateZ: -2.2,
+      zIndex: 6,
+    };
+  }
+
+  if (offset === 2) {
+    return {
+      x: 255 + hoverBoost * 14,
+      y: 124,
+      scale: 0.52,
+      opacity: 0.25,
+      blur: "blur(2.4px)",
+      rotateY: -20,
+      rotateZ: 4,
+      zIndex: 3,
+    };
+  }
+
+  if (offset === -2) {
+    return {
+      x: -120 - hoverBoost * 12,
+      y: -140,
+      scale: 0.54,
+      opacity: 0.28,
+      blur: "blur(2.1px)",
+      rotateY: 18,
+      rotateZ: -3.4,
+      zIndex: 3,
+    };
+  }
+
+  return {
+    x: 42,
+    y: 178,
+    scale: 0.42,
+    opacity: 0.14,
+    blur: "blur(3.2px)",
+    rotateY: 0,
+    rotateZ: 1.5,
+    zIndex: 1,
+  };
+}
+
+function ReferenceOrbitDeck({ accent }: { accent: string }) {
+  const [activeReferenceIndex, setActiveReferenceIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const referenceWheelLockRef = useRef(0);
+
+  const goToReference = useCallback((delta: number) => {
+    setActiveReferenceIndex((current) => {
+      const total = field04ReferenceItems.length;
+      return ((current + delta) % total + total) % total;
+    });
+  }, []);
+
+  return (
+    <motion.div
+      className="pointer-events-auto absolute right-[4.8%] top-[14%] z-[22] hidden h-[34.5rem] w-[43rem] lg:block xl:right-[5.8%] xl:top-[13%]"
+      initial={{ opacity: 0, y: 20, filter: "blur(18px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -14, filter: "blur(14px)" }}
+      transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
+      onPointerDown={(event) => event.stopPropagation()}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onWheel={(event) => {
+        event.stopPropagation();
+
+        const now = Date.now();
+
+        if (now - referenceWheelLockRef.current < 420) return;
+        if (Math.abs(event.deltaY) < 18) return;
+
+        referenceWheelLockRef.current = now;
+        goToReference(event.deltaY > 0 ? 1 : -1);
+      }}
+    >
+      <motion.div
+        className="pointer-events-none absolute left-[18%] top-[43%] h-[18rem] w-[31rem] -translate-y-1/2 rounded-full border border-white/[0.045]"
+        style={{
+          boxShadow: `0 0 80px rgba(255,255,255,0.035), inset 0 0 60px ${accent}`,
+        }}
+        animate={{
+          opacity: isHovering ? [0.12, 0.24, 0.12] : [0.06, 0.14, 0.06],
+          scaleX: isHovering ? [0.98, 1.04, 0.98] : [0.96, 1.02, 0.96],
+          scaleY: [0.9, 1, 0.9],
+        }}
+        transition={{ duration: 8.8, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <motion.div
+        className="pointer-events-none absolute left-[12%] top-[44%] h-px w-[76%]"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.28), transparent)`,
+        }}
+        animate={{
+          opacity: isHovering ? [0.16, 0.42, 0.16] : [0.08, 0.24, 0.08],
+          scaleX: [0.9, 1, 0.9],
+        }}
+        transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {field04ReferenceItems.map((item, index) => {
+        const rawOffset = index - activeReferenceIndex;
+        const half = field04ReferenceItems.length / 2;
+        const offset =
+          rawOffset > half
+            ? rawOffset - field04ReferenceItems.length
+            : rawOffset < -half
+              ? rawOffset + field04ReferenceItems.length
+              : rawOffset;
+
+        const slot = getReferenceOrbitSlot(offset, isHovering);
+        const isActive = offset === 0;
+
+        return (
+          <motion.button
+            key={item.title}
+            type="button"
+            aria-label={`Select reference ${item.title}`}
+            className="absolute left-[40%] top-[38%] h-[12.9rem] w-[18.2rem] overflow-hidden rounded-[1.55rem] border border-white/[0.1] bg-black/[0.18] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_28px_90px_rgba(0,0,0,0.42)] backdrop-blur-[18px]"
+            style={{
+              zIndex: slot.zIndex,
+              transformOrigin: "50% 50%",
+              transformStyle: "preserve-3d",
+            }}
+            initial={false}
+            animate={{
+              x: slot.x,
+              y: slot.y,
+              scale: slot.scale,
+              opacity: slot.opacity,
+              rotateY: slot.rotateY,
+              rotateZ: slot.rotateZ,
+              filter: slot.blur,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 86,
+              damping: 20,
+              mass: 0.9,
+            }}
+            onClick={() => setActiveReferenceIndex(index)}
+          >
+            <span className="absolute inset-0 z-0">
+              <Image
+                src={item.src}
+                alt={item.title}
+                fill
+                sizes="360px"
+                className="object-cover opacity-[0.78]"
+              />
+            </span>
+
+            <span className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.58))]" />
+
+            <motion.span
+              className="absolute left-4 top-4 z-[2] h-2 w-2 rounded-full"
+              style={{
+                background: isActive ? accent : "rgba(255,255,255,0.3)",
+                boxShadow: isActive ? `0 0 18px ${accent}` : "none",
+              }}
+              animate={{
+                opacity: isActive ? [0.58, 1, 0.58] : 0.36,
+                scale: isActive ? [0.92, 1.18, 0.92] : 1,
+              }}
+              transition={{
+                duration: 2.8,
+                repeat: isActive ? Infinity : 0,
+                ease: "easeInOut",
+              }}
+            />
+
+            <span className="absolute inset-x-4 bottom-4 z-[2]">
+              <span className="block text-[0.54rem] uppercase tracking-[0.28em] text-white/34">
+                {item.meta}
+              </span>
+              <span className="mt-1.5 block text-[0.72rem] uppercase tracking-[0.22em] text-white/72">
+                {item.title}
+              </span>
+            </span>
+
+            {isActive ? (
+              <motion.span
+                className="absolute inset-x-4 bottom-[3.25rem] z-[2] h-px"
+                style={{
+                  background: `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.3), transparent)`,
+                }}
+                animate={{
+                  opacity: [0.22, 0.62, 0.22],
+                  scaleX: [0.82, 1, 0.82],
+                }}
+                transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+              />
+            ) : null}
+          </motion.button>
+        );
+      })}
+
+      <motion.div
+        className="pointer-events-none absolute bottom-[6.8rem] left-[39%] z-[24] -translate-x-1/2 rounded-full border border-white/[0.08] bg-black/[0.18] px-4 py-2 text-[0.55rem] uppercase tracking-[0.26em] text-white/38 backdrop-blur-[18px]"
+        animate={{
+          opacity: isHovering ? 0.72 : 0.34,
+          y: isHovering ? -3 : 0,
+        }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      >
+        Wheel / hover / reference orbit
+      </motion.div>
+
+      <div className="pointer-events-none absolute bottom-[3.3rem] left-[39%] z-[24] flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/[0.08] bg-black/[0.16] px-3 py-2 backdrop-blur-[18px]">
+        {field04ReferenceItems.map((item, index) => (
+          <span
+            key={item.title}
+            className="h-1.5 rounded-full transition-all duration-500"
+            style={{
+              width: index === activeReferenceIndex ? "1.9rem" : "0.45rem",
+              background:
+                index === activeReferenceIndex ? accent : "rgba(255,255,255,0.2)",
+              boxShadow:
+                index === activeReferenceIndex ? `0 0 14px ${accent}` : "none",
+            }}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function RecallConsoleV2({ accent }: { accent: string }) {
+  const message =
+    "Memory opens only after a direct request. The field keeps context visible, controlled and temporary.";
+
+  const [visibleChars, setVisibleChars] = useState(0);
+  const typedText = message.slice(0, visibleChars);
+  const isTypedComplete = visibleChars >= message.length;
+
+  useEffect(() => {
+    let interval: number | undefined;
+
+    const startDelay = window.setTimeout(() => {
+      interval = window.setInterval(() => {
+        setVisibleChars((current) => {
+          if (current >= message.length) {
+            if (interval) window.clearInterval(interval);
+            return current;
+          }
+
+          return current + 1;
+        });
+      }, 38);
+    }, 520);
+
+    return () => {
+      window.clearTimeout(startDelay);
+      if (interval) window.clearInterval(interval);
+    };
+  }, [message]);
+
+  const statusRows = [
+    {
+      label: "Place Context",
+      value: "Recognized",
+      tone: "rgba(237, 218, 168, 0.86)",
+      labelClass: "left-[50.2%] top-[55.8%]",
+      valueClass: "left-[50.2%] top-[58.5%]",
+      align: "left" as const,
+    },
+    {
+      label: "Voice Fragment",
+      value: "Indexed",
+      tone: "rgba(154, 193, 255, 0.88)",
+      labelClass: "right-[10.8%] top-[55.9%]",
+      valueClass: "right-[10.8%] top-[58.6%]",
+      align: "right" as const,
+    },
+    {
+      label: "Memory State",
+      value: "Manual Only",
+      tone: "rgba(222, 195, 145, 0.86)",
+      labelClass: "left-[53.8%] top-[65.1%]",
+      valueClass: "left-[53.8%] top-[67.8%]",
+      align: "left" as const,
+    },
+    {
+      label: "Recording",
+      value: "Inactive",
+      tone: "rgba(255, 255, 255, 0.72)",
+      labelClass: "left-[67.6%] top-[61.2%]",
+      valueClass: "left-[67.6%] top-[63.9%]",
+      align: "left" as const,
+    },
+  ];
+
+  const waveform = [16, 26, 18, 34, 22, 31, 18, 28, 24, 38, 20, 30, 16, 26, 22, 34];
+
+  return (
+    <motion.div
+      className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <motion.div
+        className="absolute right-[6.5%] top-[18.2%] w-[29rem]"
+        initial={{ opacity: 0, y: 18, filter: "blur(18px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -10, filter: "blur(12px)" }}
+        transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.div
+          animate={{
+            y: [0, -4, 0],
+            x: [0, 1.5, 0],
+          }}
+          transition={{
+            duration: 9.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          style={{ willChange: "transform" }}
+        >
+          <GlassPane className="px-6 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_30px_90px_rgba(0,0,0,0.42)]">
+            <div className="flex items-center justify-between gap-5">
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{
+                    background: "rgba(237, 218, 168, 0.78)",
+                    boxShadow: "0 0 18px rgba(237, 218, 168, 0.22)",
+                  }}
+                />
+                <p
+                  className="text-[0.58rem] uppercase tracking-[0.3em]"
+                  style={{ color: "rgba(237, 218, 168, 0.72)" }}
+                >
+                  Recall Layer
+                </p>
+              </div>
+
+              <p className="text-[0.55rem] uppercase tracking-[0.26em] text-white/34">
+                User Initiated
+              </p>
+            </div>
+
+            <div className="mt-4 border-t border-white/[0.08] pt-4">
+              <p className="max-w-[24.5rem] text-[1.02rem] leading-8 text-white/68">
+                {typedText}
+                <motion.span
+                  className="ml-1 inline-block h-5 w-px align-[-0.18rem]"
+                  style={{ background: accent }}
+                  animate={{ opacity: [0, 1, 0] }}
+                  transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </p>
+            </div>
+          </GlassPane>
+        </motion.div>
+      </motion.div>
+
+      {/* Scattered text overlays */}
+      {statusRows.map((row, index) => (
+        <Fragment key={row.label}>
+          <motion.div
+            className={`absolute z-[22] ${row.labelClass} ${
+              row.align === "right" ? "text-right" : "text-left"
+            }`}
+            initial={{
+              opacity: 0,
+              y: 12,
+              scale: 0.985,
+              filter: "blur(12px)",
+            }}
+            animate={{
+              opacity: isTypedComplete ? 0.92 : 0,
+              y: isTypedComplete ? 0 : 12,
+              scale: isTypedComplete ? 1 : 0.985,
+              filter: isTypedComplete ? "blur(0px)" : "blur(12px)",
+            }}
+            transition={{
+              duration: 0.92,
+              delay: isTypedComplete ? 0.24 + index * 0.16 : 0,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <motion.p
+              className="text-[0.54rem] uppercase tracking-[0.28em] text-white/26"
+              animate={{
+                opacity: [0.18, 0.34, 0.22],
+                y: [0, -0.5, 0],
+              }}
+              transition={{
+                duration: 5.2 + index * 0.45,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{ willChange: "opacity, transform" }}
+            >
+              {row.label}
+            </motion.p>
+          </motion.div>
+
+          <motion.div
+            className={`absolute z-[22] ${row.valueClass} ${
+              row.align === "right" ? "text-right" : "text-left"
+            }`}
+            initial={{
+              opacity: 0,
+              y: 14,
+              scale: 0.982,
+              filter: "blur(14px)",
+            }}
+            animate={{
+              opacity: isTypedComplete ? 1 : 0,
+              y: isTypedComplete ? 0 : 14,
+              scale: isTypedComplete ? 1 : 0.982,
+              filter: isTypedComplete ? "blur(0px)" : "blur(14px)",
+            }}
+            transition={{
+              duration: 1.08,
+              delay: isTypedComplete ? 0.38 + index * 0.16 : 0,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <motion.p
+              className="text-[0.84rem] uppercase tracking-[0.18em]"
+              style={{
+                color: row.tone,
+                textShadow: `0 0 14px ${row.tone}`,
+                willChange: "transform, opacity",
+              }}
+              animate={{
+                opacity: [0.58, 0.92, 0.72],
+                y: [0, -1.2, 0],
+              }}
+              transition={{
+                duration: 6 + index * 0.4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              {row.value}
+            </motion.p>
+          </motion.div>
+        </Fragment>
+      ))}
+
+      {/* Separate voice fragment pod */}
+      <motion.div
+        className="absolute left-[51.2%] top-[77.2%] w-[14.2rem] -translate-y-1/2"
+        initial={{ opacity: 0, y: 12, filter: "blur(12px)" }}
+        animate={{
+          opacity: isTypedComplete ? 1 : 0,
+          y: isTypedComplete ? 0 : 12,
+          filter: isTypedComplete ? "blur(0px)" : "blur(12px)",
+        }}
+        transition={{
+          duration: 0.7,
+          delay: isTypedComplete ? 0.72 : 0,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      >
+        <motion.div
+          animate={{
+            y: [0, -3, 0],
+            x: [0, 1, 0],
+          }}
+          transition={{
+            duration: 7.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          style={{ willChange: "transform" }}
+        >
+          <GlassPane className="px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_18px_50px_rgba(0,0,0,0.34)]">
+            <div className="mb-2 flex items-center justify-between gap-4">
+              <p className="text-[0.54rem] uppercase tracking-[0.28em] text-white/30">
+                Voice Fragment 01
+              </p>
+              <p className="text-[0.5rem] uppercase tracking-[0.24em] text-white/24">
+                Local / Not Continuous
+              </p>
+            </div>
+
+            <div className="flex h-9 items-center gap-[0.28rem] overflow-hidden">
+              {waveform.map((height, index) => (
+                <motion.span
+                  key={`${height}-${index}`}
+                  className="w-px rounded-full"
+                  style={{
+                    height,
+                    background:
+                      index % 4 === 0
+                        ? "rgba(237, 218, 168, 0.64)"
+                        : "rgba(255,255,255,0.34)",
+                    boxShadow:
+                      index % 4 === 0
+                        ? "0 0 12px rgba(237, 218, 168, 0.24)"
+                        : "none",
+                  }}
+                  animate={{
+                    scaleY: [0.52, 1, 0.62],
+                    opacity: [0.28, 0.78, 0.34],
+                  }}
+                  transition={{
+                    duration: 1.6 + index * 0.03,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: index * 0.045,
+                  }}
+                />
+              ))}
+
+              <motion.span
+                className="ml-2 h-px flex-1"
+                style={{
+                  background: `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.16), transparent)`,
+                }}
+                animate={{
+                  opacity: [0.16, 0.48, 0.16],
+                  scaleX: [0.92, 1, 0.92],
+                }}
+                transition={{
+                  duration: 3.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </div>
+          </GlassPane>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function OrbitFieldRail({
   accent,
   copy,
@@ -274,6 +895,8 @@ export function OrbitExperience() {
   const activeMode = orbitModes[activeIndex] ?? orbitModes[0]!;
   const copy = fieldCopy[activeMode.id] ?? fieldCopy.vision!;
   const isAccessField = activeMode.id === "access";
+  const isRecallField = activeMode.id === "recall";
+  const isCreateField = activeMode.id === "create";
 
   useEffect(() => {
     const syncViewportTier = () => {
@@ -456,8 +1079,28 @@ export function OrbitExperience() {
               <ModeInteractiveOverlay
                 modeId={activeMode.id}
                 accent={activeMode.accent}
-                isVisible={!isInspectOpen && viewportTier === "desktop"}
+                isVisible={
+                  !isRecallField &&
+                  !isCreateField &&
+                  !isInspectOpen &&
+                  viewportTier === "desktop"
+                }
               />
+
+              <AnimatePresence mode="wait">
+                {isRecallField && !isInspectOpen ? (
+                  <RecallConsoleV2 key="recall-console-v2" accent={activeMode.accent} />
+                ) : null}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {isCreateField && !isInspectOpen && viewportTier === "desktop" ? (
+                  <ReferenceOrbitDeck
+                    key="reference-orbit-deck"
+                    accent={activeMode.accent}
+                  />
+                ) : null}
+              </AnimatePresence>
 
               <AnimatePresence mode="wait" custom={transitionDirection}>
                 <motion.div
@@ -683,7 +1326,7 @@ export function OrbitExperience() {
                 </motion.div>
               ) : null}
 
-              {!isAccessField ? (
+              {!isAccessField && !isRecallField && !isCreateField ? (
                 <>
                   <FloatingGlassChip className="left-[7%] top-[52%] hidden md:block" delay={0.2}>
                     {copy.leftCard}
@@ -697,24 +1340,26 @@ export function OrbitExperience() {
                 </>
               ) : null}
 
-              <motion.div
-                className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"
-                style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}
-                animate={{
-                  opacity: [0.08, 0.24, 0.08],
-                  scale: [0.94, 1.06, 0.94],
-                }}
-                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <div className="absolute inset-8 rounded-full border border-white/[0.07]" />
-                <span
-                  className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                  style={{
-                    background: activeMode.accent,
-                    boxShadow: `0 0 24px ${activeMode.accent}`,
+              {!isRecallField && !isCreateField ? (
+                <motion.div
+                  className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"
+                  style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}
+                  animate={{
+                    opacity: [0.08, 0.24, 0.08],
+                    scale: [0.94, 1.06, 0.94],
                   }}
-                />
-              </motion.div>
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <div className="absolute inset-8 rounded-full border border-white/[0.07]" />
+                  <span
+                    className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                    style={{
+                      background: activeMode.accent,
+                      boxShadow: `0 0 24px ${activeMode.accent}`,
+                    }}
+                  />
+                </motion.div>
+              ) : null}
 
               <OrbitFieldRail
                 accent={activeMode.accent}
