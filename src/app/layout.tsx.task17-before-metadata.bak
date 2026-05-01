@@ -1,0 +1,41 @@
+﻿import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "Orbit Lens — AI Spatial Glasses Concept",
+  description:
+    "A fictional premium product launch website for AI spatial glasses. The website behaves like the product interface.",
+  openGraph: {
+    title: "Orbit Lens — AI Spatial Glasses Concept",
+    description:
+      "A cinematic shell interface for a fictional AI / AR eyewear product.",
+    type: "website",
+    images: [
+      {
+        url: "/og/orbit-lens-og-1200x630.png",
+        width: 1200,
+        height: 630,
+        alt: "Orbit Lens AI spatial glasses concept",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Orbit Lens — AI Spatial Glasses Concept",
+    description:
+      "A cinematic shell interface for a fictional AI / AR eyewear product.",
+    images: ["/og/orbit-lens-og-1200x630.png"],
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

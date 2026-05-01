@@ -1,0 +1,410 @@
+﻿"use client";
+
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
+import { ShellChrome } from "@/components/orbit/ShellChrome";
+import { orbitModes } from "@/data/orbitModes";
+
+type FieldCopy = {
+  field: string;
+  headline: string;
+  subline: string;
+  signal: string;
+  leftCard: string;
+  rightCard: string;
+  bottomCard: string;
+  visual: string;
+};
+
+const fieldCopy: Record<string, FieldCopy> = {
+  vision: {
+    field: "Field 01 / Vision",
+    headline: "Spatial clarity without the noise.",
+    subline:
+      "A calmer city layer that appears briefly, guides softly and disappears back into the world.",
+    signal: "Spatial clarity / city layer",
+    leftCard: "City layer detected",
+    rightCard: "Route signal / 12 m",
+    bottomCard: "Context density: low",
+    visual: "/interface/vision-mode-city-16x9.png",
+  },
+  translate: {
+    field: "Field 02 / Translate",
+    headline: "Language becomes a transparent layer.",
+    subline:
+      "Live captions stay face-forward, atmospheric and quiet — without turning conversation into a screen.",
+    signal: "Live language layer",
+    leftCard: "Live caption stream",
+    rightCard: "Language layer active",
+    bottomCard: "Subtitle opacity: adaptive",
+    visual: "/interface/spatial-cards-overview-16x9.png",
+  },
+  recall: {
+    field: "Field 03 / Recall",
+    headline: "Memory begins only when you ask.",
+    subline:
+      "Orbit Lens treats recall as an intentional action, not a silent recording habit.",
+    signal: "Intentional memory",
+    leftCard: "Memory note ready",
+    rightCard: "Place context saved",
+    bottomCard: "Manual capture only",
+    visual: "/interface/recall-mode-memory-16x9.png",
+  },
+  create: {
+    field: "Field 04 / Create",
+    headline: "Capture references without breaking presence.",
+    subline:
+      "Frame, scout and collect visual notes while the eye stays inside the scene.",
+    signal: "Creator capture field",
+    leftCard: "Framing assist",
+    rightCard: "Scene reference locked",
+    bottomCard: "Capture angle: stable",
+    visual: "/interface/create-mode-framing-16x9.png",
+  },
+  focus: {
+    field: "Field 05 / Focus",
+    headline: "Less interface. More attention.",
+    subline:
+      "Focus mode removes noise instead of adding another notification surface.",
+    signal: "Attention quiet mode",
+    leftCard: "Noise reduced",
+    rightCard: "Priority signal only",
+    bottomCard: "Notifications muted",
+    visual: "/interface/focus-mode-minimal-16x9.png",
+  },
+  privacy: {
+    field: "Field 06 / Privacy",
+    headline: "Trust is part of the interface.",
+    subline:
+      "Visible capture states and user-controlled memory are designed into the first interaction.",
+    signal: "Visible trust state",
+    leftCard: "Visible capture state",
+    rightCard: "Consent layer active",
+    bottomCard: "User-controlled memory",
+    visual: "/interface/privacy-visible-capture-16x9.png",
+  },
+};
+
+function FloatingCard({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={`pointer-events-none absolute rounded-full border border-white/12 bg-black/28 px-4 py-2 text-[0.58rem] uppercase tracking-[0.24em] text-white/46 shadow-[0_22px_90px_rgba(0,0,0,0.32)] backdrop-blur-xl ${className}`}
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{
+        opacity: [0.26, 0.58, 0.26],
+        y: [4, -5, 4],
+        scale: [0.98, 1, 0.98],
+      }}
+      transition={{
+        duration: 7,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function OrbitFieldRail({
+  accent,
+  copy,
+}: {
+  accent: string;
+  copy: FieldCopy;
+}) {
+  return (
+    <div className="absolute inset-x-4 bottom-4 z-30 overflow-hidden rounded-full border border-white/10 bg-black/30 px-4 py-3 shadow-[0_24px_100px_rgba(0,0,0,0.4)] backdrop-blur-2xl sm:inset-x-6 md:px-5">
+      <div className="grid items-center gap-3 md:grid-cols-[0.9fr_1.5fr_auto]">
+        <div className="flex items-center gap-3">
+          <motion.span
+            className="h-2.5 w-2.5 rounded-full"
+            style={{ background: accent, boxShadow: `0 0 24px ${accent}` }}
+            animate={{ opacity: [0.34, 1, 0.34], scale: [0.9, 1.18, 0.9] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div>
+            <p className="text-[0.52rem] uppercase tracking-[0.28em] text-white/28">
+              Active Field
+            </p>
+            <p className="mt-1 text-[0.68rem] uppercase tracking-[0.22em] text-white/64">
+              {copy.signal}
+            </p>
+          </div>
+        </div>
+
+        <div className="relative hidden h-9 overflow-hidden rounded-full border border-white/8 bg-white/[0.035] md:block">
+          <div className="absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-white/10" />
+
+          <motion.div
+            className="absolute top-1/2 h-[0.28rem] w-32 -translate-y-1/2 rounded-full blur-[1px]"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.9), ${accent}, transparent)`,
+              boxShadow: `0 0 26px ${accent}`,
+            }}
+            animate={{ left: ["3%", "76%", "3%"] }}
+            transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <span className="absolute left-[18%] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/22" />
+          <span className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/30" />
+          <span className="absolute right-[18%] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/22" />
+        </div>
+
+        <div className="flex items-center justify-between gap-3 md:justify-end">
+          <p className="hidden max-w-[18rem] text-xs leading-5 text-white/42 lg:block">
+            {copy.bottomCard}
+          </p>
+
+          <button
+            type="button"
+            className="relative shrink-0 overflow-hidden rounded-full border border-white/14 bg-white/[0.06] px-4 py-2.5 text-[0.58rem] uppercase tracking-[0.24em] text-white/64 transition hover:bg-white/[0.1] hover:text-white"
+          >
+            <span className="relative z-10">Private Preview</span>
+            <motion.span
+              className="absolute inset-y-0 left-[-40%] w-[44%] bg-white/10 blur-xl"
+              animate={{ left: ["-40%", "125%"] }}
+              transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function OrbitExperience() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const wheelLockRef = useRef(0);
+
+  const activeMode = orbitModes[activeIndex] ?? orbitModes[0]!;
+  const copy = fieldCopy[activeMode.id] ?? fieldCopy.vision!;
+
+  const currentProgress = useMemo(
+    () =>
+      `${String(activeIndex + 1).padStart(2, "0")} / ${String(orbitModes.length).padStart(2, "0")}`,
+    [activeIndex],
+  );
+
+  const goToIndex = useCallback((nextIndex: number) => {
+    const safeIndex =
+      ((nextIndex % orbitModes.length) + orbitModes.length) % orbitModes.length;
+
+    setActiveIndex(safeIndex);
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        goToIndex(activeIndex + 1);
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        goToIndex(activeIndex - 1);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeIndex, goToIndex]);
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#030407] text-[#f4efe6]">
+      <AtmosphericBackdrop accent={activeMode.accent} />
+
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-3 py-4 sm:px-4 md:px-8 md:py-6">
+        <div className="mx-auto w-full max-w-[1488px]">
+          <motion.div
+            className="relative isolate w-full select-none overflow-hidden rounded-[2rem] border border-white/15 bg-white/[0.07] p-3 shadow-[0_60px_220px_rgba(0,0,0,0.82)] backdrop-blur-2xl sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.16}
+            onDragEnd={(_, info) => {
+              if (info.offset.x < -80) goToIndex(activeIndex + 1);
+              if (info.offset.x > 80) goToIndex(activeIndex - 1);
+            }}
+            onWheel={(event) => {
+              const now = Date.now();
+
+              if (now - wheelLockRef.current < 760) return;
+              if (Math.abs(event.deltaY) < 36) return;
+
+              wheelLockRef.current = now;
+              goToIndex(activeIndex + (event.deltaY > 0 ? 1 : -1));
+            }}
+          >
+            <ShellChrome accent={activeMode.accent} />
+
+            <div className="mb-3 flex items-center justify-between rounded-full border border-white/10 bg-black/24 px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/48 sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
+              <span>Orbit Field Interface</span>
+              <span>{currentProgress}</span>
+            </div>
+
+            <div className="relative min-h-[38rem] overflow-hidden rounded-[1.55rem] border border-white/10 bg-black/24 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] md:min-h-[43rem] md:rounded-[2.3rem] lg:min-h-[680px] xl:rounded-[2.8rem]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeMode.id}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0, scale: 1.035, filter: "blur(14px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 1.025, filter: "blur(12px)" }}
+                  transition={{ duration: 0.88, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Image
+                    src={copy.visual}
+                    alt={`${activeMode.id} spatial interface atmosphere`}
+                    fill
+                    priority={activeMode.id === "vision"}
+                    sizes="100vw"
+                    className="scale-[1.04] object-cover opacity-[0.42]"
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.1),transparent_30%),linear-gradient(90deg,rgba(0,0,0,0.74)_0%,rgba(0,0,0,0.42)_32%,rgba(0,0,0,0.22)_56%,rgba(0,0,0,0.62)_100%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,transparent_46%,rgba(0,0,0,0.64)_100%)]" />
+              <div className="absolute inset-0 opacity-[0.016] [background-image:linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] [background-size:84px_84px]" />
+
+              <motion.div
+                className="absolute left-1/2 top-[47%] z-10 h-[22rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 sm:h-[28rem] sm:w-[52rem] lg:h-[36rem] lg:w-[70rem]"
+                animate={{ y: [8, -8, 8], scale: [0.992, 1, 0.992] }}
+                transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Image
+                  src="/glasses/orbit-lens-hero-16x9.png"
+                  alt="Orbit Lens AI spatial glasses"
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-contain opacity-[0.92] drop-shadow-[0_40px_130px_rgba(0,0,0,0.72)]"
+                />
+              </motion.div>
+
+              <motion.div
+                className="absolute left-1/2 top-[50%] z-[9] h-px w-[72%] -translate-x-1/2"
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${activeMode.accent}, rgba(255,255,255,0.74), ${activeMode.accent}, transparent)`,
+                }}
+                animate={{ opacity: [0.14, 0.42, 0.14], scaleX: [0.94, 1, 0.94] }}
+                transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              <div className="absolute left-5 top-6 z-20 max-w-[32rem] sm:left-8 md:left-10 md:top-10 lg:left-12 lg:top-12">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeMode.id}
+                    initial={{ opacity: 0, y: 18, filter: "blur(10px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -12, filter: "blur(10px)" }}
+                    transition={{ duration: 0.66, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <p
+                      className="mb-5 text-[0.62rem] uppercase tracking-[0.34em]"
+                      style={{ color: activeMode.accent }}
+                    >
+                      {copy.field}
+                    </p>
+
+                    <h1 className="max-w-[34rem] text-[2.65rem] font-light leading-[0.9] tracking-[-0.085em] text-white drop-shadow-[0_12px_42px_rgba(0,0,0,0.88)] sm:text-6xl md:text-7xl lg:text-[5.9rem]">
+                      {copy.headline}
+                    </h1>
+
+                    <p className="mt-5 max-w-[30rem] text-sm leading-6 text-white/66 drop-shadow-[0_8px_26px_rgba(0,0,0,0.9)] sm:text-base md:text-lg md:leading-7">
+                      {copy.subline}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              <div className="absolute right-5 top-7 z-20 hidden max-w-[17rem] text-right md:block lg:right-10 lg:top-12">
+                <p className="mb-2 text-[0.58rem] uppercase tracking-[0.3em] text-white/24">
+                  Orbit Lens
+                </p>
+                <p className="text-xs leading-5 text-white/42">
+                  AI spatial glasses for controlled context, memory and field-of-view intelligence.
+                </p>
+              </div>
+
+              <FloatingCard className="left-[7%] top-[48%] hidden md:block" delay={0.2}>
+                {copy.leftCard}
+              </FloatingCard>
+              <FloatingCard className="right-[7%] top-[36%] hidden md:block" delay={1.2}>
+                {copy.rightCard}
+              </FloatingCard>
+              <FloatingCard className="right-[18%] bottom-[28%] hidden md:block" delay={2.1}>
+                {copy.bottomCard}
+              </FloatingCard>
+
+              <motion.div
+                className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] md:block"
+                style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}
+                animate={{ opacity: [0.08, 0.24, 0.08], scale: [0.94, 1.06, 0.94] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div className="absolute inset-8 rounded-full border border-white/[0.07]" />
+                <span
+                  className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    background: activeMode.accent,
+                    boxShadow: `0 0 24px ${activeMode.accent}`,
+                  }}
+                />
+              </motion.div>
+
+              <OrbitFieldRail accent={activeMode.accent} copy={copy} />
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 md:mt-4 md:gap-4">
+              <div className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-3 py-2">
+                {orbitModes.map((mode, index) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => goToIndex(index)}
+                    className="h-2.5 rounded-full border border-white/18 transition-all hover:bg-white/40"
+                    style={{
+                      width: index === activeIndex ? "2.5rem" : "0.7rem",
+                      background:
+                        index === activeIndex
+                          ? activeMode.accent
+                          : "rgba(255,255,255,0.16)",
+                    }}
+                    aria-label={`Open ${mode.id} mode`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => goToIndex(activeIndex - 1)}
+                  className="rounded-full border border-white/12 bg-white/[0.045] px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/54 transition hover:bg-white/10 hover:text-white"
+                >
+                  Prev
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goToIndex(activeIndex + 1)}
+                  className="rounded-full border border-white/12 bg-white/[0.045] px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/54 transition hover:bg-white/10 hover:text-white"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </main>
+  );
+}

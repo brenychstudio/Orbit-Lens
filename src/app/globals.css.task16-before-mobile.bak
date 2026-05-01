@@ -31,7 +31,6 @@ body {
     "Segoe UI",
     sans-serif;
   overflow-x: hidden;
-  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
 }

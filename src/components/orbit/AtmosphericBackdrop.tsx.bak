@@ -1,0 +1,35 @@
+"use client";
+
+import { motion } from "motion/react";
+
+type AtmosphericBackdropProps = {
+  accent: string;
+};
+
+export function AtmosphericBackdrop({ accent }: AtmosphericBackdropProps) {
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden bg-[#030407]">
+      <motion.div
+        className="absolute left-1/2 top-1/2 h-[72rem] w-[72rem] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        animate={{
+          background: [
+            `radial-gradient(circle, ${accent} 0%, rgba(3,4,7,0) 58%)`,
+            `radial-gradient(circle, rgba(255,255,255,0.28) 0%, rgba(3,4,7,0) 62%)`,
+            `radial-gradient(circle, ${accent} 0%, rgba(3,4,7,0) 58%)`,
+          ],
+          scale: [1, 1.06, 1],
+          opacity: [0.26, 0.34, 0.26],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.12),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.045),transparent_42%,rgba(255,255,255,0.035))]" />
+
+      <div className="absolute inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(255,255,255,0.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.7)_1px,transparent_1px)] [background-size:64px_64px]" />
+    </div>
+  );
+}

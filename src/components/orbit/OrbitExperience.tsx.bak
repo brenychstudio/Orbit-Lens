@@ -1,0 +1,178 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
+import { orbitModes } from "@/data/orbitModes";
+
+export function OrbitExperience() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeMode = orbitModes[activeIndex] ?? orbitModes[0];
+
+  const currentProgress = useMemo(
+    () => `${String(activeIndex + 1).padStart(2, "0")} / ${String(orbitModes.length).padStart(2, "0")}`,
+    [activeIndex],
+  );
+
+  function goToIndex(nextIndex: number) {
+    const safeIndex =
+      ((nextIndex % orbitModes.length) + orbitModes.length) % orbitModes.length;
+
+    setActiveIndex(safeIndex);
+  }
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        goToIndex(activeIndex + 1);
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        goToIndex(activeIndex - 1);
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeIndex]);
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#030407] text-[#f4efe6]">
+      <AtmosphericBackdrop accent={activeMode.accent} />
+
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8 md:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 lg:grid lg:grid-cols-[0.8fr_1.4fr_0.8fr] lg:items-center">
+          <aside className="hidden lg:block">
+            <p className="mb-5 text-xs uppercase tracking-[0.34em] text-white/38">
+              Orbit Lens
+            </p>
+            <h1 className="max-w-xs text-5xl font-light leading-[0.95] tracking-[-0.08em] text-white">
+              AI placed gently in your field of view.
+            </h1>
+          </aside>
+
+          <div className="relative mx-auto w-full max-w-3xl">
+            <div className="absolute -inset-8 rounded-[4rem] bg-white/[0.035] blur-3xl" />
+
+            <motion.div
+              className="relative overflow-hidden rounded-[2.4rem] border border-white/15 bg-white/[0.075] p-4 shadow-[0_40px_140px_rgba(0,0,0,0.64)] backdrop-blur-2xl md:rounded-[3.4rem] md:p-6"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.18}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -80) goToIndex(activeIndex + 1);
+                if (info.offset.x > 80) goToIndex(activeIndex - 1);
+              }}
+            >
+              <div className="mb-4 flex items-center justify-between rounded-full border border-white/10 bg-black/20 px-4 py-3 text-[0.66rem] uppercase tracking-[0.26em] text-white/48">
+                <span>Spatial Shell Interface</span>
+                <span>{currentProgress}</span>
+              </div>
+
+              <div className="relative min-h-[31rem] overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/30 p-6 md:min-h-[36rem] md:rounded-[2.5rem] md:p-9">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.14),transparent_42%)]" />
+
+                <div className="relative z-10 flex h-full min-h-[28rem] flex-col justify-between md:min-h-[31rem]">
+                  <AnimatePresence mode="wait">
+                    <motion.article
+                      key={activeMode.id}
+                      initial={{ opacity: 0, x: 48, scale: 0.985, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: -48, scale: 0.985, filter: "blur(10px)" }}
+                      transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex min-h-[28rem] flex-col justify-between md:min-h-[31rem]"
+                    >
+                      <div>
+                        <p
+                          className="mb-8 text-xs uppercase tracking-[0.34em]"
+                          style={{ color: activeMode.accent }}
+                        >
+                          {activeMode.eyebrow}
+                        </p>
+
+                        <h2 className="max-w-2xl text-5xl font-light leading-[0.92] tracking-[-0.08em] text-white md:text-7xl">
+                          {activeMode.title}
+                        </h2>
+
+                        <p className="mt-6 max-w-xl text-base leading-7 text-white/60 md:text-lg">
+                          {activeMode.description}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                        <div className="rounded-3xl border border-white/10 bg-white/[0.055] p-5 backdrop-blur-xl">
+                          <p className="mb-2 text-xs uppercase tracking-[0.28em] text-white/38">
+                            Active Signal
+                          </p>
+                          <p className="text-sm text-white/72">{activeMode.signal}</p>
+                        </div>
+
+                        <div className="rounded-3xl border border-white/10 bg-black/28 p-5 text-right backdrop-blur-xl">
+                          <p className="text-xs uppercase tracking-[0.28em] text-white/38">
+                            Tagline
+                          </p>
+                          <p className="mt-2 max-w-56 text-sm text-white/72">
+                            {activeMode.tagline}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.article>
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex gap-2">
+                  {orbitModes.map((mode, index) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => goToIndex(index)}
+                      className="h-2.5 rounded-full border border-white/18 transition-all hover:bg-white/40"
+                      style={{
+                        width: index === activeIndex ? "2.5rem" : "0.7rem",
+                        background:
+                          index === activeIndex ? activeMode.accent : "rgba(255,255,255,0.16)",
+                      }}
+                      aria-label={`Open ${mode.id} mode`}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => goToIndex(activeIndex - 1)}
+                    className="rounded-full border border-white/12 bg-white/[0.055] px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/62 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => goToIndex(activeIndex + 1)}
+                    className="rounded-full border border-white/12 bg-white/[0.055] px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/62 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          <aside className="hidden lg:block">
+            <div className="ml-auto max-w-xs rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 text-sm leading-6 text-white/54 backdrop-blur-xl">
+              <p className="mb-4 text-xs uppercase tracking-[0.32em] text-white/36">
+                Product Concept
+              </p>
+              <p>
+                Orbit Lens is a fictional AI spatial glasses launch concept.
+                The website behaves like the product interface: calm, spatial,
+                translucent and gesture-driven.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  );
+}
