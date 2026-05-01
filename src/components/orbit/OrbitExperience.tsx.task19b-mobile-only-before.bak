@@ -332,7 +332,7 @@ export function OrbitExperience() {
     <main className="relative min-h-screen overflow-hidden bg-[#030407] text-[#f4efe6]">
       <AtmosphericBackdrop accent={activeMode.accent} />
 
-      <section className="mobile-stability-mode relative z-10 flex min-h-screen items-start justify-center px-2.5 py-3 sm:px-4 md:items-center md:px-8 md:py-6">
+      <section className="relative z-10 flex min-h-screen items-start justify-center px-2.5 py-3 sm:px-4 md:items-center md:px-8 md:py-6">
         <div className="mx-auto w-full max-w-[1488px]">
           <motion.div
             className="relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border border-white/[0.14] bg-white/[0.035] p-3 shadow-[0_64px_230px_rgba(0,0,0,0.84)] backdrop-blur-[28px] sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"

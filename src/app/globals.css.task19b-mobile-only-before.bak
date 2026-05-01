@@ -44,20 +44,3 @@ button {
   background: rgba(160, 210, 255, 0.22);
   color: var(--orbit-ivory);
 }
-
-@media (max-width: 767px) {
-  .mobile-stability-mode,
-  .mobile-stability-mode * {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-
-  .mobile-stability-mode [style*="blur"] {
-    filter: none !important;
-  }
-
-  .mobile-stability-mode .mobile-static-layer {
-    transform: translateZ(0);
-    will-change: transform;
-  }
-}
