@@ -330,12 +330,7 @@ export function OrbitExperience() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030407] text-[#f4efe6]">
-      <AtmosphericBackdrop
-        modeId={activeMode.id}
-        accent={activeMode.accent}
-        isInspectOpen={isInspectOpen}
-        viewportTier={viewportTier}
-      />
+      <AtmosphericBackdrop accent={activeMode.accent} />
 
       <section className="mobile-stability-mode relative z-10 flex min-h-screen items-start justify-center px-2.5 py-3 sm:px-4 md:items-center md:px-8 md:py-6">
         <div className="mx-auto w-full max-w-[1488px]">
