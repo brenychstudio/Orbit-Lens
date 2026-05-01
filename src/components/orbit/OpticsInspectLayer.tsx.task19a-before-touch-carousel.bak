@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, type PanInfo } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { opticsAssets, type OpticsAsset } from "@/data/opticsAssets";
 
 type OpticsInspectLayerProps = {
@@ -124,144 +124,12 @@ function InspectCard({
   );
 }
 
-function TouchInspectStack({
-  assets,
-  activeIndex,
-  setActiveIndex,
-  accent,
-  onSelect,
-}: {
-  assets: OpticsAsset[];
-  activeIndex: number;
-  setActiveIndex: (index: number) => void;
-  accent: string;
-  onSelect: (id: string) => void;
-}) {
-  function goTo(index: number) {
-    const nextIndex = Math.max(0, Math.min(assets.length - 1, index));
-    setActiveIndex(nextIndex);
-  }
-
-  function handleDragEnd(
-    _: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo,
-  ) {
-    if (info.offset.x < -56) {
-      goTo(activeIndex + 1);
-      return;
-    }
-
-    if (info.offset.x > 56) {
-      goTo(activeIndex - 1);
-    }
-  }
-
-  return (
-    <div className="absolute inset-x-4 top-[6.8rem] bottom-[5.8rem] z-40 lg:hidden">
-      <motion.div
-        className="relative h-full w-full touch-pan-y"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.14}
-        onDragEnd={handleDragEnd}
-      >
-        {assets.map((asset, index) => {
-          const offset = index - activeIndex;
-
-          if (Math.abs(offset) > 1) return null;
-
-          const isActive = offset === 0;
-
-          return (
-            <motion.button
-              key={asset.id}
-              type="button"
-              onClick={() => {
-                if (isActive) {
-                  onSelect(asset.id);
-                } else {
-                  goTo(index);
-                }
-              }}
-              className="absolute left-1/2 top-1/2 overflow-hidden rounded-[1.35rem] border border-white/[0.12] bg-black/[0.34] p-2 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_24px_100px_rgba(0,0,0,0.42)] backdrop-blur-[16px]"
-              style={{ transformOrigin: "center" }}
-              initial={false}
-              animate={{
-                x: offset * 116 - 160,
-                y: isActive ? -170 : offset > 0 ? -58 : -34,
-                scale: isActive ? 1 : 0.82,
-                opacity: isActive ? 1 : 0.42,
-                filter: isActive ? "blur(0px)" : "blur(2px)",
-                zIndex: isActive ? 30 : 16,
-              }}
-              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div
-                className={`relative overflow-hidden rounded-[1rem] border border-white/[0.08] bg-black/32 ${
-                  asset.ratio === "square" ? "aspect-square" : "aspect-[4/3]"
-                }`}
-              >
-                <Image
-                  src={asset.src}
-                  alt={asset.label}
-                  fill
-                  sizes="72vw"
-                  className="object-contain"
-                />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.08),transparent_36%),linear-gradient(180deg,transparent,rgba(0,0,0,0.22))]" />
-                <div
-                  className="absolute left-4 right-4 top-1/2 h-px"
-                  style={{
-                    background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.42), transparent)`,
-                  }}
-                />
-              </div>
-
-              <div className="px-2 pb-1.5 pt-2.5">
-                <p className="text-[0.48rem] uppercase tracking-[0.24em] text-white/32">
-                  Optics Layer
-                </p>
-                <p className="mt-1 text-[0.72rem] uppercase tracking-[0.2em] text-white/72">
-                  {asset.label}
-                </p>
-              </div>
-            </motion.button>
-          );
-        })}
-      </motion.div>
-
-      <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-2 backdrop-blur-[12px]">
-        {assets.map((asset, index) => (
-          <button
-            key={asset.id}
-            type="button"
-            aria-label={`Show ${asset.label}`}
-            onClick={() => goTo(index)}
-            className="h-2.5 w-2.5 rounded-full border border-white/20 transition"
-            style={{
-              background:
-                index === activeIndex ? accent : "rgba(255,255,255,0.16)",
-              boxShadow: index === activeIndex ? `0 0 14px ${accent}` : "none",
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FocusVeil({
-  accent,
-  soft = false,
-}: {
-  accent: string;
-  soft?: boolean;
-}) {
+function FocusVeil({ accent }: { accent: string }) {
   return (
     <motion.div
       className="pointer-events-none absolute inset-0 z-30 overflow-hidden"
       initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-      animate={{ opacity: 1, backdropFilter: soft ? "blur(0px)" : "blur(3px)" }}
+      animate={{ opacity: 1, backdropFilter: "blur(3px)" }}
       exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
       transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
     >
@@ -466,7 +334,6 @@ export function OpticsInspectLayer({
 }: OpticsInspectLayerProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewportTier, setViewportTier] = useState<ViewportTier>("desktop");
-  const [touchCardIndex, setTouchCardIndex] = useState(0);
   const selectedAsset =
     opticsAssets.find((asset) => asset.id === selectedId) ?? null;
 
@@ -482,7 +349,6 @@ export function OpticsInspectLayer({
   }, []);
 
   const dragEnabled = viewportTier === "desktop";
-  const isTouchLayout = viewportTier !== "desktop";
 
   const handleClose = () => {
     setSelectedId(null);
@@ -493,12 +359,12 @@ export function OpticsInspectLayer({
     <AnimatePresence>
       {isOpen ? (
         <motion.div
-          className="absolute inset-0 z-50 origin-center overflow-hidden rounded-[1.55rem] bg-black/[0.24] md:rounded-[2.3rem] lg:backdrop-blur-[4px] xl:rounded-[2.8rem]"
+          className="absolute inset-0 z-50 origin-center overflow-hidden rounded-[1.55rem] bg-black/[0.24] backdrop-blur-[4px] md:rounded-[2.3rem] xl:rounded-[2.8rem]"
           initial={{
             opacity: 0,
             scale: 0.72,
             y: 22,
-            filter: isTouchLayout ? "blur(0px)" : "blur(24px)",
+            filter: "blur(24px)",
             clipPath: "inset(18% 22% 18% 22% round 2.4rem)",
           }}
           animate={{
@@ -512,7 +378,7 @@ export function OpticsInspectLayer({
             opacity: 0,
             scale: 0.78,
             y: 18,
-            filter: isTouchLayout ? "blur(0px)" : "blur(22px)",
+            filter: "blur(22px)",
             clipPath: "inset(16% 20% 16% 20% round 2.4rem)",
           }}
           transition={{
@@ -620,39 +486,21 @@ export function OpticsInspectLayer({
           </button>
 
           <div className="absolute inset-0 z-20">
-            {isTouchLayout && !selectedAsset ? (
-              <TouchInspectStack
-                assets={opticsAssets}
-                activeIndex={touchCardIndex}
-                setActiveIndex={setTouchCardIndex}
+            {opticsAssets.map((asset) => (
+              <InspectCard
+                key={asset.id}
+                asset={asset}
                 accent={accent}
-                onSelect={(id) => setSelectedId(id)}
+                isSelected={selectedId === asset.id}
+                hasSelection={selectedId !== null}
+                dragEnabled={dragEnabled}
+                onSelect={() => setSelectedId(asset.id)}
               />
-            ) : null}
-
-            {!isTouchLayout
-              ? opticsAssets.map((asset) => (
-                  <InspectCard
-                    key={asset.id}
-                    asset={asset}
-                    accent={accent}
-                    isSelected={selectedId === asset.id}
-                    hasSelection={selectedId !== null}
-                    dragEnabled={dragEnabled}
-                    onSelect={() => setSelectedId(asset.id)}
-                  />
-                ))
-              : null}
+            ))}
           </div>
 
           <AnimatePresence>
-            {selectedAsset ? (
-              <FocusVeil
-                key="focus-veil"
-                accent={accent}
-                soft={isTouchLayout}
-              />
-            ) : null}
+            {selectedAsset ? <FocusVeil key="focus-veil" accent={accent} /> : null}
           </AnimatePresence>
 
           <AnimatePresence>
