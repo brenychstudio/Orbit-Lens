@@ -420,7 +420,8 @@ function FocusVeil({
       exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
       transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="orbit-edge-light" />`r`n      <div className="absolute inset-0 bg-black/30" />
+      <div className="orbit-edge-light" />
+      <div className="absolute inset-0 bg-black/30" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_47%,transparent_0%,transparent_34%,rgba(0,0,0,0.22)_66%,rgba(0,0,0,0.58)_100%)]" />
 
       <motion.div

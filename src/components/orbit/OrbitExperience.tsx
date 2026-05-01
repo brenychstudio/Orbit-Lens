@@ -7,7 +7,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
 import { ModeInteractiveOverlay } from "@/components/orbit/ModeInteractiveOverlay";
 import { OpticsInspectLayer } from "@/components/orbit/OpticsInspectLayer";
-import { ProductHeroTheater } from "@/components/orbit/ProductHeroTheater";
 import { ShellChrome } from "@/components/orbit/ShellChrome";
 import { orbitModes } from "@/data/orbitModes";
 
@@ -156,6 +155,90 @@ function OpticalSweep({ accent }: { accent: string }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
     />
+  );
+}
+
+function OpticalObjectTheater({
+  accent,
+  isInspectOpen,
+  viewportTier,
+}: {
+  accent: string;
+  isInspectOpen: boolean;
+  viewportTier: ViewportTier;
+}) {
+  const isMobile = viewportTier === "mobile";
+  const isTablet = viewportTier === "tablet";
+  const intensity = isInspectOpen ? 0.34 : isTablet ? 0.72 : 1;
+
+  return (
+    <div
+      className="orbit-object-theater pointer-events-none absolute inset-0 z-[8] overflow-hidden"
+      aria-hidden="true"
+    >
+      <motion.div
+        className="orbit-theater-lightwell absolute left-[58%] top-[43%] hidden h-[30rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full md:block"
+        style={{
+          background: `radial-gradient(circle, ${accent} 0%, rgba(255,255,255,0.08) 22%, transparent 68%)`,
+          opacity: 0.28 * intensity,
+        }}
+        animate={{
+          scale: [0.96, 1.04, 0.96],
+          x: ["-50%", "-49%", "-50%"],
+          y: ["-50%", "-51%", "-50%"],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <motion.div
+        className="orbit-theater-plane absolute left-[60%] top-[38%] hidden h-[12rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rotate-[-4deg] rounded-full md:block"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.08), transparent)`,
+          opacity: 0.18 * intensity,
+        }}
+        animate={{
+          rotate: [-4, -2.6, -4],
+          scaleX: [0.94, 1.04, 0.94],
+        }}
+        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <motion.div
+        className="orbit-theater-shadowbed absolute left-[60%] top-[67%] hidden h-[4rem] w-[42rem] -translate-x-1/2 rounded-full md:block"
+        style={{
+          background: `radial-gradient(ellipse, rgba(0,0,0,0.72) 0%, ${accent} 20%, rgba(0,0,0,0.2) 48%, transparent 76%)`,
+          opacity: 0.24 * intensity,
+        }}
+        animate={{
+          scaleX: [0.92, 1.06, 0.92],
+          opacity: [0.16 * intensity, 0.3 * intensity, 0.16 * intensity],
+        }}
+        transition={{ duration: 10.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <motion.div
+        className="orbit-theater-trace absolute left-[20%] right-[10%] top-[51%] h-px md:left-[28%]"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.52), ${accent}, transparent)`,
+          opacity: isMobile ? 0.18 : 0.34 * intensity,
+        }}
+        animate={{
+          scaleX: [0.82, 1, 0.82],
+          opacity: isMobile
+            ? [0.1, 0.18, 0.1]
+            : [0.14 * intensity, 0.38 * intensity, 0.14 * intensity],
+        }}
+        transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      <div
+        className="absolute inset-0 md:hidden"
+        style={{
+          background: `radial-gradient(circle at 58% 44%, ${accent} 0%, transparent 42%)`,
+          opacity: isInspectOpen ? 0.08 : 0.14,
+        }}
+      />
+    </div>
   );
 }
 
@@ -449,11 +532,10 @@ export function OrbitExperience() {
                 isVisible={!isInspectOpen && viewportTier === "desktop"}
               />
 
-              <ProductHeroTheater
-                modeId={activeMode.id}
+              <OpticalObjectTheater
                 accent={activeMode.accent}
-                viewportTier={viewportTier}
                 isInspectOpen={isInspectOpen}
+                viewportTier={viewportTier}
               />
 
               <motion.div
