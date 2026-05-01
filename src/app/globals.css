@@ -247,3 +247,64 @@ button {
     opacity: 0.28;
   }
 }
+/* Orbit Lens — Field 05 Focus Quieting System */
+.orbit-focus-noise-text {
+  text-rendering: geometricPrecision;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.12);
+  mix-blend-mode: screen;
+}
+
+.orbit-focus-aperture {
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.orbit-focus-priority {
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+    radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.09), transparent 38%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.065),
+    0 24px 90px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(18px);
+}
+
+.orbit-focus-priority::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.075),
+    transparent
+  );
+  opacity: 0.42;
+  transform: translateX(-38%);
+  animation: orbit-focus-priority-sweep 7.5s ease-in-out infinite;
+}
+
+@keyframes orbit-focus-priority-sweep {
+  0% {
+    transform: translateX(-42%);
+    opacity: 0;
+  }
+
+  28% {
+    opacity: 0.34;
+  }
+
+  58% {
+    transform: translateX(48%);
+    opacity: 0.18;
+  }
+
+  100% {
+    transform: translateX(72%);
+    opacity: 0;
+  }
+}

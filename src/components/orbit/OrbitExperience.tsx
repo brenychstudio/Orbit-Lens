@@ -481,6 +481,249 @@ function ReferenceOrbitDeck({ accent }: { accent: string }) {
   );
 }
 
+const focusNoiseFragments = [
+  {
+    label: "Message",
+    className: "left-[56%] top-[29%]",
+    delay: 0.1,
+    opacity: [0.16, 0.05, 0.1],
+    y: [0, -6, 0],
+  },
+  {
+    label: "Route",
+    className: "right-[17%] top-[34%]",
+    delay: 0.45,
+    opacity: [0.14, 0.04, 0.09],
+    y: [0, 5, 0],
+  },
+  {
+    label: "Caption",
+    className: "left-[64%] top-[43%]",
+    delay: 0.85,
+    opacity: [0.18, 0.06, 0.11],
+    y: [0, -4, 0],
+  },
+  {
+    label: "Translate",
+    className: "right-[13%] top-[51%]",
+    delay: 1.1,
+    opacity: [0.13, 0.035, 0.08],
+    y: [0, 6, 0],
+  },
+  {
+    label: "Memory",
+    className: "left-[59%] top-[61%]",
+    delay: 1.35,
+    opacity: [0.15, 0.045, 0.09],
+    y: [0, -5, 0],
+  },
+  {
+    label: "Notification",
+    className: "right-[21%] top-[66%]",
+    delay: 1.65,
+    opacity: [0.12, 0.03, 0.07],
+    y: [0, 4, 0],
+  },
+];
+
+const focusQuietStatus = [
+  {
+    label: "Notifications",
+    value: "Muted",
+    className: "left-[58%] top-[58%]",
+    delay: 1.1,
+  },
+  {
+    label: "Context",
+    value: "Preserved",
+    className: "right-[16%] top-[59.5%]",
+    delay: 1.35,
+  },
+  {
+    label: "Attention",
+    value: "Stable",
+    className: "left-[63%] top-[69%]",
+    delay: 1.6,
+  },
+];
+
+function FocusQuietingSystem({ accent }: { accent: string }) {
+  return (
+    <motion.div
+      className="pointer-events-none absolute inset-0 z-[22] hidden lg:block"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      aria-hidden="true"
+    >
+      {/* Ambient information noise */}
+      {focusNoiseFragments.map((item) => (
+        <motion.p
+          key={item.label}
+          className={`orbit-focus-noise-text absolute ${item.className} text-[0.62rem] uppercase tracking-[0.34em] text-white/20`}
+          initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+          animate={{
+            opacity: item.opacity,
+            y: item.y,
+            filter: ["blur(7px)", "blur(2.5px)", "blur(6px)"],
+          }}
+          transition={{
+            duration: 7.5,
+            delay: item.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          style={{ willChange: "opacity, transform, filter" }}
+        >
+          {item.label}
+        </motion.p>
+      ))}
+
+      {/* Soft optical quiet lens */}
+      <motion.div
+        className="orbit-focus-aperture absolute right-[12%] top-[37%] h-[21rem] w-[28rem] rounded-full"
+        style={{
+          background: `radial-gradient(ellipse at 50% 50%, ${accent}22 0%, rgba(255,255,255,0.055) 28%, rgba(0,0,0,0.12) 56%, transparent 72%)`,
+          boxShadow: `inset 0 0 70px rgba(255,255,255,0.035), 0 0 90px ${accent}20`,
+        }}
+        initial={{ opacity: 0, scale: 0.92, filter: "blur(18px)" }}
+        animate={{
+          opacity: [0.18, 0.34, 0.2],
+          scale: [0.96, 1.035, 0.96],
+          filter: ["blur(18px)", "blur(10px)", "blur(18px)"],
+        }}
+        transition={{ duration: 9.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Quieting beam */}
+      <motion.div
+        className="absolute left-[48%] top-[49%] h-px w-[39%]"
+        style={{
+          background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.16), ${accent}, rgba(255,255,255,0.12), transparent)`,
+        }}
+        initial={{ opacity: 0, scaleX: 0.72, filter: "blur(8px)" }}
+        animate={{
+          opacity: [0.12, 0.36, 0.14],
+          scaleX: [0.82, 1, 0.86],
+          filter: ["blur(5px)", "blur(1px)", "blur(5px)"],
+        }}
+        transition={{ duration: 6.4, repeat: Infinity, ease: "easeInOut", delay: 0.35 }}
+      />
+
+      {/* Priority signal */}
+      <motion.div
+        className="orbit-focus-priority absolute right-[13.2%] top-[35.5%] w-[19.5rem] px-5 py-4"
+        initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(14px)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+        transition={{ duration: 1.05, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <motion.span
+              className="h-2 w-2 rounded-full"
+              style={{
+                background: accent,
+                boxShadow: `0 0 18px ${accent}`,
+              }}
+              animate={{
+                opacity: [0.52, 1, 0.62],
+                scale: [0.9, 1.16, 0.9],
+              }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/42">
+              Focus Layer
+            </p>
+          </div>
+
+          <p className="text-[0.52rem] uppercase tracking-[0.26em] text-white/28">
+            User Calm
+          </p>
+        </div>
+
+        <motion.p
+          className="mt-4 text-[0.84rem] uppercase tracking-[0.22em] text-white/72"
+          animate={{
+            opacity: [0.72, 0.96, 0.78],
+            y: [0, -1, 0],
+          }}
+          transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+        >
+          Priority signal only
+        </motion.p>
+
+        <p className="mt-2 max-w-[16rem] text-xs leading-5 text-white/42">
+          Secondary prompts are reduced until attention stabilizes.
+        </p>
+      </motion.div>
+
+      {/* Scattered quiet statuses */}
+      {focusQuietStatus.map((item, index) => (
+        <motion.div
+          key={item.label}
+          className={`absolute z-[23] ${item.className}`}
+          initial={{ opacity: 0, y: 12, filter: "blur(12px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{
+            duration: 0.95,
+            delay: item.delay,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          <motion.div
+            animate={{
+              opacity: [0.45, 0.78, 0.52],
+              y: [0, -2, 0],
+            }}
+            transition={{
+              duration: 6.2 + index * 0.45,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            style={{ willChange: "opacity, transform" }}
+          >
+            <p className="text-[0.5rem] uppercase tracking-[0.28em] text-white/24">
+              {item.label}
+            </p>
+            <p
+              className="mt-1 text-[0.7rem] uppercase tracking-[0.22em]"
+              style={{
+                color: index === 0 ? accent : "rgba(255,255,255,0.58)",
+                textShadow:
+                  index === 0
+                    ? `0 0 14px ${accent}`
+                    : "0 0 12px rgba(255,255,255,0.16)",
+              }}
+            >
+              {item.value}
+            </p>
+          </motion.div>
+        </motion.div>
+      ))}
+
+      {/* Lower quiet-state strip */}
+      <motion.div
+        className="absolute bottom-[24%] right-[11.8%] flex items-center gap-3 rounded-full border border-white/[0.07] bg-black/[0.12] px-4 py-2 backdrop-blur-[14px]"
+        initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
+        animate={{ opacity: 0.74, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.9, delay: 1.85, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{
+            background: accent,
+            boxShadow: `0 0 14px ${accent}`,
+          }}
+        />
+        <span className="text-[0.54rem] uppercase tracking-[0.26em] text-white/38">
+          Noise reduced / attention stable
+        </span>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function RecallConsoleV2({ accent }: { accent: string }) {
   const message =
     "Memory opens only after a direct request. The field keeps context visible, controlled and temporary.";
@@ -897,6 +1140,7 @@ export function OrbitExperience() {
   const isAccessField = activeMode.id === "access";
   const isRecallField = activeMode.id === "recall";
   const isCreateField = activeMode.id === "create";
+  const isFocusField = activeMode.id === "focus";
 
   useEffect(() => {
     const syncViewportTier = () => {
@@ -1082,6 +1326,7 @@ export function OrbitExperience() {
                 isVisible={
                   !isRecallField &&
                   !isCreateField &&
+                  !isFocusField &&
                   !isInspectOpen &&
                   viewportTier === "desktop"
                 }
@@ -1097,6 +1342,15 @@ export function OrbitExperience() {
                 {isCreateField && !isInspectOpen && viewportTier === "desktop" ? (
                   <ReferenceOrbitDeck
                     key="reference-orbit-deck"
+                    accent={activeMode.accent}
+                  />
+                ) : null}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {isFocusField && !isInspectOpen && viewportTier === "desktop" ? (
+                  <FocusQuietingSystem
+                    key="focus-quieting-system"
                     accent={activeMode.accent}
                   />
                 ) : null}
@@ -1326,7 +1580,7 @@ export function OrbitExperience() {
                 </motion.div>
               ) : null}
 
-              {!isAccessField && !isRecallField && !isCreateField ? (
+              {!isAccessField && !isRecallField && !isCreateField && !isFocusField ? (
                 <>
                   <FloatingGlassChip className="left-[7%] top-[52%] hidden md:block" delay={0.2}>
                     {copy.leftCard}
@@ -1340,7 +1594,7 @@ export function OrbitExperience() {
                 </>
               ) : null}
 
-              {!isRecallField && !isCreateField ? (
+              {!isRecallField && !isCreateField && !isFocusField ? (
                 <motion.div
                   className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"
                   style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}
