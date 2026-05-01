@@ -65,9 +65,8 @@ const fieldCopy: Record<string, FieldCopy> = {
   },
   create: {
     field: "Field 04 / Create",
-    headline: "Capture references without breaking presence.",
-    subline:
-      "Frame, scout and collect visual notes while the eye stays inside the scene.",
+    headline: "Capture references. Keep presence.",
+    subline: "Frame and collect visual notes without leaving the scene.",
     signal: "Creator capture field",
     leftCard: "Framing assist",
     rightCard: "Scene reference locked",
@@ -95,6 +94,17 @@ const fieldCopy: Record<string, FieldCopy> = {
     rightCard: "Consent layer active",
     bottomCard: "User-controlled memory",
     visual: "/interface/privacy-visible-capture-16x9.png",
+  },
+  access: {
+    field: "Field 07 / Access",
+    headline: "A quieter spatial interface.",
+    subline:
+      "A fictional AI spatial glasses launch prototype by Brenych Studio, designed around calm context, visible trust and premium field-of-view interaction.",
+    signal: "About / contact / prototype access",
+    leftCard: "Brenych Studio",
+    rightCard: "Private preview",
+    bottomCard: "Contact / portfolio / GitHub",
+    visual: "/interface/orbit-mode-selector-16x9.png",
   },
 };
 
@@ -263,6 +273,7 @@ export function OrbitExperience() {
 
   const activeMode = orbitModes[activeIndex] ?? orbitModes[0]!;
   const copy = fieldCopy[activeMode.id] ?? fieldCopy.vision!;
+  const isAccessField = activeMode.id === "access";
 
   useEffect(() => {
     const syncViewportTier = () => {
@@ -550,7 +561,11 @@ export function OrbitExperience() {
                     }}
                     transition={{ duration: 0.74, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <GlassPane className="max-w-[calc(100vw-3.5rem)] px-4 py-4 sm:max-w-[36rem] sm:px-6 sm:py-6 md:px-7 md:py-7">
+                    <GlassPane
+                      className={`max-w-[calc(100vw-3.5rem)] px-4 py-4 sm:px-6 sm:py-6 md:px-7 md:py-7 ${
+                        isAccessField ? "sm:max-w-[31rem]" : "sm:max-w-[36rem]"
+                      }`}
+                    >
                       <p
                         className="mb-5 text-[0.62rem] uppercase tracking-[0.34em]"
                         style={{ color: activeMode.accent }}
@@ -558,7 +573,13 @@ export function OrbitExperience() {
                         {copy.field}
                       </p>
 
-                      <h1 className="max-w-[34rem] text-[2.15rem] font-light leading-[0.9] tracking-[-0.085em] text-white drop-shadow-[0_14px_42px_rgba(0,0,0,0.9)] sm:text-5xl md:text-7xl lg:text-[5.7rem]">
+                      <h1
+                        className={`max-w-[34rem] font-light leading-[0.9] tracking-[-0.085em] text-white drop-shadow-[0_14px_42px_rgba(0,0,0,0.9)] ${
+                          isAccessField
+                            ? "text-[2rem] sm:text-5xl md:text-6xl lg:text-[4.8rem]"
+                            : "text-[2.15rem] sm:text-5xl md:text-7xl lg:text-[5.7rem]"
+                        }`}
+                      >
                         {copy.headline}
                       </h1>
 
@@ -570,15 +591,111 @@ export function OrbitExperience() {
                 </AnimatePresence>
               </div>
 
-              <FloatingGlassChip className="left-[7%] top-[52%] hidden md:block" delay={0.2}>
-                {copy.leftCard}
-              </FloatingGlassChip>
-              <FloatingGlassChip className="right-[7%] top-[37%] hidden md:block" delay={1.2}>
-                {copy.rightCard}
-              </FloatingGlassChip>
-              <FloatingGlassChip className="right-[18%] bottom-[29%] hidden md:block" delay={2.1}>
-                {copy.bottomCard}
-              </FloatingGlassChip>
+              {isAccessField ? (
+                <motion.div
+                  className="absolute right-10 top-14 z-20 hidden w-[25.5rem] lg:block xl:right-14 xl:top-16"
+                  initial={{ opacity: 0, y: 18, filter: "blur(14px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -12, filter: "blur(12px)" }}
+                  transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <motion.div
+                    animate={{
+                      y: [0, -6, 0],
+                      x: [0, 2, 0],
+                      rotateZ: [0, -0.14, 0],
+                    }}
+                    transition={{
+                      duration: 9.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    style={{ willChange: "transform", transformOrigin: "50% 55%" }}
+                  >
+                    <GlassPane className="px-6 py-6">
+                      <p
+                        className="mb-5 text-[0.62rem] uppercase tracking-[0.34em]"
+                        style={{ color: activeMode.accent }}
+                      >
+                        Product / Studio Access
+                      </p>
+
+                      <div className="space-y-5">
+                        <div>
+                          <p className="text-[0.68rem] uppercase tracking-[0.26em] text-white/32">
+                            Product
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-white/64">
+                            Orbit Lens is a fictional AI spatial glasses concept
+                            exploring calm field-of-view intelligence, visible
+                            capture states and premium spatial interaction.
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-[0.68rem] uppercase tracking-[0.26em] text-white/32">
+                            Studio
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-white/64">
+                            Built by Brenych Studio as an interactive product
+                            launch prototype and spatial interface case.
+                          </p>
+                        </div>
+
+                        <div className="grid gap-2 pt-1">
+                          <a
+                            href="https://brenychstudio.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex items-center justify-between rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[0.62rem] uppercase tracking-[0.24em] text-white/48 transition hover:border-white/[0.2] hover:text-white/74"
+                          >
+                            Portfolio
+                            <span className="text-white/24 transition group-hover:text-white/54">
+                              ↗
+                            </span>
+                          </a>
+
+                          <a
+                            href="https://github.com/brenychstudio"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex items-center justify-between rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[0.62rem] uppercase tracking-[0.24em] text-white/48 transition hover:border-white/[0.2] hover:text-white/74"
+                          >
+                            GitHub
+                            <span className="text-white/24 transition group-hover:text-white/54">
+                              ↗
+                            </span>
+                          </a>
+
+                          <a
+                            href="mailto:hello@brenychstudio.com"
+                            className="group flex items-center justify-between rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[0.62rem] uppercase tracking-[0.24em] text-white/48 transition hover:border-white/[0.2] hover:text-white/74"
+                          >
+                            Contact
+                            <span className="text-white/24 transition group-hover:text-white/54">
+                              →
+                            </span>
+                          </a>
+                        </div>
+                      </div>
+                    </GlassPane>
+                  </motion.div>
+                </motion.div>
+              ) : null}
+
+              {!isAccessField ? (
+                <>
+                  <FloatingGlassChip className="left-[7%] top-[52%] hidden md:block" delay={0.2}>
+                    {copy.leftCard}
+                  </FloatingGlassChip>
+                  <FloatingGlassChip className="right-[7%] top-[37%] hidden md:block" delay={1.2}>
+                    {copy.rightCard}
+                  </FloatingGlassChip>
+                  <FloatingGlassChip className="right-[18%] bottom-[29%] hidden md:block" delay={2.1}>
+                    {copy.bottomCard}
+                  </FloatingGlassChip>
+                </>
+              ) : null}
 
               <motion.div
                 className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"

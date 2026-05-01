@@ -69,4 +69,14 @@ export const orbitModes: OrbitMode[] = [
     signal: "Visible capture / consent / control",
     accent: "rgba(255, 255, 255, 0.72)",
   },
+  {
+    id: "access",
+    eyebrow: "07 / Access",
+    title: "A quieter interface for spatial intelligence.",
+    tagline: "Product concept / private preview.",
+    description:
+      "Orbit Lens is a fictional AI spatial glasses launch prototype by Brenych Studio, built around calm context, visible trust and premium field-of-view interaction.",
+    signal: "About / contact / prototype access",
+    accent: "rgba(210, 232, 255, 0.72)",
+  },
 ];
