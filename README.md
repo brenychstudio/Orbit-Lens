@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Orbit Lens
 
-## Getting Started
+**AI Spatial Glasses Interface Concept**
 
-First, run the development server:
+Orbit Lens is a fictional product-launch interface for a pair of AI spatial glasses. The project explores how a website can behave less like a conventional landing page and more like a calm field-of-view operating system: translucent, gesture-led, cinematic and spatial.
+
+The experience is designed as a premium interactive prototype for product storytelling, spatial UI direction and future WebXR adaptation.
+
+---
+
+## Concept
+
+Orbit Lens imagines AI glasses that do not overwhelm the user with dashboards, notifications or visual noise. Instead, the interface introduces only the next useful signal into the field of view: a route, a caption, a memory cue, a privacy state or a creative framing prompt.
+
+The website follows the same logic. It opens as a spatial shell interface where content, product renders and system states float inside a dark optical environment.
+
+**Core idea:**
+
+> See less. Understand more.
+
+---
+
+## Experience Highlights
+
+- **Orbit Field Interface** - a central cinematic shell instead of a traditional website layout.
+- **Gesture-first navigation** - field switching through wheel, swipe/drag and keyboard input.
+- **Six product modes** - Vision, Translate, Recall, Create, Focus and Privacy.
+- **Inspect Optics Mode** - the interface mechanically expands into a product inspection field with floating render cards.
+- **Interactive product cards** - draggable desktop cards, selectable optical layers and compact detail previews.
+- **Optical Typewriter Caption** - product details are typed directly onto the image as a subtle telemetry layer.
+- **Responsive spatial adaptation** - mobile and tablet layouts preserve the shell/interface concept rather than falling back to a generic landing page.
+
+---
+
+## Product Modes
+
+| Mode | Purpose |
+| --- | --- |
+| Vision | Calm route and city context without dashboard overload. |
+| Translate | Live captions as transparent, face-forward context. |
+| Recall | User-initiated memory and controlled contextual recall. |
+| Create | Framing and capture support for visual notes. |
+| Focus | Reduced signal state for attention and quiet. |
+| Privacy | Visible trust, consent and capture-state language. |
+
+---
+
+## Design Direction
+
+Orbit Lens follows a restrained premium spatial aesthetic:
+
+- dark obsidian atmosphere;
+- graphite and smoked glass materiality;
+- translucent interface panes;
+- soft cyan/silver signal accents;
+- quiet motion rather than aggressive HUD animation;
+- cinematic product-launch pacing;
+- no cyberpunk clutter, no gamer UI, no tactical dashboard language.
+
+---
+
+## Technology
+
+Built with:
+
+- **Next.js 16**
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS 4**
+- **Motion**
+
+---
+
+## Local Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the local server shown in the terminal, usually:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Production build:
 
-## Learn More
+```bash
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+Lint:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Current Status
 
-## Deploy on Vercel
+The project is in web interactive prototype / production-prep stage.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Completed:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Orbit Field V2 interface direction;
+- product render integration;
+- Inspect Optics interaction layer;
+- mechanical inspection expansion;
+- mobile/tablet adaptation pass;
+- metadata and OG preparation;
+- production build and lint validation.
+
+Next:
+
+- first live deploy;
+- real-device QA;
+- image asset refinement;
+- mode-specific overlay polish;
+- optional WebXR spatial interface twin using the studio's WhisperXR direction.
+
+## Disclaimer
+
+Orbit Lens is a fictional concept project. It is not affiliated with any existing hardware product or company. The project is intended as an interactive product-storytelling and spatial interface case study.
+
+## Credits
+
+Concept, creative direction and front-end development by Concept2048 / Brenych Studio.
