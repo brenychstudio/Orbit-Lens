@@ -56,7 +56,7 @@ function InspectCard({
       dragElastic={0.08}
       dragConstraints={{ left: -280, right: 280, top: -180, bottom: 180 }}
       onClick={onSelect}
-      className={`orbit-glass-card absolute ${cardPositions[asset.id] ?? ""} group touch-none overflow-hidden rounded-[1.05rem] border p-1.5 text-left backdrop-blur-[22px] md:rounded-[1.25rem] md:p-2 lg:rounded-[1.35rem]`}
+      className={`absolute ${cardPositions[asset.id] ?? ""} group touch-none overflow-hidden rounded-[1.05rem] border border-white/[0.11] bg-white/[0.034] p-1.5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_18px_76px_rgba(0,0,0,0.32)] backdrop-blur-[20px] md:rounded-[1.25rem] md:border-white/[0.12] md:bg-white/[0.038] md:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_22px_90px_rgba(0,0,0,0.34)] lg:rounded-[1.35rem] md:p-2`}
       initial={{
         opacity: 0,
         y: 18,
@@ -183,7 +183,7 @@ function TouchInspectStack({
                   goTo(index);
                 }
               }}
-              className="absolute left-1/2 top-[48%] z-30 w-[min(78vw,21rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.45rem] border border-white/[0.13] bg-black/[0.58] p-2 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_26px_110px_rgba(0,0,0,0.48)] md:w-[min(76vw,46rem)] md:rounded-[1.9rem] md:p-3.5 lg:w-[min(62vw,34rem)] lg:rounded-[1.75rem] lg:p-3"
+              className="absolute left-1/2 top-1/2 overflow-hidden rounded-[1.35rem] border border-white/[0.12] bg-black/[0.34] p-2 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_24px_100px_rgba(0,0,0,0.42)] backdrop-blur-[16px]"
               style={{ transformOrigin: "center" }}
               initial={false}
               animate={{
@@ -334,7 +334,7 @@ function MobileInspectStack({
           key={activeAsset.id}
           type="button"
           onClick={() => onSelect(activeAsset.id)}
-          className="mobile-static-layer absolute left-1/2 top-[51%] z-30 w-[min(76vw,20.5rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.35rem] border border-white/[0.13] bg-black/75 p-2 text-left shadow-[0_22px_90px_rgba(0,0,0,0.55)] md:w-[min(76vw,46rem)] md:rounded-[1.9rem] md:p-3.5 lg:w-[min(62vw,34rem)] lg:rounded-[1.75rem] lg:p-3"
+          className="mobile-static-layer absolute left-1/2 top-[51%] z-30 w-[min(76vw,20.5rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.35rem] border border-white/[0.13] bg-black/75 p-2 text-left shadow-[0_22px_90px_rgba(0,0,0,0.55)]"
           initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
@@ -420,7 +420,7 @@ function FocusVeil({
       exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
       transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="orbit-edge-light" />`r`n      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-black/30" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_47%,transparent_0%,transparent_34%,rgba(0,0,0,0.22)_66%,rgba(0,0,0,0.58)_100%)]" />
 
       <motion.div
@@ -542,18 +542,16 @@ function ExpandedAsset({
 
   return (
     <motion.div
-      className={`orbit-detail-material absolute left-1/2 top-[50%] z-50 max-h-[78%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-1/2 md:max-h-[82%] md:rounded-[1.65rem] md:p-2 ${
-        isSquare ? "w-[min(84%,24rem)] md:w-[min(72%,42rem)] lg:w-[min(42%,30rem)]" : "w-[min(88%,29rem)] md:w-[min(82%,58rem)] lg:w-[min(52%,44rem)]"
+      className={`absolute left-1/2 top-[48%] z-50 max-h-[78%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border border-white/[0.13] bg-white/[0.047] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_34px_140px_rgba(0,0,0,0.5)] backdrop-blur-[24px] md:top-1/2 md:max-h-[82%] md:rounded-[1.65rem] md:p-2 ${
+        isSquare ? "w-[min(84%,24rem)] md:w-[min(42%,30rem)]" : "w-[min(88%,29rem)] md:w-[min(52%,44rem)]"
       }`}
       initial={{ opacity: 0, scale: 0.9, y: 14, filter: "blur(18px)" }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, scale: 0.92, y: 10, filter: "blur(18px)" }}
       transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="orbit-edge-light" />
-
       <div
-        className={`relative overflow-hidden rounded-[1.2rem] border border-white/[0.11] bg-black/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ${
+        className={`relative overflow-hidden rounded-[1.2rem] border border-white/[0.085] bg-black/34 ${
           isSquare ? "aspect-square" : "aspect-[4/3]"
         }`}
       >
@@ -597,7 +595,7 @@ function ExpandedAsset({
           type="button"
           onClick={onClose}
           aria-label="Close product inspection detail"
-          className="group relative inline-flex shrink-0 items-center gap-2 px-1 py-2 text-[0.46rem] uppercase tracking-[0.28em] text-white/50 transition hover:text-white/86 md:text-[0.5rem] md:tracking-[0.32em]"
+          className="group relative inline-flex shrink-0 items-center gap-2 px-1 py-2 text-[0.46rem] uppercase tracking-[0.26em] text-white/42 transition hover:text-white/72 md:text-[0.5rem] md:tracking-[0.3em]"
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
@@ -763,7 +761,7 @@ export function OpticsInspectLayer({
             type="button"
             onClick={handleClose}
             aria-label="Return to Orbit Field"
-            className="group absolute right-4 top-4 z-50 inline-flex items-center gap-2 px-1 py-2 text-[0.46rem] uppercase tracking-[0.28em] text-white/50 transition hover:text-white/86 md:right-8 md:top-8 md:text-[0.5rem] md:tracking-[0.32em]"
+            className="group absolute right-4 top-4 z-50 inline-flex items-center gap-2 px-1 py-2 text-[0.46rem] uppercase tracking-[0.26em] text-white/42 transition hover:text-white/72 md:right-8 md:top-8 md:text-[0.5rem] md:tracking-[0.3em]"
           >
             <span
               className="h-1.5 w-1.5 rounded-full"
@@ -849,5 +847,4 @@ export function OpticsInspectLayer({
     </AnimatePresence>
   );
 }
-
 
