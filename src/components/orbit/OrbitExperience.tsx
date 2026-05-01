@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
+import { ModeInteractiveOverlay } from "@/components/orbit/ModeInteractiveOverlay";
 import { OpticsInspectLayer } from "@/components/orbit/OpticsInspectLayer";
 import { ShellChrome } from "@/components/orbit/ShellChrome";
 import { orbitModes } from "@/data/orbitModes";
@@ -111,6 +112,37 @@ function GlassPane({
   );
 }
 
+function FloatingGlassChip({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={`pointer-events-none absolute rounded-full border border-white/[0.12] bg-white/[0.045] px-4 py-2 text-[0.56rem] uppercase tracking-[0.24em] text-white/48 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_24px_90px_rgba(0,0,0,0.28)] backdrop-blur-[18px] ${className}`}
+      initial={{ opacity: 0, y: 8, scale: 0.98, filter: "blur(10px)" }}
+      animate={{
+        opacity: [0.22, 0.58, 0.22],
+        y: [5, -5, 5],
+        scale: [0.98, 1, 0.98],
+        filter: ["blur(2px)", "blur(0px)", "blur(2px)"],
+      }}
+      transition={{
+        duration: 7.2,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function OpticalSweep({ accent }: { accent: string }) {
   return (
     <motion.div
@@ -123,90 +155,6 @@ function OpticalSweep({ accent }: { accent: string }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
     />
-  );
-}
-
-function OpticalObjectTheater({
-  accent,
-  isInspectOpen,
-  viewportTier,
-}: {
-  accent: string;
-  isInspectOpen: boolean;
-  viewportTier: ViewportTier;
-}) {
-  const isMobile = viewportTier === "mobile";
-  const isTablet = viewportTier === "tablet";
-  const intensity = isInspectOpen ? 0.34 : isTablet ? 0.72 : 1;
-
-  return (
-    <div
-      className="orbit-object-theater pointer-events-none absolute inset-0 z-[8] overflow-hidden"
-      aria-hidden="true"
-    >
-      <motion.div
-        className="orbit-theater-lightwell absolute left-[58%] top-[43%] hidden h-[30rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full md:block"
-        style={{
-          background: `radial-gradient(circle, ${accent} 0%, rgba(255,255,255,0.08) 22%, transparent 68%)`,
-          opacity: 0.28 * intensity,
-        }}
-        animate={{
-          scale: [0.96, 1.04, 0.96],
-          x: ["-50%", "-49%", "-50%"],
-          y: ["-50%", "-51%", "-50%"],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="orbit-theater-plane absolute left-[60%] top-[38%] hidden h-[12rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rotate-[-4deg] rounded-full md:block"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.08), transparent)`,
-          opacity: 0.18 * intensity,
-        }}
-        animate={{
-          rotate: [-4, -2.6, -4],
-          scaleX: [0.94, 1.04, 0.94],
-        }}
-        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="orbit-theater-shadowbed absolute left-[60%] top-[67%] hidden h-[4rem] w-[42rem] -translate-x-1/2 rounded-full md:block"
-        style={{
-          background: `radial-gradient(ellipse, rgba(0,0,0,0.72) 0%, ${accent} 20%, rgba(0,0,0,0.2) 48%, transparent 76%)`,
-          opacity: 0.24 * intensity,
-        }}
-        animate={{
-          scaleX: [0.92, 1.06, 0.92],
-          opacity: [0.16 * intensity, 0.3 * intensity, 0.16 * intensity],
-        }}
-        transition={{ duration: 10.5, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <motion.div
-        className="orbit-theater-trace absolute left-[20%] right-[10%] top-[51%] h-px md:left-[28%]"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.52), ${accent}, transparent)`,
-          opacity: isMobile ? 0.18 : 0.34 * intensity,
-        }}
-        animate={{
-          scaleX: [0.82, 1, 0.82],
-          opacity: isMobile
-            ? [0.1, 0.18, 0.1]
-            : [0.14 * intensity, 0.38 * intensity, 0.14 * intensity],
-        }}
-        transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <div
-        className="absolute inset-0 md:hidden"
-        style={{
-          background: `radial-gradient(circle at 58% 44%, ${accent} 0%, transparent 42%)`,
-          opacity: isInspectOpen ? 0.08 : 0.14,
-        }}
-      />
-    </div>
   );
 }
 
@@ -494,10 +442,10 @@ export function OrbitExperience() {
                 </AnimatePresence>
               ) : null}
 
-              <OpticalObjectTheater
+              <ModeInteractiveOverlay
+                modeId={activeMode.id}
                 accent={activeMode.accent}
-                isInspectOpen={isInspectOpen}
-                viewportTier={viewportTier}
+                isVisible={!isInspectOpen && viewportTier === "desktop"}
               />
 
               <AnimatePresence mode="wait" custom={transitionDirection}>
@@ -597,6 +545,35 @@ export function OrbitExperience() {
                   </motion.div>
                 </AnimatePresence>
               </div>
+
+              <FloatingGlassChip className="left-[7%] top-[52%] hidden md:block" delay={0.2}>
+                {copy.leftCard}
+              </FloatingGlassChip>
+              <FloatingGlassChip className="right-[7%] top-[37%] hidden md:block" delay={1.2}>
+                {copy.rightCard}
+              </FloatingGlassChip>
+              <FloatingGlassChip className="right-[18%] bottom-[29%] hidden md:block" delay={2.1}>
+                {copy.bottomCard}
+              </FloatingGlassChip>
+
+              <motion.div
+                className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"
+                style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}
+                animate={{
+                  opacity: [0.08, 0.24, 0.08],
+                  scale: [0.94, 1.06, 0.94],
+                }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div className="absolute inset-8 rounded-full border border-white/[0.07]" />
+                <span
+                  className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    background: activeMode.accent,
+                    boxShadow: `0 0 24px ${activeMode.accent}`,
+                  }}
+                />
+              </motion.div>
 
               <OrbitFieldRail
                 accent={activeMode.accent}
