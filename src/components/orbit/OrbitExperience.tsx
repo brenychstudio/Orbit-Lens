@@ -500,6 +500,48 @@ export function OrbitExperience() {
                 viewportTier={viewportTier}
               />
 
+              <AnimatePresence mode="wait" custom={transitionDirection}>
+                <motion.div
+                  key={`product-${activeMode.id}`}
+                  className="absolute left-[62%] top-[56%] z-10 h-[15rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:left-[58%] sm:top-[50%] sm:h-[24rem] sm:w-[46rem] md:top-[48%] md:h-[29rem] md:w-[56rem] lg:h-[38rem] lg:w-[74rem] [mask-image:radial-gradient(ellipse_at_center,black_46%,transparent_78%)]"
+                  initial={{
+                    opacity: 0,
+                    x: transitionDirection * 58,
+                    scale: 0.965,
+                    filter: "blur(18px)",
+                  }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                    scale: [0.992, 1, 0.992],
+                    filter: "blur(0px)",
+                    y: [8, -8, 8],
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: transitionDirection * -54,
+                    scale: 1.02,
+                    filter: "blur(16px)",
+                  }}
+                  transition={{
+                    opacity: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                    x: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
+                    filter: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
+                    scale: { duration: 8.5, repeat: Infinity, ease: "easeInOut" },
+                    y: { duration: 8.5, repeat: Infinity, ease: "easeInOut" },
+                  }}
+                >
+                  <Image
+                    src="/glasses/orbit-lens-hero-16x9.png"
+                    alt="Orbit Lens AI spatial glasses"
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-contain opacity-[0.94] mix-blend-lighten drop-shadow-[0_42px_150px_rgba(0,0,0,0.82)]"
+                  />
+                </motion.div>
+              </AnimatePresence>
+
               <motion.div
                 className="absolute left-1/2 top-[50%] z-[9] h-px w-[76%] -translate-x-1/2"
                 style={{
