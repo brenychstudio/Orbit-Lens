@@ -39,7 +39,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "City layer detected",
     rightCard: "Route signal / 12 m",
     bottomCard: "Context density: low",
-    visual: "/interface/vision-mode-city-16x9.png",
+    visual: "/interface/spatial-cards-overview-16x9.png",
   },
   translate: {
     field: "Field 02 / Translate",
@@ -50,7 +50,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Live caption stream",
     rightCard: "Language layer active",
     bottomCard: "Subtitle opacity: adaptive",
-    visual: "/interface/spatial-cards-overview-16x9.png",
+    visual: "/interface/vision-mode-city-16x9.png",
   },
   recall: {
     field: "Field 03 / Recall",
@@ -1105,6 +1105,320 @@ function TrustBoundarySystem({ accent }: { accent: string }) {
   );
 }
 
+const languageLayerFragments = [
+  {
+    label: "Detected",
+    className: "left-[53%] top-[31%]",
+    delay: 0.2,
+    opacity: [0.16, 0.34, 0.18],
+    y: [0, -5, 0],
+  },
+  {
+    label: "Source",
+    className: "right-[16%] top-[35%]",
+    delay: 0.48,
+    opacity: [0.12, 0.28, 0.16],
+    y: [0, 4, 0],
+  },
+  {
+    label: "Context",
+    className: "left-[58%] top-[61%]",
+    delay: 0.82,
+    opacity: [0.13, 0.3, 0.16],
+    y: [0, -4, 0],
+  },
+  {
+    label: "Adaptive",
+    className: "right-[12.5%] top-[63%]",
+    delay: 1.05,
+    opacity: [0.11, 0.26, 0.14],
+    y: [0, 5, 0],
+  },
+  {
+    label: "Voice",
+    className: "left-[66%] top-[75%]",
+    delay: 1.32,
+    opacity: [0.1, 0.22, 0.13],
+    y: [0, -3, 0],
+  },
+];
+
+function ResolvedLanguageLine({
+  text,
+  ghost,
+  progress,
+  className = "",
+}: {
+  text: string;
+  ghost: string;
+  progress: number;
+  className?: string;
+}) {
+  const safeProgress = Math.max(0, Math.min(1, progress));
+  const revealRight = `${Math.max(0, 100 - safeProgress * 100)}%`;
+
+  return (
+    <span className={`orbit-language-line ${className}`}>
+      <motion.span
+        className="orbit-language-ghost"
+        animate={{
+          opacity: safeProgress >= 0.96 ? 0 : 0.38 - safeProgress * 0.22,
+          filter: safeProgress >= 0.96 ? "blur(4px)" : "blur(1.6px)",
+          y: [0, -0.8, 0],
+        }}
+        transition={{
+          opacity: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+          filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: 4.6, repeat: Infinity, ease: "easeInOut" },
+        }}
+      >
+        {ghost}
+      </motion.span>
+
+      <motion.span
+        className="orbit-language-final"
+        initial={false}
+        animate={{
+          clipPath: `inset(0 ${revealRight} 0 0)`,
+          opacity: safeProgress <= 0.04 ? 0 : 1,
+          filter: safeProgress <= 0.12 ? "blur(3px)" : "blur(0px)",
+        }}
+        transition={{
+          clipPath: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
+          opacity: { duration: 0.36, ease: [0.22, 1, 0.36, 1] },
+          filter: { duration: 0.52, ease: [0.22, 1, 0.36, 1] },
+        }}
+      >
+        {text}
+      </motion.span>
+
+      <motion.span
+        className="orbit-language-mask-edge"
+        style={{
+          left: `${Math.min(96, Math.max(4, safeProgress * 100))}%`,
+        }}
+        animate={{
+          opacity: safeProgress > 0.04 && safeProgress < 0.98 ? [0.18, 0.62, 0.2] : 0,
+        }}
+        transition={{
+          duration: 1.4,
+          repeat: safeProgress > 0.04 && safeProgress < 0.98 ? Infinity : 0,
+          ease: "easeInOut",
+        }}
+      />
+    </span>
+  );
+}
+
+function TransparentLanguageLayer({ accent }: { accent: string }) {
+  const sourceText = "Buenas tardes, la entrada está a la izquierda.";
+  const translatedText = "Good evening, the entrance is on the left.";
+
+  const [resolveProgress, setResolveProgress] = useState(0);
+
+  useEffect(() => {
+    let interval: number | undefined;
+
+    const startDelay = window.setTimeout(() => {
+        interval = window.setInterval(() => {
+          setResolveProgress((current) => {
+            if (current >= 1) {
+              if (interval) window.clearInterval(interval);
+              return 1;
+            }
+
+          return Math.min(1, current + 0.018);
+          });
+        }, 72);
+    }, 520);
+
+    return () => {
+      window.clearTimeout(startDelay);
+      if (interval) window.clearInterval(interval);
+    };
+  }, []);
+
+  const sourceProgress = Math.min(1, resolveProgress * 1.28);
+  const translatedProgress = Math.max(0, Math.min(1, (resolveProgress - 0.2) / 0.8));
+
+  return (
+    <motion.div
+      className="pointer-events-none absolute inset-0 z-[22] hidden lg:block"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1] }}
+      aria-hidden="true"
+    >
+      {/* Floating language fragments */}
+      {languageLayerFragments.map((item) => (
+        <motion.p
+          key={item.label}
+          className={`orbit-language-fragment absolute ${item.className} text-[0.58rem] uppercase tracking-[0.34em] text-white/22`}
+          initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
+          animate={{
+            opacity: item.opacity,
+            y: item.y,
+            filter: ["blur(5px)", "blur(1.4px)", "blur(5px)"],
+          }}
+          transition={{
+            duration: 7.4,
+            delay: item.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          style={{ willChange: "opacity, transform, filter" }}
+        >
+          {item.label}
+        </motion.p>
+      ))}
+
+      {/* Transparent caption plane */}
+      <motion.div
+        className="absolute right-[8.8%] top-[24%] w-[33rem]"
+        initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(18px)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -12, scale: 0.99, filter: "blur(14px)" }}
+        transition={{ duration: 0.86, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.div
+          animate={{
+            y: [0, -5, 0],
+            x: [0, 1.8, 0],
+            rotateZ: [0, -0.08, 0],
+          }}
+          transition={{
+            duration: 10.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          style={{ willChange: "transform" }}
+        >
+          <GlassPane className="orbit-language-plane px-6 py-5">
+            <div className="mb-5 flex items-center justify-between gap-5">
+              <div className="flex items-center gap-2">
+                <motion.span
+                  className="h-2 w-2 rounded-full"
+                  style={{
+                    background: accent,
+                    boxShadow: `0 0 18px ${accent}`,
+                  }}
+                  animate={{
+                    opacity: [0.46, 1, 0.56],
+                    scale: [0.9, 1.16, 0.9],
+                  }}
+                  transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/42">
+                  Language Layer
+                </p>
+              </div>
+
+              <p className="text-[0.52rem] uppercase tracking-[0.26em] text-white/28">
+                Live / Adaptive
+              </p>
+            </div>
+
+            <div className="border-t border-white/[0.075] pt-5">
+              <p className="text-[0.52rem] uppercase tracking-[0.3em] text-white/25">
+                Source audio
+              </p>
+
+              <p className="mt-2 min-h-[1.8rem] text-sm leading-6 text-white/46">
+                <ResolvedLanguageLine
+                  text={sourceText}
+                  ghost="bue... tar... des..."
+                  progress={sourceProgress}
+                />
+              </p>
+            </div>
+
+            <div className="mt-5 border-t border-white/[0.075] pt-5">
+              <div className="mb-2 flex items-center justify-between gap-4">
+                <p
+                  className="text-[0.52rem] uppercase tracking-[0.3em]"
+                  style={{ color: "rgba(210, 232, 255, 0.54)" }}
+                >
+                  Translated layer
+                </p>
+
+                <motion.p
+                  className="text-[0.5rem] uppercase tracking-[0.24em] text-white/24"
+                  animate={{
+                    opacity: translatedProgress >= 1 ? [0.32, 0.58, 0.38] : [0.16, 0.32, 0.18],
+                  }}
+                  transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  Resolve {Math.round(translatedProgress * 100)}%
+                </motion.p>
+              </div>
+
+              <p className="min-h-[2.2rem] text-[1.02rem] leading-8 text-white/74">
+                <ResolvedLanguageLine
+                  text={translatedText}
+                  ghost="goo... eve... ing..."
+                  progress={translatedProgress}
+                />
+              </p>
+            </div>
+          </GlassPane>
+        </motion.div>
+      </motion.div>
+
+      {/* Soft language plane shadow / atmosphere */}
+      <motion.div
+        className="orbit-language-aura absolute right-[11%] top-[37%] h-[18rem] w-[31rem] rounded-full"
+        style={{
+          background: `radial-gradient(ellipse at 50% 50%, ${accent}18 0%, rgba(255,255,255,0.045) 28%, rgba(0,0,0,0.1) 58%, transparent 76%)`,
+          boxShadow: `0 0 86px ${accent}16`,
+        }}
+        initial={{ opacity: 0, scale: 0.94, filter: "blur(18px)" }}
+        animate={{
+          opacity: [0.16, 0.3, 0.18],
+          scale: [0.96, 1.035, 0.96],
+          filter: ["blur(18px)", "blur(10px)", "blur(18px)"],
+        }}
+        transition={{ duration: 9.8, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Adaptive opacity signal */}
+      <motion.div
+        className="orbit-language-signal absolute bottom-[24%] right-[10.5%] w-[25rem] px-4 py-3"
+        initial={{ opacity: 0, y: 12, filter: "blur(12px)" }}
+        animate={{ opacity: 0.82, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.82, delay: 1.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="mb-2 flex items-center justify-between gap-4">
+          <p className="text-[0.54rem] uppercase tracking-[0.28em] text-white/34">
+            Subtitle opacity
+          </p>
+          <p className="text-[0.52rem] uppercase tracking-[0.24em] text-white/24">
+            Adaptive
+          </p>
+        </div>
+
+        <div className="relative h-px overflow-hidden bg-white/[0.08]">
+          <motion.span
+            className="absolute inset-y-0 left-0 w-[36%]"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.42), transparent)`,
+            }}
+            animate={{
+              x: ["-42%", "240%"],
+              opacity: [0, 0.7, 0],
+            }}
+            transition={{
+              duration: 4.6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function RecallConsoleV2({ accent }: { accent: string }) {
   const message =
     "Memory opens only after a direct request. The field keeps context visible, controlled and temporary.";
@@ -1520,6 +1834,7 @@ export function OrbitExperience() {
   const copy = fieldCopy[activeMode.id] ?? fieldCopy.vision!;
   const isAccessField = activeMode.id === "access";
   const isRecallField = activeMode.id === "recall";
+  const isTranslateField = activeMode.id === "translate";
   const isCreateField = activeMode.id === "create";
   const isFocusField = activeMode.id === "focus";
   const isPrivacyField = activeMode.id === "privacy";
@@ -1707,6 +2022,7 @@ export function OrbitExperience() {
                 accent={activeMode.accent}
                 isVisible={
                   !isRecallField &&
+                  !isTranslateField &&
                   !isCreateField &&
                   !isFocusField &&
                   !isPrivacyField &&
@@ -1714,6 +2030,15 @@ export function OrbitExperience() {
                   viewportTier === "desktop"
                 }
               />
+
+              <AnimatePresence mode="wait">
+                {isTranslateField && !isInspectOpen && viewportTier === "desktop" ? (
+                  <TransparentLanguageLayer
+                    key="transparent-language-layer"
+                    accent={activeMode.accent}
+                  />
+                ) : null}
+              </AnimatePresence>
 
               <AnimatePresence mode="wait">
                 {isRecallField && !isInspectOpen ? (
@@ -1971,6 +2296,7 @@ export function OrbitExperience() {
 
               {!isAccessField &&
               !isRecallField &&
+              !isTranslateField &&
               !isCreateField &&
               !isFocusField &&
               !isPrivacyField ? (
@@ -1987,7 +2313,11 @@ export function OrbitExperience() {
                 </>
               ) : null}
 
-              {!isRecallField && !isCreateField && !isFocusField && !isPrivacyField ? (
+              {!isRecallField &&
+              !isTranslateField &&
+              !isCreateField &&
+              !isFocusField &&
+              !isPrivacyField ? (
                 <motion.div
                   className="absolute right-[12%] top-[48%] hidden h-40 w-40 -translate-y-1/2 rounded-full border border-white/[0.08] bg-white/[0.015] backdrop-blur-[8px] md:block"
                   style={{ boxShadow: `0 0 70px ${activeMode.accent}` }}

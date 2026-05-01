@@ -369,3 +369,122 @@ button {
     opacity: 0;
   }
 }
+/* Orbit Lens — Field 02 Transparent Language Layer */
+.orbit-language-plane {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, 0.105);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.058), rgba(255, 255, 255, 0.018)),
+    radial-gradient(circle at 15% 0%, rgba(210, 232, 255, 0.095), transparent 36%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 32px 110px rgba(0, 0, 0, 0.42);
+}
+
+.orbit-language-plane::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.075),
+    transparent
+  );
+  opacity: 0.36;
+  transform: translateX(-44%);
+  animation: orbit-language-plane-sweep 8.5s ease-in-out infinite;
+}
+
+.orbit-language-aura {
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.orbit-language-fragment {
+  text-rendering: geometricPrecision;
+  text-shadow: 0 0 18px rgba(210, 232, 255, 0.14);
+  mix-blend-mode: screen;
+}
+
+.orbit-language-line {
+  position: relative;
+  display: block;
+  min-height: 1.65em;
+  white-space: normal;
+  word-spacing: 0.04em;
+  letter-spacing: 0;
+  font-variant-ligatures: normal;
+}
+
+.orbit-language-ghost,
+.orbit-language-final {
+  display: block;
+  width: 100%;
+  white-space: normal;
+}
+
+.orbit-language-ghost {
+  color: rgba(210, 232, 255, 0.34);
+  text-shadow: 0 0 12px rgba(210, 232, 255, 0.12);
+}
+
+.orbit-language-final {
+  position: absolute;
+  inset: 0;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 0 10px rgba(210, 232, 255, 0.13);
+  will-change: clip-path, opacity, filter;
+}
+
+.orbit-language-mask-edge {
+  position: absolute;
+  top: 0.16em;
+  bottom: 0.16em;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(210, 232, 255, 0.68),
+    transparent
+  );
+  box-shadow: 0 0 14px rgba(210, 232, 255, 0.34);
+  pointer-events: none;
+}
+
+.orbit-language-signal {
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.075);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.032), rgba(255, 255, 255, 0.012)),
+    radial-gradient(circle at 10% 0%, rgba(210, 232, 255, 0.08), transparent 42%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 22px 82px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px);
+}
+
+@keyframes orbit-language-plane-sweep {
+  0% {
+    transform: translateX(-46%);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.28;
+  }
+
+  60% {
+    transform: translateX(48%);
+    opacity: 0.16;
+  }
+
+  100% {
+    transform: translateX(76%);
+    opacity: 0;
+  }
+}
