@@ -223,7 +223,7 @@ function getReferenceOrbitSlot(
       x: -42,
       y: -30,
       scale: isHovering ? 1.04 : 1,
-      opacity: 0.94,
+      opacity: 0.98,
       blur: "blur(0px)",
       rotateY: isHovering ? -4 : -2,
       rotateZ: -0.8,
@@ -236,7 +236,7 @@ function getReferenceOrbitSlot(
       x: 205 + hoverBoost * 10,
       y: -82,
       scale: 0.7,
-      opacity: 0.44,
+      opacity: 0.56,
       blur: "blur(1.4px)",
       rotateY: -14,
       rotateZ: 2.4,
@@ -249,7 +249,7 @@ function getReferenceOrbitSlot(
       x: -230 - hoverBoost * 8,
       y: 84,
       scale: 0.76,
-      opacity: 0.52,
+      opacity: 0.62,
       blur: "blur(0.8px)",
       rotateY: 12,
       rotateZ: -2.2,
@@ -262,7 +262,7 @@ function getReferenceOrbitSlot(
       x: 255 + hoverBoost * 14,
       y: 124,
       scale: 0.52,
-      opacity: 0.25,
+      opacity: 0.34,
       blur: "blur(2.4px)",
       rotateY: -20,
       rotateZ: 4,
@@ -275,7 +275,7 @@ function getReferenceOrbitSlot(
       x: -120 - hoverBoost * 12,
       y: -140,
       scale: 0.54,
-      opacity: 0.28,
+      opacity: 0.38,
       blur: "blur(2.1px)",
       rotateY: 18,
       rotateZ: -3.4,
@@ -287,7 +287,7 @@ function getReferenceOrbitSlot(
     x: 42,
     y: 178,
     scale: 0.42,
-    opacity: 0.14,
+    opacity: 0.22,
     blur: "blur(3.2px)",
     rotateY: 0,
     rotateZ: 1.5,
@@ -309,7 +309,7 @@ function ReferenceOrbitDeck({ accent }: { accent: string }) {
 
   return (
     <motion.div
-      className="pointer-events-auto absolute right-[4.8%] top-[14%] z-[22] hidden h-[34.5rem] w-[43rem] lg:block xl:right-[5.8%] xl:top-[13%]"
+      className="pointer-events-auto absolute right-[4.8%] top-[8.5%] z-[22] hidden h-[34.5rem] w-[43rem] lg:block xl:right-[5.6%] xl:top-[8%]"
       initial={{ opacity: 0, y: 20, filter: "blur(18px)" }}
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, y: -14, filter: "blur(14px)" }}
@@ -372,7 +372,7 @@ function ReferenceOrbitDeck({ accent }: { accent: string }) {
             key={item.title}
             type="button"
             aria-label={`Select reference ${item.title}`}
-            className="absolute left-[40%] top-[38%] h-[12.9rem] w-[18.2rem] overflow-hidden rounded-[1.55rem] border border-white/[0.1] bg-black/[0.18] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_28px_90px_rgba(0,0,0,0.42)] backdrop-blur-[18px]"
+            className="absolute left-[38%] top-[29%] h-[12.9rem] w-[18.2rem] overflow-hidden rounded-[1.55rem] border border-white/[0.12] bg-black/[0.10] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_26px_80px_rgba(0,0,0,0.34)] backdrop-blur-[16px]"
             style={{
               zIndex: slot.zIndex,
               transformOrigin: "50% 50%",
@@ -402,11 +402,11 @@ function ReferenceOrbitDeck({ accent }: { accent: string }) {
                 alt={item.title}
                 fill
                 sizes="360px"
-                className="object-cover opacity-[0.78]"
+                className="object-cover opacity-[0.94] brightness-[1.12] contrast-[1.08] saturate-[1.02]"
               />
             </span>
 
-            <span className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.58))]" />
+            <span className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.34))]" />
 
             <motion.span
               className="absolute left-4 top-4 z-[2] h-2 w-2 rounded-full"
