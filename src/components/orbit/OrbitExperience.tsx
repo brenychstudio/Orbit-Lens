@@ -1913,7 +1913,7 @@ export function OrbitExperience() {
       <section className="mobile-stability-mode relative z-10 flex min-h-screen items-start justify-center px-2.5 py-3 sm:px-4 md:items-center md:px-8 md:py-6">
         <div className="mx-auto w-full max-w-[1488px]">
           <motion.div
-            className="orbit-shell-material relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border p-3 backdrop-blur-[30px] sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
+            className="orbit-shell-material orbit-shell-frame relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border p-3 backdrop-blur-[30px] sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
             animate={{
               scale: isInspectOpen ? inspectScale : 1,
               y: isInspectOpen ? inspectYOffset : 0,
@@ -1947,14 +1947,14 @@ export function OrbitExperience() {
 
             <ShellChrome accent={activeMode.accent} />
 
-            <div className="orbit-glass-panel mb-3 flex items-center justify-between rounded-full border px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[18px] sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
+            <div className="orbit-status-strip orbit-status-strip-etched orbit-glass-panel mb-3 flex items-center justify-between rounded-full border px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[18px] sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
               <span>
                 {isInspectOpen ? "Optics Inspection Field" : "Orbit Field Interface"}
               </span>
               <span>{currentProgress}</span>
             </div>
 
-            <div className="orbit-inner-field-material relative min-h-[calc(100svh-9.25rem)] overflow-hidden rounded-[1.35rem] border backdrop-blur-[20px] sm:min-h-[38rem] md:min-h-[43rem] md:rounded-[2.3rem] lg:min-h-[680px] xl:rounded-[2.8rem]">
+            <div className="orbit-inner-field-material orbit-optical-viewport relative min-h-[calc(100svh-9.25rem)] overflow-hidden rounded-[1.35rem] border backdrop-blur-[20px] sm:min-h-[38rem] md:min-h-[43rem] md:rounded-[2.3rem] lg:min-h-[680px] xl:rounded-[2.8rem]">
               <motion.div
                 className="pointer-events-none absolute inset-0 z-[25] bg-black"
                 animate={{ opacity: isInspectOpen ? 0.44 : 0 }}

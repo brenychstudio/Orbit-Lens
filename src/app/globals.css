@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --orbit-bg: #030407;
@@ -82,34 +82,46 @@ button {
   }
 }
 
-/* Orbit Lens / Premium Glass Material System v2 */
+/* Orbit Lens / Premium Shell Material System v3B — de-emphasized graphite correction */
 
+:root {
+  --orbit-graphite-shell: rgba(5, 8, 11, 0.82);
+  --orbit-smoked-glass: rgba(8, 12, 16, 0.46);
+  --orbit-chrome-edge: rgba(230, 242, 250, 0.105);
+  --orbit-chrome-soft: rgba(165, 205, 225, 0.055);
+  --orbit-deep-shadow: rgba(0, 0, 0, 0.78);
+}
+
+/* Main hardware shell — quieter, darker, less header-heavy */
 .orbit-shell-material {
   position: relative;
+  isolation: isolate;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.082), rgba(255,255,255,0.018) 34%, rgba(255,255,255,0.04) 100%),
-    radial-gradient(circle at 18% 0%, rgba(255,255,255,0.14), transparent 32%),
-    radial-gradient(circle at 82% 88%, rgba(110,210,255,0.08), transparent 36%),
-    rgba(5, 8, 12, 0.54);
-  border-color: rgba(255,255,255,0.18);
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.055), transparent 27%),
+    radial-gradient(circle at 82% 100%, rgba(96, 170, 205, 0.045), transparent 36%),
+    linear-gradient(180deg, rgba(12, 17, 22, 0.68), rgba(3, 5, 8, 0.88));
+  border-color: rgba(230, 242, 250, 0.118);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    inset 0 -1px 0 rgba(255,255,255,0.055),
-    inset 0 0 0 1px rgba(255,255,255,0.035),
-    0 70px 260px rgba(0,0,0,0.86),
-    0 0 120px rgba(98,214,255,0.065);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    inset 0 22px 48px rgba(255, 255, 255, 0.012),
+    inset 0 -42px 82px rgba(0, 0, 0, 0.42),
+    0 42px 120px rgba(0, 0, 0, 0.58),
+    0 110px 280px rgba(0, 0, 0, 0.78);
 }
 
 .orbit-shell-material::before {
   content: "";
   position: absolute;
   inset: 1px;
+  z-index: 1;
   pointer-events: none;
   border-radius: inherit;
   background:
-    linear-gradient(115deg, rgba(255,255,255,0.16), transparent 18%, transparent 72%, rgba(255,255,255,0.07)),
-    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.105), transparent 42%);
-  opacity: 0.78;
+    linear-gradient(112deg, rgba(255, 255, 255, 0.07), transparent 18%, transparent 78%, rgba(255, 255, 255, 0.035)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 28%, rgba(0, 0, 0, 0.2) 100%);
+  opacity: 0.34;
   mix-blend-mode: screen;
 }
 
@@ -117,114 +129,196 @@ button {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
   border-radius: inherit;
   box-shadow:
-    inset 0 0 80px rgba(255,255,255,0.026),
-    inset 0 0 160px rgba(70,180,255,0.04);
-  opacity: 0.9;
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    inset 0 0 52px rgba(0, 0, 0, 0.2),
+    inset 0 -24px 60px rgba(0, 0, 0, 0.28);
+  opacity: 0.7;
 }
 
+/* Inner optical viewport — keep depth, reduce milky glass */
 .orbit-inner-field-material {
   position: relative;
+  isolation: isolate;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.08), transparent 38%),
-    linear-gradient(135deg, rgba(255,255,255,0.052), rgba(255,255,255,0.014) 42%, rgba(255,255,255,0.034)),
-    rgba(0,0,0,0.22);
-  border-color: rgba(255,255,255,0.13);
+    radial-gradient(circle at 48% 18%, rgba(255, 255, 255, 0.05), transparent 34%),
+    radial-gradient(circle at 64% 82%, rgba(108, 206, 255, 0.026), transparent 38%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.032), rgba(255, 255, 255, 0.006) 46%, rgba(255, 255, 255, 0.018)),
+    rgba(0, 0, 0, 0.3);
+  border-color: rgba(232, 244, 255, 0.102);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -1px 0 rgba(255,255,255,0.035),
-    0 34px 150px rgba(0,0,0,0.38);
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.026),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.016),
+    inset 0 -38px 86px rgba(0, 0, 0, 0.34),
+    0 34px 140px rgba(0, 0, 0, 0.38);
 }
 
+.orbit-inner-field-material::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035), transparent 16%, transparent 86%, rgba(255, 255, 255, 0.026)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.036), transparent 16%, transparent 84%, rgba(255, 255, 255, 0.016));
+  opacity: 0.34;
+  mix-blend-mode: screen;
+}
+
+.orbit-inner-field-material::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 90px rgba(0, 0, 0, 0.22),
+    inset 0 0 180px rgba(0, 0, 0, 0.14);
+}
+
+/* Shared premium glass panels — darker, clearer, less frosted */
 .orbit-glass-panel {
   position: relative;
+  isolation: isolate;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.105), rgba(255,255,255,0.032) 40%, rgba(255,255,255,0.06)),
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.14), transparent 34%),
-    rgba(5, 9, 14, 0.46);
-  border-color: rgba(255,255,255,0.165);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.058), rgba(255, 255, 255, 0.014) 46%, rgba(255, 255, 255, 0.028)),
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.064), transparent 34%),
+    rgba(4, 8, 12, 0.52);
+  border-color: rgba(232, 244, 255, 0.105);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(255,255,255,0.045),
-    0 28px 120px rgba(0,0,0,0.42),
-    0 0 52px rgba(95,215,255,0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.105),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.028),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.016),
+    0 26px 96px rgba(0, 0, 0, 0.4);
 }
 
 .orbit-glass-panel::before {
   content: "";
   position: absolute;
   inset: 1px;
+  z-index: 1;
   pointer-events: none;
   border-radius: inherit;
   background:
-    linear-gradient(120deg, rgba(255,255,255,0.16), transparent 22%, transparent 74%, rgba(255,255,255,0.06));
-  opacity: 0.58;
+    linear-gradient(120deg, rgba(255, 255, 255, 0.07), transparent 23%, transparent 78%, rgba(255, 255, 255, 0.028)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 44%);
+  opacity: 0.36;
   mix-blend-mode: screen;
 }
 
+/* Smaller image/card glass */
 .orbit-glass-card {
   position: relative;
+  isolation: isolate;
   background:
-    linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.026) 42%, rgba(255,255,255,0.048)),
-    radial-gradient(circle at 24% 0%, rgba(255,255,255,0.11), transparent 36%),
-    rgba(4, 7, 10, 0.5);
-  border-color: rgba(255,255,255,0.145);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.014) 45%, rgba(255, 255, 255, 0.026)),
+    radial-gradient(circle at 24% 0%, rgba(255, 255, 255, 0.058), transparent 35%),
+    rgba(4, 7, 10, 0.54);
+  border-color: rgba(232, 244, 255, 0.098);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    inset 0 -1px 0 rgba(255,255,255,0.04),
-    0 26px 110px rgba(0,0,0,0.44),
-    0 0 38px rgba(110,220,255,0.045);
+    inset 0 1px 0 rgba(255, 255, 255, 0.095),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.024),
+    0 24px 92px rgba(0, 0, 0, 0.42);
 }
 
 .orbit-glass-card::before {
   content: "";
   position: absolute;
   inset: 1px;
+  z-index: 1;
   pointer-events: none;
   border-radius: inherit;
   background:
-    linear-gradient(120deg, rgba(255,255,255,0.13), transparent 24%, transparent 72%, rgba(255,255,255,0.045));
-  opacity: 0.48;
+    linear-gradient(120deg, rgba(255, 255, 255, 0.06), transparent 25%, transparent 76%, rgba(255, 255, 255, 0.022));
+  opacity: 0.32;
   mix-blend-mode: screen;
 }
 
+/* Inspect/detail material */
 .orbit-detail-material {
   position: relative;
+  isolation: isolate;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.105), rgba(255,255,255,0.028) 44%, rgba(255,255,255,0.062)),
-    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.13), transparent 42%),
-    rgba(3, 6, 10, 0.66);
-  border-color: rgba(255,255,255,0.17);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.016) 46%, rgba(255, 255, 255, 0.032)),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.07), transparent 40%),
+    rgba(3, 6, 10, 0.7);
+  border-color: rgba(232, 244, 255, 0.118);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 -1px 0 rgba(255,255,255,0.045),
-    0 44px 180px rgba(0,0,0,0.66),
-    0 0 76px rgba(110,220,255,0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.11),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.028),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    0 42px 170px rgba(0, 0, 0, 0.64);
 }
 
 .orbit-detail-material::before {
   content: "";
   position: absolute;
   inset: 1px;
+  z-index: 1;
   pointer-events: none;
   border-radius: inherit;
   background:
-    linear-gradient(115deg, rgba(255,255,255,0.16), transparent 18%, transparent 76%, rgba(255,255,255,0.055));
-  opacity: 0.62;
+    linear-gradient(115deg, rgba(255, 255, 255, 0.076), transparent 19%, transparent 78%, rgba(255, 255, 255, 0.03));
+  opacity: 0.38;
   mix-blend-mode: screen;
 }
 
+/* Integrated top hardware strip — deliberately quiet */
+.orbit-status-strip {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.034), rgba(255, 255, 255, 0.014)),
+    rgba(4, 7, 10, 0.18);
+  border-color: rgba(236, 246, 255, 0.072) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+    0 10px 32px rgba(0, 0, 0, 0.14);
+}
+
+.orbit-status-strip::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1.4rem auto 1.4rem;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.13), rgba(175, 225, 255, 0.075), transparent);
+  opacity: 0.46;
+}
+
+.orbit-status-strip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(96deg, transparent 0%, rgba(255, 255, 255, 0.022) 44%, transparent 66%);
+  opacity: 0.22;
+}
+
+/* Small machined edge light used inside shell */
 .orbit-edge-light {
   position: absolute;
   pointer-events: none;
-  left: 8%;
-  right: 8%;
+  left: 10%;
+  right: 10%;
   top: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), rgba(150,230,255,0.28), transparent);
-  opacity: 0.78;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.16),
+    rgba(150, 230, 255, 0.08),
+    transparent
+  );
+  opacity: 0.38;
 }
 
 @media (max-width: 767px) {
@@ -235,19 +329,227 @@ button {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.12),
-      0 24px 90px rgba(0,0,0,0.48);
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 24px 90px rgba(0, 0, 0, 0.48);
   }
 
   .orbit-shell-material::before,
   .orbit-shell-material::after,
+  .orbit-inner-field-material::before,
+  .orbit-inner-field-material::after,
   .orbit-glass-panel::before,
   .orbit-glass-card::before,
   .orbit-detail-material::before {
-    opacity: 0.28;
+    opacity: 0.2;
+  }
+
+  .orbit-status-strip {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 32px rgba(0, 0, 0, 0.18);
   }
 }
-/* Orbit Lens — Field 05 Focus Quieting System */
+
+/* Orbit Lens / Optical Edge Refinement v3C — micro-luxury pass */
+
+/*
+  This layer should stay quiet.
+  It adds precision edges and embedded material hierarchy,
+  not brighter glass or more glow.
+*/
+
+.orbit-shell-frame {
+  position: relative;
+}
+
+.orbit-shell-frame > * {
+  position: relative;
+}
+
+.orbit-shell-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 244, 255, 0.052),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+  opacity: 0.82;
+}
+
+.orbit-shell-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0.62rem;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: calc(inherit - 0.62rem);
+  border: 1px solid rgba(255, 255, 255, 0.018);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.038),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.18);
+  opacity: 0.72;
+}
+
+/* Inner viewport: thin optical cut line + restrained depth */
+.orbit-optical-viewport {
+  position: relative;
+}
+
+.orbit-optical-viewport::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1px solid rgba(232, 244, 255, 0.055);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.36),
+    inset 0 0 38px rgba(255, 255, 255, 0.012);
+  opacity: 0.72;
+}
+
+.orbit-optical-viewport::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.022),
+      transparent 18%,
+      transparent 78%,
+      rgba(0, 0, 0, 0.18)
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.018),
+      transparent 13%,
+      transparent 86%,
+      rgba(0, 0, 0, 0.12)
+    );
+  opacity: 0.58;
+}
+
+/* Top strip: etched into the shell, not a bright header */
+.orbit-status-strip-etched {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0.01)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012), rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0.01)),
+    rgba(3, 6, 9, 0.16) !important;
+  border-color: rgba(232, 244, 255, 0.064) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.072),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.012),
+    0 8px 28px rgba(0, 0, 0, 0.16) !important;
+}
+
+.orbit-status-strip-etched::before {
+  opacity: 0.38;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    rgba(185, 220, 238, 0.075),
+    transparent
+  );
+}
+
+.orbit-status-strip-etched::after {
+  opacity: 0.18;
+  background: linear-gradient(
+    96deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.026) 44%,
+    transparent 67%
+  );
+}
+
+/* Shared panels: add premium internal reflection without making them milky */
+.orbit-glass-panel,
+.orbit-glass-card,
+.orbit-detail-material {
+  --orbit-panel-edge: rgba(232, 244, 255, 0.058);
+  --orbit-panel-cut: rgba(0, 0, 0, 0.32);
+}
+
+.orbit-glass-panel {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.108),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.26),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.014),
+    0 26px 96px rgba(0, 0, 0, 0.42);
+}
+
+.orbit-glass-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.096),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.012),
+    0 24px 88px rgba(0, 0, 0, 0.42);
+}
+
+.orbit-detail-material {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.112),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.014),
+    0 42px 168px rgba(0, 0, 0, 0.64);
+}
+
+/* Make the existing sheen less "CSS glass" and more optical edge */
+.orbit-glass-panel::before,
+.orbit-glass-card::before,
+.orbit-detail-material::before {
+  opacity: 0.28;
+  background:
+    linear-gradient(
+      118deg,
+      rgba(255, 255, 255, 0.048),
+      transparent 22%,
+      transparent 78%,
+      rgba(255, 255, 255, 0.02)
+    );
+}
+
+/* Tiny embedded optical glints: restrained, not neon */
+.orbit-shell-frame .orbit-edge-light {
+  opacity: 0.28;
+  left: 12%;
+  right: 12%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.11),
+    rgba(170, 220, 238, 0.065),
+    transparent
+  );
+}
+
+@media (max-width: 767px) {
+  .orbit-shell-frame::before,
+  .orbit-shell-frame::after,
+  .orbit-optical-viewport::before,
+  .orbit-optical-viewport::after {
+    opacity: 0.22;
+  }
+
+  .orbit-status-strip-etched {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.008)),
+      rgba(3, 6, 9, 0.12) !important;
+  }
+}
 .orbit-focus-noise-text {
   text-rendering: geometricPrecision;
   text-shadow: 0 0 18px rgba(255, 255, 255, 0.12);
@@ -308,7 +610,7 @@ button {
     opacity: 0;
   }
 }
-/* Orbit Lens — Field 06 Trust Boundary System */
+/* Orbit Lens вЂ” Field 06 Trust Boundary System */
 .orbit-trust-private-zone {
   pointer-events: none;
   mix-blend-mode: screen;
@@ -369,7 +671,7 @@ button {
     opacity: 0;
   }
 }
-/* Orbit Lens — Field 02 Transparent Language Layer */
+/* Orbit Lens вЂ” Field 02 Transparent Language Layer */
 .orbit-language-plane {
   position: relative;
   overflow: hidden;
@@ -488,3 +790,4 @@ button {
     opacity: 0;
   }
 }
+
