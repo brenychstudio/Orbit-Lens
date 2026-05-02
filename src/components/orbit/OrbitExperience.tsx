@@ -1740,59 +1740,188 @@ function OrbitFieldRail({
   onSelect: (index: number) => void;
   onInspect: () => void;
 }) {
+  const totalModes = orbitModes.length;
+  const activeLabel = String(activeIndex + 1).padStart(2, "0");
+  const totalLabel = String(totalModes).padStart(2, "0");
+  const activePosition =
+    totalModes > 1 ? 8 + activeIndex * (84 / (totalModes - 1)) : 50;
+
   return (
-    <div className="absolute inset-x-4 bottom-4 z-30 overflow-hidden rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_24px_100px_rgba(0,0,0,0.38)] backdrop-blur-[24px] sm:inset-x-6 md:px-5">
-      <div className="grid items-center gap-3 md:grid-cols-[0.85fr_1.35fr_auto]">
+    <div className="absolute inset-x-4 bottom-4 z-30 overflow-hidden rounded-full border border-white/[0.075] bg-[#05080a]/[0.72] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.055),inset_0_-1px_0_rgba(255,255,255,0.025),0_26px_110px_rgba(0,0,0,0.46)] sm:inset-x-6 md:px-5">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-80"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008) 38%, rgba(0,0,0,0.2))",
+        }}
+      />
+      <div className="pointer-events-none absolute inset-[1px] rounded-full border border-white/[0.035]" />
+      <div className="pointer-events-none absolute inset-x-10 top-px h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-14 bottom-px h-px bg-gradient-to-r from-transparent via-white/[0.055] to-transparent" />
+
+      <div className="relative grid items-center gap-3 md:grid-cols-[0.9fr_1.45fr_auto]">
         <div className="flex items-center gap-3">
-          <motion.span
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ background: accent, boxShadow: `0 0 26px ${accent}` }}
-            animate={{ opacity: [0.34, 1, 0.34], scale: [0.9, 1.18, 0.9] }}
-            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <div>
-            <p className="text-[0.52rem] uppercase tracking-[0.28em] text-white/28">
-              Active Field
-            </p>
-            <p className="mt-1 text-[0.68rem] uppercase tracking-[0.22em] text-white/66">
+          <span className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.025]">
+            <motion.span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                background: accent,
+                boxShadow: `0 0 14px ${accent}`,
+              }}
+              animate={{
+                opacity: [0.36, 0.86, 0.36],
+                scale: [0.92, 1.08, 0.92],
+              }}
+              transition={{
+                duration: 4.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.span
+              className="absolute inset-0 rounded-full"
+              style={{
+                border: `1px solid ${accent}`,
+              }}
+              animate={{
+                opacity: [0.04, 0.16, 0.04],
+                scale: [0.82, 1.18, 0.82],
+              }}
+              transition={{
+                duration: 5.6,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </span>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-[0.5rem] uppercase tracking-[0.3em] text-white/26">
+                Active Field
+              </p>
+              <span className="hidden h-px w-5 bg-white/[0.08] sm:block" />
+              <p className="hidden text-[0.5rem] uppercase tracking-[0.24em] text-white/22 sm:block">
+                {activeLabel} / {totalLabel}
+              </p>
+            </div>
+
+            <p className="mt-1 truncate text-[0.66rem] uppercase tracking-[0.22em] text-white/62">
               {copy.signal}
             </p>
           </div>
         </div>
 
-        <div className="relative hidden h-9 overflow-hidden rounded-full border border-white/[0.09] bg-black/20 md:block">
-          <div className="absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-white/10" />
+        <div className="relative hidden h-10 overflow-hidden rounded-full border border-white/[0.065] bg-black/[0.28] md:block">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.035), transparent 42%, rgba(0,0,0,0.18))",
+            }}
+          />
+          <div className="pointer-events-none absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-white/[0.075]" />
+          <div className="pointer-events-none absolute inset-x-5 top-[calc(50%+6px)] h-px bg-white/[0.025]" />
 
           <motion.div
-            className="absolute top-1/2 h-[0.3rem] w-32 -translate-y-1/2 rounded-full blur-[1px]"
+            className="pointer-events-none absolute top-1/2 h-px -translate-y-1/2"
             style={{
-              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.9), ${accent}, transparent)`,
-              boxShadow: `0 0 28px ${accent}`,
+              left: "8%",
+              width: `${Math.max(activePosition - 8, 1)}%`,
+              background: `linear-gradient(90deg, rgba(255,255,255,0.02), ${accent}, rgba(255,255,255,0.22))`,
+              transformOrigin: "left center",
             }}
-            animate={{ left: ["3%", "76%", "3%"] }}
-            transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
+            animate={{
+              opacity: [0.18, 0.38, 0.18],
+            }}
+            transition={{
+              duration: 4.8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           />
 
-          {orbitModes.map((mode, index) => (
-            <button
-              key={mode.id}
-              type="button"
-              onClick={() => onSelect(index)}
-              className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border border-white/20 transition"
+          <motion.div
+            className="pointer-events-none absolute top-1/2 h-[2px] w-20 -translate-y-1/2 rounded-full"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.48), transparent)`,
+              boxShadow: `0 0 16px ${accent}`,
+            }}
+            animate={{
+              left: ["6%", "78%", "6%"],
+              opacity: [0.08, 0.24, 0.08],
+            }}
+            transition={{
+              duration: 8.8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+
+          {orbitModes.map((mode, index) => {
+            const isActive = index === activeIndex;
+            const left =
+              totalModes > 1 ? 8 + index * (84 / (totalModes - 1)) : 50;
+
+            return (
+              <button
+                key={mode.id}
+                type="button"
+                onClick={() => onSelect(index)}
+                aria-label={`Open ${mode.id} mode`}
+                aria-current={isActive ? "true" : undefined}
+                className="group absolute top-1/2 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition"
               style={{
-                left: `${12 + index * 15}%`,
-                background:
-                  index === activeIndex ? accent : "rgba(255,255,255,0.18)",
-                boxShadow:
-                  index === activeIndex ? `0 0 22px ${accent}` : "none",
+                left: `${left}%`,
               }}
-              aria-label={`Open ${mode.id} mode`}
-            />
-          ))}
+              >
+                <span
+                  className="absolute h-[13px] w-[13px] rounded-full border transition duration-500"
+                  style={{
+                    borderColor: isActive
+                      ? "rgba(255,255,255,0.32)"
+                      : "rgba(255,255,255,0.1)",
+                    background: isActive
+                      ? "rgba(255,255,255,0.055)"
+                      : "rgba(255,255,255,0.018)",
+                    boxShadow: isActive ? `0 0 18px ${accent}` : "none",
+                  }}
+                />
+
+                <motion.span
+                  className="relative h-1.5 w-1.5 rounded-full"
+                  style={{
+                    background: isActive ? accent : "rgba(255,255,255,0.22)",
+                  }}
+                  animate={
+                    isActive
+                      ? {
+                          opacity: [0.55, 1, 0.55],
+                          scale: [0.92, 1.14, 0.92],
+                        }
+                      : { opacity: 0.44, scale: 1 }
+                  }
+                  transition={
+                    isActive
+                      ? {
+                          duration: 4.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }
+                      : { duration: 0.3 }
+                  }
+                />
+
+                <span className="pointer-events-none absolute -bottom-5 whitespace-nowrap text-[0.45rem] uppercase tracking-[0.2em] text-white/0 transition duration-300 group-hover:text-white/34">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex items-center justify-between gap-3 md:justify-end">
-          <p className="hidden max-w-[16rem] text-xs leading-5 text-white/42 lg:block">
+          <p className="hidden max-w-[15rem] text-[0.68rem] leading-5 text-white/38 lg:block">
             {copy.bottomCard}
           </p>
 
@@ -1800,20 +1929,37 @@ function OrbitFieldRail({
             type="button"
             onClick={onInspect}
             aria-label="Inspect Orbit Lens optics"
-            className="group relative inline-flex shrink-0 items-center gap-2 px-1 py-2 text-[0.52rem] uppercase tracking-[0.29em] text-white/46 transition hover:text-white/76"
+            className="group relative inline-flex shrink-0 items-center gap-3 overflow-hidden rounded-full border border-white/[0.075] bg-white/[0.025] px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.29em] text-white/48 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/76 md:px-5"
           >
             <span
-              className="h-1.5 w-1.5 rounded-full"
+              className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
               style={{
-                background: accent,
-                boxShadow: `0 0 14px ${accent}`,
+                background: `linear-gradient(90deg, transparent, ${accent}18, rgba(255,255,255,0.035), transparent)`,
               }}
             />
+            <span className="relative flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white/[0.08]">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{
+                  background: accent,
+                  boxShadow: `0 0 12px ${accent}`,
+                }}
+              />
+            </span>
             <span className="relative z-10">Inspect Optics</span>
-            <span
-              className="absolute -bottom-px left-0 h-px w-full origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+            <motion.span
+              className="absolute bottom-0 left-5 h-px w-[calc(100%-2.5rem)] origin-left"
               style={{
-                background: `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.38), transparent)`,
+                background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.2), transparent)`,
+              }}
+              animate={{
+                opacity: [0.08, 0.24, 0.08],
+                scaleX: [0.84, 1, 0.84],
+              }}
+              transition={{
+                duration: 5.4,
+                repeat: Infinity,
+                ease: "easeInOut",
               }}
             />
           </button>
