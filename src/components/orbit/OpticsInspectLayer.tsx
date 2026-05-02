@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -21,15 +21,15 @@ function getViewportTier(width: number): ViewportTier {
 
 const cardPositions: Record<string, string> = {
   floating:
-    "left-[7%] top-[48%] z-[18] w-[40%] md:left-[8%] md:top-auto md:bottom-[22%] md:w-[15rem] lg:left-[6%] lg:bottom-[22%] lg:w-[15.5rem] xl:w-[16.5rem]",
+    "left-[4%] top-[18%] z-[20] w-[17.5rem] xl:left-[5%] xl:top-[17%] xl:w-[18.5rem]",
   front:
-    "right-[7%] top-[50%] z-[17] w-[40%] md:left-[42%] md:right-auto md:top-auto md:bottom-[20%] md:w-[15.5rem] lg:right-[23%] lg:left-auto lg:bottom-[23%] lg:w-[16rem] xl:w-[17rem]",
+    "left-[45%] top-[17%] z-[18] w-[17rem] xl:left-[46%] xl:top-[16%] xl:w-[18rem]",
   side:
-    "left-[19%] top-[24%] z-[24] w-[62%] md:left-auto md:right-[8%] md:top-[22%] md:w-[20rem] lg:left-[39%] lg:right-auto lg:top-[13%] lg:w-[20.5rem] xl:w-[22.5rem]",
+    "right-[1%] top-[28%] z-[24] w-[22rem] xl:right-[2%] xl:top-[27%] xl:w-[23rem]",
   material:
-    "right-[6%] top-[36%] z-[15] w-[36%] opacity-75 md:right-[8%] md:top-[47%] md:w-[17rem] md:opacity-100 lg:right-[6%] lg:top-[15%] lg:w-[18rem] xl:w-[19.5rem]",
+    "left-[20%] bottom-[1%] z-[26] w-[23rem] xl:left-[21%] xl:bottom-[0%] xl:w-[24rem]",
   privacy:
-    "left-[24%] bottom-[12%] z-[22] w-[52%] md:left-auto md:right-[24%] md:bottom-[9%] md:w-[18rem] lg:left-[38%] lg:right-auto lg:bottom-[10%] lg:w-[19rem] xl:w-[20.5rem]",
+    "left-[55%] bottom-[4%] z-[22] w-[18rem] xl:left-[56%] xl:bottom-[4%] xl:w-[19rem]",
 };
 
 function InspectCard({
@@ -53,38 +53,46 @@ function InspectCard({
     <motion.button
       type="button"
       drag={dragEnabled}
-      dragElastic={0.08}
-      dragConstraints={{ left: -280, right: 280, top: -180, bottom: 180 }}
+      dragElastic={0.2}
+      dragMomentum={false}
+      dragConstraints={{ left: -520, right: 520, top: -260, bottom: 260 }}
       onClick={onSelect}
-      className={`orbit-glass-card absolute ${cardPositions[asset.id] ?? ""} group touch-none overflow-hidden rounded-[1.05rem] border p-1.5 text-left backdrop-blur-[22px] md:rounded-[1.25rem] md:p-2 lg:rounded-[1.35rem]`}
+      className={`orbit-glass-card orbit-inspect-card absolute ${cardPositions[asset.id] ?? ""} group touch-none overflow-hidden rounded-[1.05rem] border p-1.5 text-left backdrop-blur-[18px] md:rounded-[1.25rem] md:p-2 lg:rounded-[1.35rem]`}
       initial={{
         opacity: 0,
-        y: 18,
-        scale: 0.94,
-        filter: "blur(18px)",
+        y: 10,
+        scale: 0.975,
+        filter: "blur(8px)",
       }}
       animate={{
-        opacity: hasSelection ? (isSelected ? 0.08 : 0.34) : 0.92,
-        y: hasSelection ? 0 : [0, -8, 0],
-        scale: hasSelection ? (isSelected ? 0.95 : 0.97) : 1,
-        filter: hasSelection ? "blur(3.5px)" : "blur(0px)",
+        opacity: hasSelection ? (isSelected ? 0.08 : 0.28) : 0.94,
+        y: hasSelection ? 0 : [0, -4, 0],
+        scale: hasSelection ? (isSelected ? 0.965 : 0.982) : 1,
+        filter: hasSelection ? "blur(2px)" : "blur(0px)",
       }}
       exit={{
         opacity: 0,
-        y: 12,
-        scale: 0.94,
-        filter: "blur(18px)",
+        y: 6,
+        scale: 0.98,
+        filter: "blur(8px)",
+      }}
+      whileDrag={{
+        scale: 1.035,
+        zIndex: 120,
+        transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] },
       }}
       transition={{
-        opacity: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-        filter: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-        scale: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-        y: { duration: 7.4, repeat: Infinity, ease: "easeInOut" },
+        opacity: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
+        filter: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
+        scale: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
+        y: { duration: 8.2, repeat: Infinity, ease: "easeInOut" },
       }}
       style={{
+        backfaceVisibility: "hidden",
+        transform: "translateZ(0)",
         boxShadow: hasSelection
-          ? `inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 70px rgba(0,0,0,0.3), 0 0 24px ${accent}12`
-          : `inset 0 1px 0 rgba(255,255,255,0.1), 0 26px 110px rgba(0,0,0,0.36), 0 0 44px ${accent}22`,
+          ? `inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 58px rgba(0,0,0,0.28), 0 0 18px ${accent}10`
+          : `inset 0 1px 0 rgba(255,255,255,0.09), 0 24px 86px rgba(0,0,0,0.34), 0 0 28px ${accent}18`,
       }}
     >
       <div
@@ -97,7 +105,7 @@ function InspectCard({
           alt={asset.label}
           fill
           sizes="(max-width: 768px) 70vw, 320px"
-          className="object-contain transition duration-700 group-hover:scale-[1.018]"
+          className="orbit-inspect-card object-contain transition duration-700 group-hover:scale-[1.012]"
         />
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_22%,rgba(255,255,255,0.14),transparent_42%),linear-gradient(180deg,transparent,rgba(0,0,0,0.54))]" />
@@ -194,7 +202,7 @@ function TouchInspectStack({
                 filter: isActive ? "blur(0px)" : "blur(2px)",
                 zIndex: isActive ? 30 : 16,
               }}
-              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
             >
               <div
                 className={`relative overflow-hidden rounded-[1rem] border border-white/[0.08] bg-black/32 ${
@@ -414,35 +422,35 @@ function FocusVeil({
 }) {
   return (
     <motion.div
-      className="pointer-events-none absolute inset-0 z-30 overflow-hidden"
-      initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-      animate={{ opacity: 1, backdropFilter: soft ? "blur(0px)" : "blur(3px)" }}
-      exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-      transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
+      className="orbit-inspect-focus-veil pointer-events-none absolute inset-0 z-30 overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: soft ? 0.72 : 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="orbit-edge-light" />
-      <div className="absolute inset-0 bg-black/30" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_47%,transparent_0%,transparent_34%,rgba(0,0,0,0.22)_66%,rgba(0,0,0,0.58)_100%)]" />
+      <div className="absolute inset-0 bg-black/26" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_47%,transparent_0%,transparent_36%,rgba(0,0,0,0.18)_68%,rgba(0,0,0,0.48)_100%)]" />
 
       <motion.div
         className="absolute left-1/2 top-1/2 h-[32rem] w-[46rem] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
         style={{
-          background: `radial-gradient(circle, ${accent} 0%, rgba(255,255,255,0.055) 18%, transparent 60%)`,
+          background: `radial-gradient(circle, ${accent} 0%, rgba(255,255,255,0.04) 18%, transparent 60%)`,
         }}
         animate={{
-          opacity: [0.06, 0.14, 0.06],
-          scale: [0.96, 1.04, 0.96],
+          opacity: [0.04, 0.1, 0.04],
+          scale: [0.98, 1.03, 0.98],
         }}
-        transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 7.2, repeat: Infinity, ease: "easeInOut" }}
       />
 
       <motion.div
         className="absolute left-[20%] right-[20%] top-1/2 h-px"
         style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.42), ${accent}, transparent)`,
+          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.32), ${accent}, transparent)`,
         }}
-        animate={{ opacity: [0.08, 0.3, 0.08], scaleX: [0.9, 1, 0.9] }}
-        transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ opacity: [0.06, 0.22, 0.06], scaleX: [0.92, 1, 0.92] }}
+        transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
       />
     </motion.div>
   );
@@ -542,14 +550,14 @@ function ExpandedAsset({
   const isSquare = asset.ratio === "square";
 
   return (
-    <motion.div
-      className={`orbit-detail-material absolute left-1/2 top-[50%] z-50 max-h-[78%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-1/2 md:max-h-[82%] md:rounded-[1.65rem] md:p-2 ${
+      <motion.div
+        className={`orbit-detail-material absolute left-1/2 top-[50%] z-50 max-h-[78%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-1/2 md:max-h-[82%] md:rounded-[1.65rem] md:p-2 ${
         isSquare ? "w-[min(84%,24rem)] md:w-[min(72%,42rem)] lg:w-[min(42%,30rem)]" : "w-[min(88%,29rem)] md:w-[min(82%,58rem)] lg:w-[min(52%,44rem)]"
       }`}
-      initial={{ opacity: 0, scale: 0.9, y: 14, filter: "blur(18px)" }}
+      initial={{ opacity: 0, scale: 0.965, y: 8, filter: "blur(6px)" }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-      exit={{ opacity: 0, scale: 0.92, y: 10, filter: "blur(18px)" }}
-      transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
+      exit={{ opacity: 0, scale: 0.975, y: 6, filter: "blur(6px)" }}
+      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="orbit-edge-light" />
 
@@ -563,7 +571,7 @@ function ExpandedAsset({
           alt={asset.label}
           fill
           sizes={isSquare ? "34vw" : "48vw"}
-          className="object-contain"
+          className="orbit-inspect-card object-contain"
           priority
         />
 
@@ -639,6 +647,16 @@ export function OpticsInspectLayer({
     return () => window.removeEventListener("resize", syncViewportTier);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) {
+      const resetTimer = window.setTimeout(() => {
+        setSelectedId(null);
+      }, 0);
+
+      return () => window.clearTimeout(resetTimer);
+    }
+  }, [isOpen]);
+
   const dragEnabled = viewportTier === "desktop";
   const isMobileLayout = viewportTier === "mobile";
   const isTabletLayout = viewportTier === "tablet";
@@ -650,205 +668,138 @@ export function OpticsInspectLayer({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen ? (
-        <motion.div
-          className="absolute inset-0 z-50 origin-center overflow-hidden rounded-[1.55rem] bg-black/[0.24] md:rounded-[2.3rem] lg:backdrop-blur-[4px] xl:rounded-[2.8rem]"
-          initial={{
-            opacity: 0,
-            scale: 0.72,
-            y: 22,
-            filter: isTouchLayout ? "blur(0px)" : "blur(24px)",
-            clipPath: "inset(18% 22% 18% 22% round 2.4rem)",
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            filter: "blur(0px)",
-            clipPath: "inset(0% 0% 0% 0% round 2.4rem)",
-          }}
-          exit={{
-            opacity: 0,
-            scale: 0.78,
-            y: 18,
-            filter: isTouchLayout ? "blur(0px)" : "blur(22px)",
-            clipPath: "inset(16% 20% 16% 20% round 2.4rem)",
-          }}
-          transition={{
-            duration: 0.92,
-            ease: [0.22, 1, 0.36, 1],
-          }}
+    <motion.div
+      data-open={isOpen ? "true" : "false"}
+      aria-hidden={!isOpen}
+      className="orbit-inspect-layer absolute inset-0 z-[60] origin-center overflow-hidden rounded-[1.55rem] bg-black/[0.3] md:rounded-[2.3rem] xl:rounded-[2.8rem]"
+      initial={false}
+      animate={{
+        opacity: isOpen ? 1 : 0,
+      }}
+      transition={{
+        duration: isOpen ? 0.18 : 0.12,
+        ease: [0.18, 1, 0.3, 1],
+      }}
+      style={{
+        pointerEvents: isOpen ? "auto" : "none",
+        backfaceVisibility: "hidden",
+        transformOrigin: "50% 50%",
+      }}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.055),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.58),rgba(0,0,0,0.22),rgba(0,0,0,0.58))]" />
+
+      <div
+        className="absolute left-8 right-8 top-8 h-px"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.34), ${accent}, transparent)`,
+          opacity: 0.34,
+        }}
+      />
+
+      <div
+        className="absolute bottom-8 left-8 right-8 h-px"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.22), ${accent}, transparent)`,
+          opacity: 0.2,
+        }}
+      />
+
+      <div className="absolute left-4 top-4 z-30 max-w-[12.5rem] md:left-7 md:top-7 md:max-w-[19rem] lg:left-8 lg:top-8 lg:max-w-[20rem]">
+        <p
+          className="text-[0.56rem] uppercase tracking-[0.34em]"
+          style={{ color: accent }}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.08),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.54),rgba(0,0,0,0.18),rgba(0,0,0,0.54))]" />
+          Optics inspect mode
+        </p>
 
-          <motion.div
-            className="absolute left-8 right-8 top-8 h-px"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.58), ${accent}, transparent)`,
-            }}
-            initial={{ scaleX: 0.22, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: [0.2, 0.54, 0.2] }}
-            exit={{ scaleX: 0.22, opacity: 0 }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          />
+        <h2 className="mt-2 max-w-[12.5rem] text-lg font-light leading-[0.92] tracking-[-0.075em] text-white drop-shadow-[0_12px_42px_rgba(0,0,0,0.86)] md:max-w-[19rem] md:text-3xl lg:mt-3 lg:max-w-[20rem] lg:text-4xl">
+          Product layers suspended in the field.
+        </h2>
 
-          <motion.div
-            className="absolute bottom-8 left-8 right-8 h-px"
-            style={{
-              background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.36), ${accent}, rgba(255,255,255,0.36), transparent)`,
-            }}
-            initial={{ scaleX: 0.22, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: [0.16, 0.42, 0.16] }}
-            exit={{ scaleX: 0.22, opacity: 0 }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          />
+        <p className="mt-4 max-w-[18rem] text-xs leading-5 text-white/48 md:text-sm md:leading-6">
+          Drag the optical cards. Select one to inspect. Return to field when the
+          product layer closes.
+        </p>
+      </div>
 
-          <motion.div
-            className="absolute bottom-8 top-8 left-8 w-px"
-            style={{
-              background: `linear-gradient(180deg, transparent, ${accent}, transparent)`,
-            }}
-            initial={{ scaleY: 0.18, opacity: 0 }}
-            animate={{ scaleY: 1, opacity: [0.1, 0.32, 0.1] }}
-            exit={{ scaleY: 0.18, opacity: 0 }}
-            transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
-          />
+      <button
+        type="button"
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          handleClose();
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          handleClose();
+        }}
+        className="absolute right-6 top-6 z-[80] inline-flex items-center gap-3 px-2 py-2 text-[0.72rem] uppercase tracking-[0.42em] text-white/58 transition hover:text-white md:right-8 md:top-8 lg:right-10"
+      >
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ background: accent, boxShadow: `0 0 14px ${accent}` }}
+        />
+        <span>Return</span>
+      </button>
 
-          <motion.div
-            className="absolute bottom-8 top-8 right-8 w-px"
-            style={{
-              background: `linear-gradient(180deg, transparent, rgba(255,255,255,0.32), ${accent}, transparent)`,
-            }}
-            initial={{ scaleY: 0.18, opacity: 0 }}
-            animate={{ scaleY: 1, opacity: [0.08, 0.26, 0.08] }}
-            exit={{ scaleY: 0.18, opacity: 0 }}
-            transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
-          />
-
-          <motion.div
-            className="absolute left-1/2 top-[48%] h-[48rem] w-[80rem] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
-            style={{
-              background: `radial-gradient(circle, ${accent} 0%, rgba(255,255,255,0.08) 18%, transparent 62%)`,
-            }}
-            animate={{ opacity: [0.1, 0.22, 0.1], scale: [0.96, 1.04, 0.96] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          />
-
-          <AnimatePresence>
-            {!selectedAsset ? (
-              <motion.div
-                className="absolute left-4 top-4 z-30 max-w-[12.5rem] md:left-7 md:top-7 md:max-w-[19rem] lg:left-8 lg:top-8 lg:max-w-[25rem]"
-                initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -8, filter: "blur(12px)" }}
-                transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <p
-                  className="text-[0.6rem] uppercase tracking-[0.34em]"
-                  style={{ color: accent }}
-                >
-                  Optics Inspect Mode
-                </p>
-                <h2 className="mt-2 max-w-[12.5rem] text-lg font-light leading-[0.92] tracking-[-0.075em] text-white drop-shadow-[0_12px_42px_rgba(0,0,0,0.86)] md:max-w-[19rem] md:text-3xl lg:mt-3 lg:max-w-[24rem] lg:text-5xl">
-                  Product layers suspended in the field.
-                </h2>
-                <p className="mt-3 hidden max-w-[17rem] text-xs leading-5 text-white/46 lg:block lg:mt-4 lg:max-w-sm lg:text-sm lg:leading-6">
-                  Drag the optical cards. Select one to inspect. Return to field when the product layer closes.
-                </p>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Return to Orbit Field"
-            className="group absolute right-4 top-4 z-50 inline-flex items-center gap-2 px-1 py-2 text-[0.46rem] uppercase tracking-[0.28em] text-white/50 transition hover:text-white/86 md:right-8 md:top-8 md:text-[0.5rem] md:tracking-[0.32em]"
-          >
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ background: accent, boxShadow: `0 0 14px ${accent}` }}
-            />
-            Return
-            <span
-              className="absolute -bottom-px left-0 h-px w-full origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-              style={{
-                background: `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.36), transparent)`,
-              }}
-            />
-          </button>
-
-          {isMobileLayout ? (
-            <div className="absolute inset-0 z-[13] bg-black/[0.78]" />
-          ) : null}
-
-          <div className="absolute inset-0 z-20">
-            {isMobileLayout && !selectedAsset ? (
-              <MobileInspectStack
-                assets={opticsAssets}
-                activeIndex={touchCardIndex}
-                setActiveIndex={setTouchCardIndex}
-                accent={accent}
-                onSelect={(id) => setSelectedId(id)}
-              />
-            ) : null}
-
-            {isTabletLayout && !selectedAsset ? (
-              <TouchInspectStack
-                assets={opticsAssets}
-                activeIndex={touchCardIndex}
-                setActiveIndex={setTouchCardIndex}
-                accent={accent}
-                onSelect={(id) => setSelectedId(id)}
-              />
-            ) : null}
-
-            {!isTouchLayout
-              ? opticsAssets.map((asset) => (
-                  <InspectCard
-                    key={asset.id}
-                    asset={asset}
-                    accent={accent}
-                    isSelected={selectedId === asset.id}
-                    hasSelection={selectedId !== null}
-                    dragEnabled={dragEnabled}
-                    onSelect={() => setSelectedId(asset.id)}
-                  />
-                ))
-              : null}
-          </div>
-
-          <AnimatePresence>
-            {selectedAsset ? (
-              <FocusVeil
-                key="focus-veil"
-                accent={accent}
-                soft={isMobileLayout}
-              />
-            ) : null}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {selectedAsset ? (
-              <ExpandedAsset
-                key={selectedAsset.id}
-                asset={selectedAsset}
-                accent={accent}
-                onClose={() => setSelectedId(null)}
-              />
-            ) : null}
-          </AnimatePresence>
-
-          {!selectedAsset ? (
-            <div className="absolute bottom-5 left-1/2 z-30 hidden -translate-x-1/2 text-[0.46rem] uppercase tracking-[0.3em] text-white/20 lg:block">
-              Drag / Select / Inspect
-            </div>
-          ) : null}
-        </motion.div>
+      {isMobileLayout ? (
+        <div className="absolute inset-0 z-[13] bg-black/[0.78]" />
       ) : null}
-    </AnimatePresence>
+
+      {isMobileLayout ? (
+        <MobileInspectStack
+          assets={opticsAssets}
+          activeIndex={touchCardIndex}
+          setActiveIndex={setTouchCardIndex}
+          accent={accent}
+          onSelect={setSelectedId}
+        />
+      ) : isTabletLayout ? (
+        <TouchInspectStack
+          assets={opticsAssets}
+          activeIndex={touchCardIndex}
+          setActiveIndex={setTouchCardIndex}
+          accent={accent}
+          onSelect={setSelectedId}
+        />
+      ) : (
+        <div className="absolute inset-0 z-20 lg:left-[3.8rem] lg:right-[3.2rem] lg:top-[5.9rem] lg:bottom-[3.8rem]">
+          {opticsAssets.map((asset) => {
+            const isSelected = selectedId === asset.id;
+            const hasSelection = selectedId !== null;
+
+            return (
+              <InspectCard
+                key={asset.id}
+                asset={asset}
+                accent={accent}
+                isSelected={isSelected}
+                hasSelection={hasSelection}
+                dragEnabled={dragEnabled}
+                onSelect={() => setSelectedId(asset.id)}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {selectedAsset && isOpen ? (
+          <>
+            <FocusVeil accent={accent} soft={isTouchLayout} />
+            <ExpandedAsset
+              asset={selectedAsset}
+              accent={accent}
+              onClose={() => setSelectedId(null)}
+            />
+          </>
+        ) : null}
+      </AnimatePresence>
+
+      {!selectedAsset && !isTouchLayout ? (
+        <div className="absolute bottom-[4.2rem] left-1/2 z-30 -translate-x-1/2 text-[0.52rem] uppercase tracking-[0.32em] text-white/26">
+          Drag / select / inspect
+        </div>
+      ) : null}
+    </motion.div>
   );
 }
-
-

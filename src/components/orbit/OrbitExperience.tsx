@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -1854,10 +1854,10 @@ export function OrbitExperience() {
   }, []);
 
   const inspectScale =
-    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.08 : 1.24;
+    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.055 : 1.18;
 
   const inspectYOffset =
-    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -2 : -4;
+    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -1 : -2;
 
   const currentProgress = useMemo(
     () =>
@@ -1919,10 +1919,14 @@ export function OrbitExperience() {
               y: isInspectOpen ? inspectYOffset : 0,
             }}
             transition={{
-              type: "spring",
-              stiffness: 88,
-              damping: 18,
-              mass: 0.85,
+              scale: {
+                duration: 0.3,
+                ease: [0.16, 1, 0.3, 1],
+              },
+              y: {
+                duration: 0.3,
+                ease: [0.16, 1, 0.3, 1],
+              },
             }}
             drag={isInspectOpen ? false : "x"}
             dragConstraints={{ left: 0, right: 0 }}
@@ -1956,9 +1960,12 @@ export function OrbitExperience() {
 
             <div className="orbit-inner-field-material orbit-optical-viewport relative min-h-[calc(100svh-9.25rem)] overflow-hidden rounded-[1.35rem] border backdrop-blur-[20px] sm:min-h-[38rem] md:min-h-[43rem] md:rounded-[2.3rem] lg:min-h-[680px] xl:rounded-[2.8rem]">
               <motion.div
-                className="pointer-events-none absolute inset-0 z-[25] bg-black"
-                animate={{ opacity: isInspectOpen ? 0.44 : 0 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-none absolute inset-0 z-[48] bg-black"
+                animate={{ opacity: isInspectOpen ? 0.86 : 0 }}
+                transition={{
+                  duration: 0.14,
+                  ease: [0.18, 1, 0.3, 1],
+                }}
               />
 
               <AnimatePresence mode="wait" custom={transitionDirection}>
@@ -2017,22 +2024,21 @@ export function OrbitExperience() {
                 </AnimatePresence>
               ) : null}
 
-              <ModeInteractiveOverlay
-                modeId={activeMode.id}
-                accent={activeMode.accent}
-                isVisible={
-                  !isRecallField &&
-                  !isTranslateField &&
-                  !isCreateField &&
-                  !isFocusField &&
-                  !isPrivacyField &&
-                  !isInspectOpen &&
-                  viewportTier === "desktop"
-                }
-              />
+                <ModeInteractiveOverlay
+                  modeId={activeMode.id}
+                  accent={activeMode.accent}
+                  isVisible={
+                    !isRecallField &&
+                    !isTranslateField &&
+                    !isCreateField &&
+                    !isFocusField &&
+                    !isPrivacyField &&
+                    viewportTier === "desktop"
+                  }
+                />
 
               <AnimatePresence mode="wait">
-                {isTranslateField && !isInspectOpen && viewportTier === "desktop" ? (
+                {isTranslateField && viewportTier === "desktop" ? (
                   <TransparentLanguageLayer
                     key="transparent-language-layer"
                     accent={activeMode.accent}
@@ -2041,13 +2047,13 @@ export function OrbitExperience() {
               </AnimatePresence>
 
               <AnimatePresence mode="wait">
-                {isRecallField && !isInspectOpen ? (
+                {isRecallField ? (
                   <RecallConsoleV2 key="recall-console-v2" accent={activeMode.accent} />
                 ) : null}
               </AnimatePresence>
 
               <AnimatePresence mode="wait">
-                {isCreateField && !isInspectOpen && viewportTier === "desktop" ? (
+                {isCreateField && viewportTier === "desktop" ? (
                   <ReferenceOrbitDeck
                     key="reference-orbit-deck"
                     accent={activeMode.accent}
@@ -2056,7 +2062,7 @@ export function OrbitExperience() {
               </AnimatePresence>
 
               <AnimatePresence mode="wait">
-                {isFocusField && !isInspectOpen && viewportTier === "desktop" ? (
+                {isFocusField && viewportTier === "desktop" ? (
                   <FocusQuietingSystem
                     key="focus-quieting-system"
                     accent={activeMode.accent}
@@ -2065,7 +2071,7 @@ export function OrbitExperience() {
               </AnimatePresence>
 
               <AnimatePresence mode="wait">
-                {isPrivacyField && !isInspectOpen && viewportTier === "desktop" ? (
+                {isPrivacyField && viewportTier === "desktop" ? (
                   <TrustBoundarySystem key="trust-boundary-system" accent={activeMode.accent} />
                 ) : null}
               </AnimatePresence>
@@ -2081,10 +2087,10 @@ export function OrbitExperience() {
                     filter: "blur(16px)",
                   }}
                   animate={{
-                    opacity: isInspectOpen ? 0.48 : 1,
+                    opacity: isInspectOpen ? 0.18 : 1,
                     x: 0,
                     scale: [0.992, 1, 0.992],
-                    filter: isInspectOpen ? "blur(1px) brightness(0.72)" : "blur(0px) brightness(1)",
+                    filter: isInspectOpen ? "blur(0px) brightness(0.58)" : "blur(0px) brightness(1)",
                     y: [5, -5, 5],
                   }}
                   exit={{
@@ -2106,10 +2112,10 @@ export function OrbitExperience() {
                     style={{
                       background: `radial-gradient(ellipse, ${activeMode.accent} 0%, rgba(255,255,255,0.08) 22%, rgba(0,0,0,0.18) 52%, transparent 74%)`,
                     }}
-                    animate={{
-                      opacity: isInspectOpen ? [0.04, 0.08, 0.04] : [0.1, 0.2, 0.1],
-                      scaleX: [0.92, 1.06, 0.92],
-                    }}
+                  animate={{
+                    opacity: [0.1, 0.2, 0.1],
+                    scaleX: [0.92, 1.06, 0.92],
+                  }}
                     transition={{ duration: 8.8, repeat: Infinity, ease: "easeInOut" }}
                   />
 
@@ -2118,10 +2124,10 @@ export function OrbitExperience() {
                     style={{
                       background: `linear-gradient(90deg, transparent, ${activeMode.accent}, rgba(255,255,255,0.5), ${activeMode.accent}, transparent)`,
                     }}
-                    animate={{
-                      opacity: isInspectOpen ? [0.04, 0.1, 0.04] : [0.12, 0.32, 0.12],
-                      scaleX: [0.88, 1, 0.88],
-                    }}
+                  animate={{
+                    opacity: [0.12, 0.32, 0.12],
+                    scaleX: [0.88, 1, 0.88],
+                  }}
                     transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
                   />
 
@@ -2343,11 +2349,13 @@ export function OrbitExperience() {
                 copy={copy}
                 activeIndex={activeIndex}
                 onSelect={goToIndex}
-                onInspect={() => setIsInspectOpen(true)}
+                onInspect={() => {
+                  if (!isInspectOpen) setIsInspectOpen(true);
+                }}
               />
 
               <OpticsInspectLayer
-                key={isInspectOpen ? "inspect-open" : "inspect-closed"}
+                key="optics-inspect-layer"
                 isOpen={isInspectOpen}
                 accent={activeMode.accent}
                 onClose={() => setIsInspectOpen(false)}
@@ -2385,4 +2393,3 @@ export function OrbitExperience() {
     </main>
   );
 }
-
