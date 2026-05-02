@@ -64,7 +64,7 @@ function drawTextPanel(
 
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  context.fillStyle = "rgba(3, 5, 8, 0.66)";
+  context.fillStyle = "rgba(3, 5, 8, 0.78)";
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const glow = context.createRadialGradient(1240, 170, 40, 1240, 170, 740);
@@ -80,11 +80,11 @@ function drawTextPanel(
   context.fillStyle = lowerGlow;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  context.strokeStyle = "rgba(255,255,255,0.16)";
+  context.strokeStyle = "rgba(255,255,255,0.09)";
   context.lineWidth = 2;
   context.strokeRect(44, 44, canvas.width - 88, canvas.height - 88);
 
-  context.strokeStyle = "rgba(255,255,255,0.055)";
+  context.strokeStyle = "rgba(255,255,255,0.035)";
   context.strokeRect(72, 72, canvas.width - 144, canvas.height - 144);
 
   context.beginPath();
@@ -102,7 +102,7 @@ function drawTextPanel(
 
   context.letterSpacing = "0px";
   context.font =
-    "300 92px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+    "300 104px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
   context.fillStyle = "rgba(244,239,230,0.96)";
 
   const words = mode.title.split(" ");
@@ -222,11 +222,11 @@ function createProductStage(accentColor: THREE.Color) {
   productTexture.anisotropy = 8;
 
   const imagePlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.58, 0.88),
+    new THREE.PlaneGeometry(2.28, 1.28),
     new THREE.MeshBasicMaterial({
       map: productTexture,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.86,
       side: THREE.DoubleSide,
       depthWrite: false,
     }),
@@ -234,12 +234,12 @@ function createProductStage(accentColor: THREE.Color) {
   imagePlane.position.set(0, -0.02, 0.012);
   group.add(imagePlane);
 
-  const plate = createGlassPlane(1.76, 1.02, "#05080a", 0.38);
+  const plate = createGlassPlane(2.5, 1.46, "#05080a", 0.28);
   plate.position.z = -0.01;
   group.add(plate);
 
   const edge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.78, 1.04)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(2.52, 1.48)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -252,7 +252,7 @@ function createProductStage(accentColor: THREE.Color) {
   const ringMaterial = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     transparent: true,
-    opacity: 0.32,
+    opacity: 0.12,
     side: THREE.DoubleSide,
     depthWrite: false,
   });
@@ -285,7 +285,7 @@ function createProductStage(accentColor: THREE.Color) {
   signal.position.set(0.58, 0.18, 0.065);
 
   group.add(leftLens, rightLens, bridge, signal);
-  group.position.set(0, -0.58, -1.72);
+  group.position.set(0, -0.68, -1.48);
 
   return { group, productTexture };
 }
@@ -319,14 +319,14 @@ export function createOrbitSpatialScene({
     0.05,
     90,
   );
-  camera.position.set(0, 1.58, 3.65);
+  camera.position.set(0, 1.48, 2.85);
 
   const rig = new THREE.Group();
   rig.add(camera);
   scene.add(rig);
 
   const root = new THREE.Group();
-  root.position.set(0, 1.38, 0);
+  root.position.set(0, 1.28, 0.22);
   scene.add(root);
 
   const currentMode = {
@@ -339,7 +339,7 @@ export function createOrbitSpatialScene({
   drawTextPanel(context, texture, currentMode.index);
 
   const panelGroup = new THREE.Group();
-  panelGroup.position.set(0, 0.16, -2.68);
+  panelGroup.position.set(0, 0.2, -2.28);
   root.add(panelGroup);
 
   const panelMaterial = new THREE.MeshBasicMaterial({
@@ -350,25 +350,25 @@ export function createOrbitSpatialScene({
     depthWrite: false,
   });
 
-  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(4.72, 2.65), panelMaterial);
+  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(5.18, 2.9), panelMaterial);
   panelGroup.add(mainPanel);
 
-  const backing = createGlassPlane(4.88, 2.78, "#020407", 0.42);
+  const backing = createGlassPlane(5.34, 3.04, "#020407", 0.48);
   backing.position.z = -0.025;
   panelGroup.add(backing);
 
-  const leftWing = createGlassPlane(1.24, 2.42, "#071018", 0.22);
-  leftWing.position.set(-2.9, -0.02, 0.02);
+  const leftWing = createGlassPlane(1.38, 2.7, "#071018", 0.26);
+  leftWing.position.set(-3.16, -0.02, 0.02);
   leftWing.rotation.y = 0.34;
   panelGroup.add(leftWing);
 
-  const rightWing = createGlassPlane(1.24, 2.42, "#071018", 0.22);
-  rightWing.position.set(2.9, -0.02, 0.02);
+  const rightWing = createGlassPlane(1.38, 2.7, "#071018", 0.26);
+  rightWing.position.set(3.16, -0.02, 0.02);
   rightWing.rotation.y = -0.34;
   panelGroup.add(rightWing);
 
   const panelEdge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(4.78, 2.71)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(5.24, 2.96)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -404,9 +404,9 @@ export function createOrbitSpatialScene({
   const railPoints: THREE.Vector3[] = [];
   for (let i = 0; i <= 96; i += 1) {
     const t = i / 96;
-    const x = THREE.MathUtils.lerp(-1.86, 1.86, t);
-    const y = -1.32 - Math.sin(t * Math.PI) * 0.13;
-    const z = -1.82 - Math.sin(t * Math.PI) * 0.08;
+    const x = THREE.MathUtils.lerp(-2.05, 2.05, t);
+    const y = -1.42 - Math.sin(t * Math.PI) * 0.12;
+    const z = -1.48 - Math.sin(t * Math.PI) * 0.08;
     railPoints.push(new THREE.Vector3(x, y, z));
   }
 
@@ -432,9 +432,9 @@ export function createOrbitSpatialScene({
   orbitModes.forEach((mode, index) => {
     const t =
       orbitModes.length > 1 ? index / Math.max(orbitModes.length - 1, 1) : 0.5;
-    const x = THREE.MathUtils.lerp(-1.86, 1.86, t);
-    const y = -1.32 - Math.sin(t * Math.PI) * 0.13;
-    const z = -1.82 - Math.sin(t * Math.PI) * 0.08;
+    const x = THREE.MathUtils.lerp(-2.05, 2.05, t);
+    const y = -1.42 - Math.sin(t * Math.PI) * 0.12;
+    const z = -1.48 - Math.sin(t * Math.PI) * 0.08;
 
     const material = new THREE.MeshBasicMaterial({
       color: index === currentMode.index ? colorFromAccent(mode.accent) : 0xffffff,

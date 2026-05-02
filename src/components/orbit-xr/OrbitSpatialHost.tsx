@@ -95,110 +95,141 @@ export function OrbitSpatialHost() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030407] text-[#f4efe6]">
       <div
-        className="pointer-events-none absolute inset-0 opacity-70"
+        className="pointer-events-none absolute inset-0 opacity-80"
         style={{
           background:
-            "radial-gradient(circle at 50% 10%, rgba(150,205,255,0.12), transparent 34%), radial-gradient(circle at 70% 80%, rgba(174,146,255,0.08), transparent 36%), #030407",
+            "radial-gradient(circle at 28% 12%, rgba(120,180,210,0.14), transparent 34%), radial-gradient(circle at 72% 72%, rgba(130,110,210,0.08), transparent 38%), linear-gradient(180deg, #061017 0%, #030407 48%, #010203 100%)",
         }}
       />
 
-      <div ref={mountRef} className="absolute inset-0" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_28%,rgba(0,0,0,0.72))]" />
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent,rgba(0,0,0,0.62))]" />
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-5 py-8">
+        <div className="relative aspect-[16/8.3] w-[min(88vw,92rem)] overflow-hidden rounded-[3.2rem] border border-white/[0.075] bg-[#05080a]/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(255,255,255,0.025),0_44px_180px_rgba(0,0,0,0.7)]">
+          <div className="pointer-events-none absolute inset-0 rounded-[3.2rem] ring-1 ring-white/[0.035]" />
+          <div className="pointer-events-none absolute inset-[1px] rounded-[3rem] ring-1 ring-white/[0.018]" />
+          <div className="pointer-events-none absolute inset-x-16 top-px h-px bg-gradient-to-r from-transparent via-white/16 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-20 bottom-px h-px bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
 
-      <header className="absolute left-5 right-5 top-5 z-20 flex items-center justify-between gap-4">
-        <div className="rounded-full border border-white/[0.075] bg-black/35 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-          <p className="text-[0.58rem] uppercase tracking-[0.34em] text-white/34">
-            Orbit Lens
-          </p>
-          <p className="mt-1 text-[0.68rem] uppercase tracking-[0.22em] text-white/68">
-            Spatial Mode / MVP Scene
-          </p>
-        </div>
+          <div className="relative z-20 mb-3 flex items-center justify-between rounded-full border border-white/[0.055] bg-white/[0.025] px-5 py-2 text-[0.55rem] uppercase tracking-[0.28em] text-white/36 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+            <div className="flex items-center gap-3">
+              <span>Orbit Spatial Interface</span>
+              <span className="hidden h-px w-8 bg-white/[0.08] md:block" />
+              <span className="hidden text-white/24 md:inline">
+                WebXR-ready field
+              </span>
+            </div>
 
-        <Link
-          href="/"
-          className="rounded-full border border-white/[0.085] bg-white/[0.025] px-4 py-3 text-[0.58rem] uppercase tracking-[0.24em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
-        >
-          Back to web
-        </Link>
-      </header>
-
-      <aside className="absolute bottom-5 left-5 z-20 w-[min(25rem,calc(100vw-2.5rem))] rounded-[1.75rem] border border-white/[0.075] bg-black/45 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.045),0_24px_80px_rgba(0,0,0,0.48)] backdrop-blur-md">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <p
-              className="text-[0.58rem] uppercase tracking-[0.3em]"
-              style={{ color: activeMode.accent }}
-            >
-              {activeMode.eyebrow}
-            </p>
-            <h1 className="mt-2 max-w-[19rem] text-xl font-light leading-tight tracking-[-0.04em] text-white/92">
-              {activeMode.title}
-            </h1>
-          </div>
-
-          <span className="mt-1 rounded-full border border-white/[0.075] px-2.5 py-1 text-[0.52rem] uppercase tracking-[0.2em] text-white/38">
-            {String(activeIndex + 1).padStart(2, "0")} /{" "}
-            {String(orbitModes.length).padStart(2, "0")}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1.5">
-          {orbitModes.map((mode, index) => {
-            const isActive = index === activeIndex;
-
-            return (
+            <div className="flex items-center gap-4">
               <button
-                key={mode.id}
                 type="button"
-                onClick={() => setActiveIndex(index)}
-                aria-label={`Open ${mode.id} spatial mode`}
-                className="group relative flex h-9 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.02] transition duration-300 hover:border-white/[0.18] hover:bg-white/[0.05]"
+                onClick={handleStartVR}
+                disabled={!xrSupport.isSupported}
+                className="group relative inline-flex items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.026] px-3 py-1.5 text-[0.5rem] uppercase tracking-[0.22em] text-white/44 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-white/78 disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <span
-                  className="h-1.5 w-1.5 rounded-full transition duration-300"
+                  className="h-1.5 w-1.5 rounded-full transition duration-500 group-hover:scale-110"
                   style={{
-                    background: isActive ? mode.accent : "rgba(255,255,255,0.28)",
-                    boxShadow: isActive ? `0 0 12px ${mode.accent}` : "none",
-                    opacity: isActive ? 1 : 0.5,
+                    background: activeMode.accent,
+                    boxShadow: `0 0 12px ${activeMode.accent}`,
                   }}
                 />
+                Enter VR
               </button>
-            );
-          })}
-        </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="max-w-[14rem] text-[0.65rem] leading-5 text-white/42">
-            {xrSupport.reason}
+              <span>
+                {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                {String(orbitModes.length).padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[2.45rem] border border-white/[0.065] bg-black shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <div ref={mountRef} className="relative h-[min(66vh,42rem)] w-full" />
+
+            <div className="pointer-events-none absolute inset-0 rounded-[2.45rem] bg-[radial-gradient(circle_at_46%_22%,transparent,rgba(0,0,0,0.22)_48%,rgba(0,0,0,0.58)_100%)]" />
+
+            <div className="pointer-events-none absolute left-8 top-8 z-20 hidden max-w-[20rem] rounded-[1.8rem] border border-white/[0.07] bg-black/30 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-md lg:block">
+              <p
+                className="text-[0.58rem] uppercase tracking-[0.3em]"
+                style={{ color: activeMode.accent }}
+              >
+                {activeMode.eyebrow}
+              </p>
+              <h1 className="mt-3 text-2xl font-light leading-tight tracking-[-0.045em] text-white/86">
+                {activeMode.title}
+              </h1>
+              <p className="mt-3 text-[0.72rem] leading-5 text-white/42">
+                {activeMode.tagline}
+              </p>
+            </div>
+
+            <div className="absolute inset-x-8 bottom-6 z-30 rounded-full border border-white/[0.075] bg-[#05080a]/75 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.045),0_20px_80px_rgba(0,0,0,0.46)]">
+              <div className="grid items-center gap-3 md:grid-cols-[0.85fr_1.5fr_auto]">
+                <div className="min-w-0">
+                  <p className="text-[0.5rem] uppercase tracking-[0.28em] text-white/26">
+                    Active spatial field
+                  </p>
+                  <p className="mt-1 truncate text-[0.62rem] uppercase tracking-[0.22em] text-white/62">
+                    {activeMode.signal}
+                  </p>
+                </div>
+
+                <div className="hidden items-center justify-center gap-2 md:flex">
+                  {orbitModes.map((mode, index) => {
+                    const isActive = index === activeIndex;
+
+                    return (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={() => setActiveIndex(index)}
+                        aria-label={`Open ${mode.id} spatial mode`}
+                        className="group relative flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.018] transition duration-300 hover:border-white/[0.18] hover:bg-white/[0.05]"
+                      >
+                        <span
+                          className="h-1.5 w-1.5 rounded-full transition duration-300"
+                          style={{
+                            background: isActive
+                              ? mode.accent
+                              : "rgba(255,255,255,0.24)",
+                            boxShadow: isActive ? `0 0 14px ${mode.accent}` : "none",
+                            opacity: isActive ? 1 : 0.46,
+                          }}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center justify-end gap-3">
+                  <p className="hidden text-[0.62rem] text-white/34 lg:block">
+                    Click / wheel / keyboard
+                  </p>
+
+                  <Link
+                    href="/"
+                    className="rounded-full border border-white/[0.085] bg-white/[0.025] px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.22em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
+                  >
+                    Back to web
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2 text-[0.5rem] uppercase tracking-[0.28em] text-white/20">
+            Spatial preview / WebXR session / hand layer next
           </p>
-
-          <button
-            type="button"
-            onClick={handleStartVR}
-            disabled={!xrSupport.isSupported}
-            className="rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-2.5 text-[0.54rem] uppercase tracking-[0.22em] text-white/56 transition duration-300 hover:border-white/[0.2] hover:bg-white/[0.06] hover:text-white/86 disabled:cursor-not-allowed disabled:opacity-35"
-          >
-            Enter VR
-          </button>
         </div>
+      </section>
 
-        <p className="mt-3 text-[0.55rem] uppercase tracking-[0.22em] text-white/25">
-          {sessionStatus}
-        </p>
-      </aside>
+      <div className="absolute bottom-5 left-5 z-20 max-w-[20rem] rounded-full border border-white/[0.065] bg-black/35 px-4 py-2 text-[0.56rem] leading-4 text-white/34 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+        {xrSupport.reason}
+      </div>
 
-      <div className="absolute right-5 top-1/2 z-20 hidden w-48 -translate-y-1/2 rounded-[1.5rem] border border-white/[0.07] bg-black/35 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-md lg:block">
-        <p className="mb-3 text-[0.5rem] uppercase tracking-[0.28em] text-white/28">
-          Controls
-        </p>
-        <div className="space-y-2 text-[0.62rem] leading-5 text-white/42">
-          <p>Desktop: click / wheel spatial nodes.</p>
-          <p>Keyboard: ← / → switch modes.</p>
-          <p>VR: point at nodes and select.</p>
-          <p>Hands: next task.</p>
-        </div>
+      <div className="absolute bottom-5 right-5 z-20 hidden max-w-[22rem] rounded-full border border-white/[0.065] bg-black/35 px-4 py-2 text-[0.56rem] uppercase tracking-[0.18em] text-white/28 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] lg:block">
+        {sessionStatus}
       </div>
     </main>
   );
