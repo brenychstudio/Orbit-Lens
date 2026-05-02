@@ -1824,15 +1824,16 @@ function OrbitFieldRail({
           <div className="pointer-events-none absolute inset-x-5 top-[calc(50%+6px)] h-px bg-white/[0.025]" />
 
           <motion.div
-            className="pointer-events-none absolute top-1/2 h-px -translate-y-1/2"
+            className="pointer-events-none absolute top-1/2 h-[2px] -translate-y-1/2 rounded-full"
             style={{
               left: "8%",
               width: `${Math.max(activePosition - 8, 1)}%`,
-              background: `linear-gradient(90deg, rgba(255,255,255,0.02), ${accent}, rgba(255,255,255,0.22))`,
+              background: `linear-gradient(90deg, rgba(255,255,255,0.03), ${accent}, rgba(255,255,255,0.34))`,
               transformOrigin: "left center",
+              boxShadow: `0 0 12px ${accent}33`,
             }}
             animate={{
-              opacity: [0.18, 0.38, 0.18],
+              opacity: [0.24, 0.48, 0.24],
             }}
             transition={{
               duration: 4.8,
@@ -1842,17 +1843,19 @@ function OrbitFieldRail({
           />
 
           <motion.div
-            className="pointer-events-none absolute top-1/2 h-[2px] w-20 -translate-y-1/2 rounded-full"
+            className="pointer-events-none absolute top-1/2 h-[3px] w-24 -translate-y-1/2 rounded-full"
             style={{
-              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.48), transparent)`,
-              boxShadow: `0 0 16px ${accent}`,
+              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.72), ${accent}, transparent)`,
+              boxShadow: `0 0 22px ${accent}`,
+              filter: "saturate(1.08)",
             }}
             animate={{
               left: ["6%", "78%", "6%"],
-              opacity: [0.08, 0.24, 0.08],
+              opacity: [0.14, 0.42, 0.14],
+              scaleX: [0.94, 1.06, 0.94],
             }}
             transition={{
-              duration: 8.8,
+              duration: 8.2,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -1870,47 +1873,50 @@ function OrbitFieldRail({
                 onClick={() => onSelect(index)}
                 aria-label={`Open ${mode.id} mode`}
                 aria-current={isActive ? "true" : undefined}
-                className="group absolute top-1/2 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition"
-              style={{
-                left: `${left}%`,
-              }}
+                className="group absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full p-0 leading-none transition"
+                style={{
+                  left: `${left}%`,
+                }}
               >
-                <span
-                  className="absolute h-[13px] w-[13px] rounded-full border transition duration-500"
-                  style={{
-                    borderColor: isActive
-                      ? "rgba(255,255,255,0.32)"
-                      : "rgba(255,255,255,0.1)",
-                    background: isActive
-                      ? "rgba(255,255,255,0.055)"
-                      : "rgba(255,255,255,0.018)",
-                    boxShadow: isActive ? `0 0 18px ${accent}` : "none",
-                  }}
-                />
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span
+                    className="absolute h-[13px] w-[13px] rounded-full border transition duration-500"
+                    style={{
+                      borderColor: isActive
+                        ? "rgba(255,255,255,0.32)"
+                        : "rgba(255,255,255,0.1)",
+                      background: isActive
+                        ? "rgba(255,255,255,0.055)"
+                        : "rgba(255,255,255,0.018)",
+                      boxShadow: isActive ? `0 0 18px ${accent}` : "none",
+                    }}
+                  />
 
-                <motion.span
-                  className="relative h-1.5 w-1.5 rounded-full"
-                  style={{
-                    background: isActive ? accent : "rgba(255,255,255,0.22)",
-                  }}
-                  animate={
-                    isActive
-                      ? {
-                          opacity: [0.55, 1, 0.55],
-                          scale: [0.92, 1.14, 0.92],
-                        }
-                      : { opacity: 0.44, scale: 1 }
-                  }
-                  transition={
-                    isActive
-                      ? {
-                          duration: 4.2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }
-                      : { duration: 0.3 }
-                  }
-                />
+                  <motion.span
+                    className="absolute h-1.5 w-1.5 rounded-full"
+                    style={{
+                      background: isActive ? accent : "rgba(255,255,255,0.22)",
+                      boxShadow: isActive ? `0 0 10px ${accent}` : "none",
+                    }}
+                    animate={
+                      isActive
+                        ? {
+                            opacity: [0.58, 1, 0.58],
+                            scale: [0.9, 1.16, 0.9],
+                          }
+                        : { opacity: 0.44, scale: 1 }
+                    }
+                    transition={
+                      isActive
+                        ? {
+                            duration: 4.2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }
+                        : { duration: 0.3 }
+                    }
+                  />
+                </span>
 
                 <span className="pointer-events-none absolute -bottom-5 whitespace-nowrap text-[0.45rem] uppercase tracking-[0.2em] text-white/0 transition duration-300 group-hover:text-white/34">
                   {String(index + 1).padStart(2, "0")}
