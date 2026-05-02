@@ -1975,6 +1975,316 @@ function OrbitFieldRail({
   );
 }
 
+const accessTypeLines = [
+  "Prototype access is open for review.",
+  "Spatial modes and optics inspection are active.",
+  "Brenych Studio / premium interface system.",
+] as const;
+
+const accessStatusRows = [
+  {
+    label: "Prototype access",
+    value: "Ready",
+    detail: "Concept surface",
+  },
+  {
+    label: "Studio contact",
+    value: "Available",
+    detail: "Portfolio / GitHub / mail",
+  },
+  {
+    label: "System state",
+    value: "Web first",
+    detail: "Spatial mode later",
+  },
+] as const;
+
+const accessLinks = [
+  {
+    label: "Portfolio",
+    href: "https://brenychstudio.com",
+    mark: "↗",
+    external: true,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/brenychstudio",
+    mark: "↗",
+    external: true,
+  },
+  {
+    label: "Contact",
+    href: "mailto:hello@brenychstudio.com",
+    mark: "→",
+    external: false,
+  },
+] as const;
+
+function AccessTypeLine({
+  children,
+  delay,
+  accent,
+}: {
+  children: string;
+  delay: number;
+  accent: string;
+}) {
+  const chars = Array.from(children);
+
+  return (
+    <span className="relative block min-h-5 whitespace-nowrap text-[0.68rem] leading-5 text-white/66">
+      {chars.map((char, index) => (
+        <motion.span
+          key={`${children}-${index}`}
+          className="inline-block"
+          initial={{ opacity: 0, y: 2 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.18,
+            delay: delay + index * 0.038,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+
+      <motion.span
+        className="ml-1 inline-block h-3.5 w-px translate-y-[2px]"
+        style={{
+          background: accent,
+          boxShadow: `0 0 10px ${accent}`,
+        }}
+        animate={{
+          opacity: [0.15, 0.7, 0.15],
+        }}
+        transition={{
+          duration: 0.9,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: delay + chars.length * 0.038,
+        }}
+      />
+    </span>
+  );
+}
+
+function AccessStatusRow({
+  label,
+  value,
+  detail,
+  accent,
+  index,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  accent: string;
+  index: number;
+}) {
+  return (
+    <motion.div
+      className="group relative overflow-hidden rounded-2xl border border-white/[0.075] bg-white/[0.025] px-3.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.68,
+        delay: 0.72 + index * 0.1,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${accent}12, rgba(255,255,255,0.03), transparent)`,
+        }}
+      />
+
+      <div className="relative flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[0.55rem] uppercase tracking-[0.25em] text-white/28">
+            {label}
+          </p>
+          <p className="mt-0.5 text-[0.64rem] leading-4 text-white/44">{detail}</p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 pt-[1px]">
+          <motion.span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{
+              background: accent,
+              boxShadow: `0 0 12px ${accent}`,
+            }}
+            animate={{
+              opacity: [0.35, 0.9, 0.35],
+              scale: [0.9, 1.16, 0.9],
+            }}
+            transition={{
+              duration: 4.6,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: index * 0.25,
+            }}
+          />
+          <span className="text-[0.58rem] uppercase tracking-[0.2em] text-white/62">
+            {value}
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function AccessConsole({ accent }: { accent: string }) {
+  return (
+    <motion.div
+      className="absolute right-10 top-12 z-20 hidden w-[24.5rem] lg:block xl:right-14 xl:top-14"
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <motion.div
+        animate={{
+          y: [0, -5, 0],
+          x: [0, 1.5, 0],
+          rotateZ: [0, -0.1, 0],
+        }}
+        transition={{
+          duration: 10.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{ willChange: "transform", transformOrigin: "50% 55%" }}
+      >
+        <GlassPane className="relative px-5 py-5">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-75"
+            style={{
+              background:
+                "radial-gradient(circle at 80% 18%, rgba(190,220,245,0.075), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.028), transparent 42%, rgba(0,0,0,0.18))",
+            }}
+          />
+
+          <div className="pointer-events-none absolute inset-x-8 top-px h-px bg-gradient-to-r from-transparent via-white/14 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-10 bottom-px h-px bg-gradient-to-r from-transparent via-white/[0.055] to-transparent" />
+
+          <div className="relative">
+            <div className="mb-4 flex items-start justify-between gap-5">
+              <div>
+                <p
+                  className="text-[0.6rem] uppercase tracking-[0.34em]"
+                  style={{ color: accent }}
+                >
+                  Product / Studio Access
+                </p>
+                <p className="mt-2 text-[0.62rem] uppercase tracking-[0.22em] text-white/28">
+                  Controlled preview terminal
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.025] px-3 py-2">
+                <span className="relative flex h-4 w-4 items-center justify-center rounded-full border border-white/[0.08]">
+                  <motion.span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{
+                      background: accent,
+                      boxShadow: `0 0 14px ${accent}`,
+                    }}
+                    animate={{
+                      opacity: [0.34, 0.95, 0.34],
+                      scale: [0.88, 1.16, 0.88],
+                    }}
+                    transition={{
+                      duration: 4.4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <motion.span
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      border: `1px solid ${accent}`,
+                    }}
+                    animate={{
+                      opacity: [0.03, 0.18, 0.03],
+                      scale: [0.78, 1.24, 0.78],
+                    }}
+                    transition={{
+                      duration: 5.2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </span>
+
+                <span className="text-[0.52rem] uppercase tracking-[0.22em] text-white/48">
+                  Live
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 rounded-3xl border border-white/[0.07] bg-black/[0.18] px-3.5 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+              {accessTypeLines.map((line, index) => (
+                <AccessTypeLine
+                  key={line}
+                  accent={accent}
+                  delay={0.32 + index * 0.62}
+                >
+                  {line}
+                </AccessTypeLine>
+              ))}
+            </div>
+
+            <div className="mt-3 grid gap-2">
+              {accessStatusRows.map((row, index) => (
+                <AccessStatusRow
+                  key={row.label}
+                  label={row.label}
+                  value={row.value}
+                  detail={row.detail}
+                  accent={accent}
+                  index={index}
+                />
+              ))}
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {accessLinks.map((link, index) => (
+                <motion.a
+                  key={link.label}
+                  href={link.href}
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noreferrer" : undefined}
+                  className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-full border border-white/[0.085] bg-white/[0.026] px-3 py-2.5 text-center text-[0.48rem] uppercase tracking-[0.18em] text-white/48 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition duration-500 hover:border-white/[0.18] hover:bg-white/[0.045] hover:text-white/78"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.58,
+                    delay: 1.05 + index * 0.08,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <span
+                    className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
+                    style={{
+                      background: `linear-gradient(90deg, transparent, ${accent}16, rgba(255,255,255,0.035), transparent)`,
+                    }}
+                  />
+                  <span className="relative z-10">{link.label}</span>
+                  <span className="relative z-10 text-[0.56rem] text-white/24 transition group-hover:text-white/58">
+                    {link.mark}
+                  </span>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </GlassPane>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export function OrbitExperience() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [transitionDirection, setTransitionDirection] = useState(1);
@@ -2381,97 +2691,7 @@ export function OrbitExperience() {
                 </AnimatePresence>
               </div>
 
-              {isAccessField ? (
-                <motion.div
-                  className="absolute right-10 top-14 z-20 hidden w-[25.5rem] lg:block xl:right-14 xl:top-16"
-                  initial={{ opacity: 0, y: 18, filter: "blur(14px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -12, filter: "blur(12px)" }}
-                  transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <motion.div
-                    animate={{
-                      y: [0, -6, 0],
-                      x: [0, 2, 0],
-                      rotateZ: [0, -0.14, 0],
-                    }}
-                    transition={{
-                      duration: 9.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    style={{ willChange: "transform", transformOrigin: "50% 55%" }}
-                  >
-                    <GlassPane className="px-6 py-6">
-                      <p
-                        className="mb-5 text-[0.62rem] uppercase tracking-[0.34em]"
-                        style={{ color: activeMode.accent }}
-                      >
-                        Product / Studio Access
-                      </p>
-
-                      <div className="space-y-5">
-                        <div>
-                          <p className="text-[0.68rem] uppercase tracking-[0.26em] text-white/32">
-                            Product
-                          </p>
-                          <p className="mt-2 text-sm leading-6 text-white/64">
-                            Orbit Lens is a fictional AI spatial glasses concept
-                            exploring calm field-of-view intelligence, visible
-                            capture states and premium spatial interaction.
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[0.68rem] uppercase tracking-[0.26em] text-white/32">
-                            Studio
-                          </p>
-                          <p className="mt-2 text-sm leading-6 text-white/64">
-                            Built by Brenych Studio as an interactive product
-                            launch prototype and spatial interface case.
-                          </p>
-                        </div>
-
-                        <div className="grid gap-2 pt-1">
-                          <a
-                            href="https://brenychstudio.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="group flex items-center justify-between rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[0.62rem] uppercase tracking-[0.24em] text-white/48 transition hover:border-white/[0.2] hover:text-white/74"
-                          >
-                            Portfolio
-                            <span className="text-white/24 transition group-hover:text-white/54">
-                              ↗
-                            </span>
-                          </a>
-
-                          <a
-                            href="https://github.com/brenychstudio"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="group flex items-center justify-between rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[0.62rem] uppercase tracking-[0.24em] text-white/48 transition hover:border-white/[0.2] hover:text-white/74"
-                          >
-                            GitHub
-                            <span className="text-white/24 transition group-hover:text-white/54">
-                              ↗
-                            </span>
-                          </a>
-
-                          <a
-                            href="mailto:hello@brenychstudio.com"
-                            className="group flex items-center justify-between rounded-full border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[0.62rem] uppercase tracking-[0.24em] text-white/48 transition hover:border-white/[0.2] hover:text-white/74"
-                          >
-                            Contact
-                            <span className="text-white/24 transition group-hover:text-white/54">
-                              →
-                            </span>
-                          </a>
-                        </div>
-                      </div>
-                    </GlassPane>
-                  </motion.div>
-                </motion.div>
-              ) : null}
+              {isAccessField ? <AccessConsole accent={activeMode.accent} /> : null}
 
               {!isAccessField &&
               !isRecallField &&
