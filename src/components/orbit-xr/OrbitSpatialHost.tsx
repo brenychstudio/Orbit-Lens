@@ -21,7 +21,9 @@ export function OrbitSpatialHost() {
   const sceneRef = useRef<OrbitSpatialSceneApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [xrSupport, setXRSupport] = useState<XRSupportState>(initialXRState);
-  const [sessionStatus, setSessionStatus] = useState("Desktop spatial preview.");
+  const [sessionStatus, setSessionStatus] = useState(
+    "Desktop spatial preview. Click nodes or use ← / →.",
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -110,7 +112,7 @@ export function OrbitSpatialHost() {
             Orbit Lens
           </p>
           <p className="mt-1 text-[0.68rem] uppercase tracking-[0.22em] text-white/68">
-            Spatial Mode / Foundation
+            Spatial Mode / MVP Scene
           </p>
         </div>
 
@@ -192,9 +194,9 @@ export function OrbitSpatialHost() {
           Controls
         </p>
         <div className="space-y-2 text-[0.62rem] leading-5 text-white/42">
-          <p>Desktop: click spatial nodes.</p>
+          <p>Desktop: click / wheel spatial nodes.</p>
           <p>Keyboard: ← / → switch modes.</p>
-          <p>VR: foundation session only.</p>
+          <p>VR: point at nodes and select.</p>
           <p>Hands: next task.</p>
         </div>
       </div>

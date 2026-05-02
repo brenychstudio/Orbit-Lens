@@ -35,15 +35,15 @@ function colorFromAccent(accent: string) {
   );
 }
 
-function makeTextTexture() {
+function makeCanvasTexture(width = 1600, height = 900) {
   const canvas = document.createElement("canvas");
-  canvas.width = 1600;
-  canvas.height = 900;
+  canvas.width = width;
+  canvas.height = height;
 
   const context = canvas.getContext("2d");
 
   if (!context) {
-    throw new Error("Could not create XR text canvas context.");
+    throw new Error("Could not create XR canvas context.");
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -60,19 +60,24 @@ function drawTextPanel(
 ) {
   const mode = orbitModes[modeIndex];
   const canvas = context.canvas;
+  const accent = mode.accent;
 
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  const accent = mode.accent;
-
-  context.fillStyle = "rgba(3, 5, 8, 0.58)";
+  context.fillStyle = "rgba(3, 5, 8, 0.66)";
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  const gradient = context.createRadialGradient(1260, 160, 40, 1260, 160, 760);
-  gradient.addColorStop(0, accent.replace("0.72", "0.2"));
-  gradient.addColorStop(0.42, "rgba(255,255,255,0.025)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
-  context.fillStyle = gradient;
+  const glow = context.createRadialGradient(1240, 170, 40, 1240, 170, 740);
+  glow.addColorStop(0, accent.replace("0.72", "0.22"));
+  glow.addColorStop(0.38, "rgba(255,255,255,0.026)");
+  glow.addColorStop(1, "rgba(0,0,0,0)");
+  context.fillStyle = glow;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const lowerGlow = context.createRadialGradient(740, 760, 40, 740, 760, 720);
+  lowerGlow.addColorStop(0, "rgba(255,255,255,0.055)");
+  lowerGlow.addColorStop(1, "rgba(0,0,0,0)");
+  context.fillStyle = lowerGlow;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   context.strokeStyle = "rgba(255,255,255,0.16)";
@@ -80,28 +85,35 @@ function drawTextPanel(
   context.strokeRect(44, 44, canvas.width - 88, canvas.height - 88);
 
   context.strokeStyle = "rgba(255,255,255,0.055)";
-  context.strokeRect(70, 70, canvas.width - 140, canvas.height - 140);
+  context.strokeRect(72, 72, canvas.width - 144, canvas.height - 144);
+
+  context.beginPath();
+  context.moveTo(110, 610);
+  context.lineTo(1490, 610);
+  context.strokeStyle = "rgba(255,255,255,0.09)";
+  context.lineWidth = 1;
+  context.stroke();
 
   context.font =
-    "500 34px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+    "500 32px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
   context.letterSpacing = "7px";
   context.fillStyle = accent;
-  context.fillText(mode.eyebrow.toUpperCase(), 104, 160);
+  context.fillText(mode.eyebrow.toUpperCase(), 110, 155);
 
   context.letterSpacing = "0px";
   context.font =
-    "300 96px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+    "300 92px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
   context.fillStyle = "rgba(244,239,230,0.96)";
 
-  const titleWords = mode.title.split(" ");
+  const words = mode.title.split(" ");
   const lines: string[] = [];
   let currentLine = "";
 
-  titleWords.forEach((word) => {
+  words.forEach((word) => {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     const width = context.measureText(testLine).width;
 
-    if (width > 1020 && currentLine) {
+    if (width > 1050 && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -114,40 +126,138 @@ function drawTextPanel(
   }
 
   lines.slice(0, 3).forEach((line, index) => {
-    context.fillText(line, 104, 282 + index * 102);
+    context.fillText(line, 110, 278 + index * 98);
   });
 
   context.font =
-    "400 42px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+    "400 38px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
   context.fillStyle = "rgba(244,239,230,0.68)";
-  context.fillText(mode.tagline, 104, 650);
+  context.fillText(mode.tagline, 110, 692);
 
   context.font =
-    "400 26px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-  context.letterSpacing = "3px";
+    "500 24px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  context.letterSpacing = "4px";
   context.fillStyle = "rgba(244,239,230,0.42)";
-  context.fillText(mode.signal.toUpperCase(), 104, 748);
+  context.fillText(mode.signal.toUpperCase(), 110, 778);
 
   context.letterSpacing = "0px";
+
   texture.needsUpdate = true;
 }
 
-function createLine(points: THREE.Vector3[], color: THREE.ColorRepresentation) {
+function createLine(
+  points: THREE.Vector3[],
+  color: THREE.ColorRepresentation,
+  opacity = 0.26,
+) {
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
   const material = new THREE.LineBasicMaterial({
     color,
     transparent: true,
-    opacity: 0.26,
+    opacity,
   });
 
   return new THREE.Line(geometry, material);
 }
 
-function createProductProxy(accentColor: THREE.Color) {
-  const group = new THREE.Group();
-  group.name = "Orbit Lens product proxy";
+function createLabelSprite(label: string) {
+  const { canvas, context, texture } = makeCanvasTexture(512, 128);
 
-  const lensMaterial = new THREE.MeshBasicMaterial({
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "rgba(5,8,11,0.58)";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  context.strokeStyle = "rgba(255,255,255,0.12)";
+  context.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+  context.font =
+    "600 34px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  context.letterSpacing = "5px";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillStyle = "rgba(244,239,230,0.78)";
+  context.fillText(label.toUpperCase(), canvas.width / 2, canvas.height / 2);
+
+  texture.needsUpdate = true;
+
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    opacity: 0.42,
+    depthWrite: false,
+  });
+
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(0.44, 0.11, 1);
+  sprite.userData.texture = texture;
+
+  return sprite;
+}
+
+function createGlassPlane(
+  width: number,
+  height: number,
+  color: THREE.ColorRepresentation,
+  opacity: number,
+) {
+  return new THREE.Mesh(
+    new THREE.PlaneGeometry(width, height),
+    new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }),
+  );
+}
+
+function createProductStage(accentColor: THREE.Color) {
+  const group = new THREE.Group();
+  group.name = "Orbit Lens product stage";
+
+  const textureLoader = new THREE.TextureLoader();
+  const productTexture = textureLoader.load(orbitSpatialTheme.productImage);
+  productTexture.colorSpace = THREE.SRGBColorSpace;
+  productTexture.anisotropy = 8;
+
+  const imagePlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.58, 0.88),
+    new THREE.MeshBasicMaterial({
+      map: productTexture,
+      transparent: true,
+      opacity: 0.72,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }),
+  );
+  imagePlane.position.set(0, -0.02, 0.012);
+  group.add(imagePlane);
+
+  const plate = createGlassPlane(1.76, 1.02, "#05080a", 0.38);
+  plate.position.z = -0.01;
+  group.add(plate);
+
+  const edge = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.78, 1.04)),
+    new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.18,
+    }),
+  );
+  edge.position.z = 0.018;
+  group.add(edge);
+
+  const ringMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.32,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+
+  const accentMaterial = new THREE.MeshBasicMaterial({
     color: accentColor,
     transparent: true,
     opacity: 0.18,
@@ -155,52 +265,29 @@ function createProductProxy(accentColor: THREE.Color) {
     depthWrite: false,
   });
 
-  const ringMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.42,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-  });
-
-  const lensGeometry = new THREE.TorusGeometry(0.34, 0.018, 18, 96);
+  const lensGeometry = new THREE.TorusGeometry(0.23, 0.012, 16, 96);
   const leftLens = new THREE.Mesh(lensGeometry, ringMaterial.clone());
   const rightLens = new THREE.Mesh(lensGeometry, ringMaterial.clone());
 
-  leftLens.position.x = -0.42;
-  rightLens.position.x = 0.42;
+  leftLens.position.set(-0.34, 0.02, 0.055);
+  rightLens.position.set(0.34, 0.02, 0.055);
 
   const bridge = new THREE.Mesh(
-    new THREE.BoxGeometry(0.36, 0.025, 0.025),
+    new THREE.BoxGeometry(0.25, 0.018, 0.018),
     ringMaterial.clone(),
   );
-  bridge.position.y = 0.02;
+  bridge.position.set(0, 0.025, 0.055);
 
-  const leftGlass = new THREE.Mesh(
-    new THREE.CircleGeometry(0.29, 64),
-    lensMaterial.clone(),
+  const signal = new THREE.Mesh(
+    new THREE.SphereGeometry(0.025, 20, 20),
+    accentMaterial.clone(),
   );
-  const rightGlass = new THREE.Mesh(
-    new THREE.CircleGeometry(0.29, 64),
-    lensMaterial.clone(),
-  );
+  signal.position.set(0.58, 0.18, 0.065);
 
-  leftGlass.position.x = -0.42;
-  rightGlass.position.x = 0.42;
-  leftGlass.position.z = -0.006;
-  rightGlass.position.z = -0.006;
+  group.add(leftLens, rightLens, bridge, signal);
+  group.position.set(0, -0.58, -1.72);
 
-  const brow = new THREE.Mesh(
-    new THREE.BoxGeometry(1.08, 0.018, 0.018),
-    ringMaterial.clone(),
-  );
-  brow.position.y = 0.35;
-
-  group.add(leftGlass, rightGlass, leftLens, rightLens, bridge, brow);
-  group.scale.setScalar(1.18);
-  group.position.set(0, -0.34, -2.02);
-
-  return group;
+  return { group, productTexture };
 }
 
 export function createOrbitSpatialScene({
@@ -214,7 +301,7 @@ export function createOrbitSpatialScene({
     powerPreference: "high-performance",
   });
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   renderer.setSize(mount.clientWidth, mount.clientHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.xr.enabled = true;
@@ -224,15 +311,15 @@ export function createOrbitSpatialScene({
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(orbitSpatialTheme.background);
-  scene.fog = new THREE.FogExp2(orbitSpatialTheme.background, 0.055);
+  scene.fog = new THREE.FogExp2(orbitSpatialTheme.background, 0.052);
 
   const camera = new THREE.PerspectiveCamera(
     58,
     mount.clientWidth / Math.max(mount.clientHeight, 1),
     0.05,
-    80,
+    90,
   );
-  camera.position.set(0, 1.58, 3.55);
+  camera.position.set(0, 1.58, 3.65);
 
   const rig = new THREE.Group();
   rig.add(camera);
@@ -248,69 +335,132 @@ export function createOrbitSpatialScene({
 
   const activeAccent = colorFromAccent(orbitModes[currentMode.index].accent);
 
-  const { context, texture } = makeTextTexture();
+  const { context, texture } = makeCanvasTexture();
   drawTextPanel(context, texture, currentMode.index);
+
+  const panelGroup = new THREE.Group();
+  panelGroup.position.set(0, 0.16, -2.68);
+  root.add(panelGroup);
 
   const panelMaterial = new THREE.MeshBasicMaterial({
     map: texture,
     transparent: true,
     opacity: 0.92,
     side: THREE.DoubleSide,
+    depthWrite: false,
   });
 
-  const panel = new THREE.Mesh(new THREE.PlaneGeometry(4.45, 2.5), panelMaterial);
-  panel.position.set(0, 0.18, -2.6);
-  root.add(panel);
+  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(4.72, 2.65), panelMaterial);
+  panelGroup.add(mainPanel);
+
+  const backing = createGlassPlane(4.88, 2.78, "#020407", 0.42);
+  backing.position.z = -0.025;
+  panelGroup.add(backing);
+
+  const leftWing = createGlassPlane(1.24, 2.42, "#071018", 0.22);
+  leftWing.position.set(-2.9, -0.02, 0.02);
+  leftWing.rotation.y = 0.34;
+  panelGroup.add(leftWing);
+
+  const rightWing = createGlassPlane(1.24, 2.42, "#071018", 0.22);
+  rightWing.position.set(2.9, -0.02, 0.02);
+  rightWing.rotation.y = -0.34;
+  panelGroup.add(rightWing);
 
   const panelEdge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(4.52, 2.57)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(4.78, 2.71)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
       opacity: 0.16,
     }),
   );
-  panelEdge.position.copy(panel.position);
-  root.add(panelEdge);
+  panelEdge.position.z = 0.018;
+  panelGroup.add(panelEdge);
 
-  const product = createProductProxy(activeAccent);
-  root.add(product);
+  const scanline = createLine(
+    [new THREE.Vector3(-2.12, -0.46, 0.03), new THREE.Vector3(2.12, -0.46, 0.03)],
+    activeAccent,
+    0.34,
+  );
+  panelGroup.add(scanline);
+
+  const { group: productStage, productTexture } = createProductStage(activeAccent);
+  root.add(productStage);
+
+  const halo = new THREE.Mesh(
+    new THREE.TorusGeometry(0.86, 0.004, 12, 160),
+    new THREE.MeshBasicMaterial({
+      color: activeAccent,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false,
+    }),
+  );
+  halo.rotation.x = Math.PI / 2.16;
+  halo.position.set(0, -0.86, -1.74);
+  root.add(halo);
 
   const railPoints: THREE.Vector3[] = [];
-  for (let i = 0; i <= 80; i += 1) {
-    const t = i / 80;
-    const x = THREE.MathUtils.lerp(-1.72, 1.72, t);
-    const y = -1.22 - Math.sin(t * Math.PI) * 0.1;
-    railPoints.push(new THREE.Vector3(x, y, -2.08));
+  for (let i = 0; i <= 96; i += 1) {
+    const t = i / 96;
+    const x = THREE.MathUtils.lerp(-1.86, 1.86, t);
+    const y = -1.32 - Math.sin(t * Math.PI) * 0.13;
+    const z = -1.82 - Math.sin(t * Math.PI) * 0.08;
+    railPoints.push(new THREE.Vector3(x, y, z));
   }
 
-  const rail = createLine(railPoints, activeAccent);
+  const rail = createLine(railPoints, activeAccent, 0.28);
   root.add(rail);
 
-  const nodeGeometry = new THREE.SphereGeometry(0.045, 24, 24);
+  const activeHalo = new THREE.Mesh(
+    new THREE.TorusGeometry(0.083, 0.004, 10, 48),
+    new THREE.MeshBasicMaterial({
+      color: activeAccent,
+      transparent: true,
+      opacity: 0.62,
+      depthWrite: false,
+    }),
+  );
+  activeHalo.rotation.x = Math.PI / 2;
+  root.add(activeHalo);
+
+  const nodeGeometry = new THREE.SphereGeometry(0.048, 24, 24);
   const nodeObjects: THREE.Mesh[] = [];
+  const nodeLabels: THREE.Sprite[] = [];
 
   orbitModes.forEach((mode, index) => {
     const t =
       orbitModes.length > 1 ? index / Math.max(orbitModes.length - 1, 1) : 0.5;
-    const x = THREE.MathUtils.lerp(-1.72, 1.72, t);
-    const y = -1.22 - Math.sin(t * Math.PI) * 0.1;
+    const x = THREE.MathUtils.lerp(-1.86, 1.86, t);
+    const y = -1.32 - Math.sin(t * Math.PI) * 0.13;
+    const z = -1.82 - Math.sin(t * Math.PI) * 0.08;
 
     const material = new THREE.MeshBasicMaterial({
       color: index === currentMode.index ? colorFromAccent(mode.accent) : 0xffffff,
       transparent: true,
-      opacity: index === currentMode.index ? 0.95 : 0.34,
+      opacity: index === currentMode.index ? 0.95 : 0.32,
       depthWrite: false,
     });
 
     const node = new THREE.Mesh(nodeGeometry, material);
-    node.position.set(x, y, -2.08);
+    node.position.set(x, y, z);
     node.userData.modeIndex = index;
     nodeObjects.push(node);
     root.add(node);
+
+    const label = createLabelSprite(String(index + 1).padStart(2, "0"));
+    label.position.set(x, y - 0.14, z + 0.005);
+    label.material.opacity = index === currentMode.index ? 0.58 : 0.22;
+    nodeLabels.push(label);
+    root.add(label);
   });
 
-  const starGroup = new THREE.Group();
+  activeHalo.position.copy(nodeObjects[currentMode.index].position);
+
+  const atmosphereGroup = new THREE.Group();
+  scene.add(atmosphereGroup);
+
   const starGeometry = new THREE.SphereGeometry(0.006, 8, 8);
   const starMaterial = new THREE.MeshBasicMaterial({
     color: 0xffffff,
@@ -318,20 +468,58 @@ export function createOrbitSpatialScene({
     opacity: 0.24,
   });
 
-  for (let i = 0; i < 150; i += 1) {
+  for (let i = 0; i < 170; i += 1) {
     const star = new THREE.Mesh(starGeometry, starMaterial);
     star.position.set(
       THREE.MathUtils.randFloatSpread(8),
-      THREE.MathUtils.randFloat(0.2, 4.5),
-      THREE.MathUtils.randFloat(-7, -3),
+      THREE.MathUtils.randFloat(0.16, 4.8),
+      THREE.MathUtils.randFloat(-7.5, -3.4),
     );
-    starGroup.add(star);
+    atmosphereGroup.add(star);
   }
 
-  scene.add(starGroup);
+  const horizonLines: THREE.Line[] = [];
+  for (let i = 0; i < 5; i += 1) {
+    const y = -0.22 - i * 0.18;
+    const line = createLine(
+      [new THREE.Vector3(-4.6, y, -4.6), new THREE.Vector3(4.6, y, -4.6)],
+      "rgba(255,255,255,0.14)",
+      0.07,
+    );
+    horizonLines.push(line);
+    atmosphereGroup.add(line);
+  }
 
   const pointer = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
+  const controllerRaycaster = new THREE.Raycaster();
+  const tempMatrix = new THREE.Matrix4();
+
+  function updateNodeVisuals(nextIndex: number, nextAccent: THREE.Color) {
+    nodeObjects.forEach((node, nodeIndex) => {
+      const material = node.material as THREE.MeshBasicMaterial;
+      const isActive = nodeIndex === nextIndex;
+      material.color.copy(isActive ? nextAccent : new THREE.Color(0xffffff));
+      material.opacity = isActive ? 0.95 : 0.32;
+
+      const labelMaterial = nodeLabels[nodeIndex].material as THREE.SpriteMaterial;
+      labelMaterial.opacity = isActive ? 0.58 : 0.22;
+    });
+
+    activeHalo.position.copy(nodeObjects[nextIndex].position);
+
+    const activeHaloMaterial = activeHalo.material as THREE.MeshBasicMaterial;
+    activeHaloMaterial.color.copy(nextAccent);
+
+    const railMaterial = rail.material as THREE.LineBasicMaterial;
+    railMaterial.color.copy(nextAccent);
+
+    const scanlineMaterial = scanline.material as THREE.LineBasicMaterial;
+    scanlineMaterial.color.copy(nextAccent);
+
+    const haloMaterial = halo.material as THREE.MeshBasicMaterial;
+    haloMaterial.color.copy(nextAccent);
+  }
 
   function setMode(index: number) {
     const nextIndex = Math.min(Math.max(index, 0), orbitModes.length - 1);
@@ -341,22 +529,13 @@ export function createOrbitSpatialScene({
     const nextAccent = colorFromAccent(mode.accent);
 
     drawTextPanel(context, texture, nextIndex);
+    updateNodeVisuals(nextIndex, nextAccent);
 
-    nodeObjects.forEach((node, nodeIndex) => {
-      const material = node.material as THREE.MeshBasicMaterial;
-      const isActive = nodeIndex === nextIndex;
-      material.color.copy(isActive ? nextAccent : new THREE.Color(0xffffff));
-      material.opacity = isActive ? 0.95 : 0.34;
-    });
-
-    const railMaterial = rail.material as THREE.LineBasicMaterial;
-    railMaterial.color.copy(nextAccent);
-
-    product.traverse((child) => {
+    productStage.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const material = child.material as THREE.MeshBasicMaterial;
 
-        if (material.opacity < 0.24) {
+        if (material.opacity <= 0.22) {
           material.color.copy(nextAccent);
         }
       }
@@ -381,7 +560,64 @@ export function createOrbitSpatialScene({
     }
   }
 
+  let lastWheelAt = 0;
+  function handleWheel(event: WheelEvent) {
+    const now = performance.now();
+
+    if (now - lastWheelAt < 520) {
+      return;
+    }
+
+    lastWheelAt = now;
+
+    const direction = event.deltaY > 0 ? 1 : -1;
+    setMode((currentMode.index + direction + orbitModes.length) % orbitModes.length);
+  }
+
   renderer.domElement.addEventListener("pointerdown", handlePointerDown);
+  renderer.domElement.addEventListener("wheel", handleWheel, { passive: true });
+
+  const controllerLineGeometry = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0, 0, -1.45),
+  ]);
+
+  function makeController(index: number) {
+    const controller = renderer.xr.getController(index);
+    const line = new THREE.Line(
+      controllerLineGeometry,
+      new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.28,
+      }),
+    );
+
+    controller.add(line);
+
+    controller.addEventListener("selectstart", () => {
+      tempMatrix.identity().extractRotation(controller.matrixWorld);
+
+      controllerRaycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+      controllerRaycaster.ray.direction
+        .set(0, 0, -1)
+        .applyMatrix4(tempMatrix);
+
+      const intersections = controllerRaycaster.intersectObjects(nodeObjects, false);
+      const first = intersections[0]?.object;
+
+      if (first && typeof first.userData.modeIndex === "number") {
+        setMode(first.userData.modeIndex);
+      }
+    });
+
+    scene.add(controller);
+
+    return controller;
+  }
+
+  const controllerA = makeController(0);
+  const controllerB = makeController(1);
 
   const resizeObserver = new ResizeObserver(() => {
     const width = mount.clientWidth;
@@ -400,19 +636,35 @@ export function createOrbitSpatialScene({
   renderer.setAnimationLoop(() => {
     const elapsed = clock.getElapsedTime();
 
-    root.rotation.y = Math.sin(elapsed * 0.18) * 0.025;
-    root.position.y = 1.38 + Math.sin(elapsed * 0.32) * 0.018;
+    root.rotation.y = Math.sin(elapsed * 0.16) * 0.025;
+    root.position.y = 1.38 + Math.sin(elapsed * 0.28) * 0.018;
 
-    product.rotation.y = Math.sin(elapsed * 0.45) * 0.065;
-    product.position.y = -0.34 + Math.sin(elapsed * 0.58) * 0.018;
+    panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.018;
+    panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
+
+    productStage.rotation.y = Math.sin(elapsed * 0.4) * 0.055;
+    productStage.position.y = -0.58 + Math.sin(elapsed * 0.58) * 0.018;
+
+    halo.rotation.z += 0.0024;
+    activeHalo.rotation.z -= 0.006;
+
+    const activeAccentPulse = 1 + Math.sin(elapsed * 2.15) * 0.14;
 
     nodeObjects.forEach((node, index) => {
       const isActive = index === currentMode.index;
-      const pulse = isActive ? 1 + Math.sin(elapsed * 2.2) * 0.14 : 1;
+      const pulse = isActive ? activeAccentPulse : 1;
       node.scale.setScalar(pulse);
     });
 
-    starGroup.rotation.y += 0.00045;
+    const scanlineMaterial = scanline.material as THREE.LineBasicMaterial;
+    scanlineMaterial.opacity = 0.18 + Math.sin(elapsed * 1.4) * 0.08;
+
+    atmosphereGroup.rotation.y += 0.00038;
+
+    horizonLines.forEach((line, index) => {
+      const material = line.material as THREE.LineBasicMaterial;
+      material.opacity = 0.045 + Math.sin(elapsed * 0.42 + index) * 0.018;
+    });
 
     renderer.render(scene, camera);
   });
@@ -430,7 +682,7 @@ export function createOrbitSpatialScene({
       });
 
       await renderer.xr.setSession(session);
-      return "VR session active.";
+      return "VR session active. Point at mode nodes and select.";
     } catch {
       return "Could not start VR session.";
     }
@@ -439,10 +691,18 @@ export function createOrbitSpatialScene({
   function dispose() {
     renderer.setAnimationLoop(null);
     renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
+    renderer.domElement.removeEventListener("wheel", handleWheel);
     resizeObserver.disconnect();
 
+    controllerA.clear();
+    controllerB.clear();
+
     scene.traverse((object) => {
-      if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+      if (
+        object instanceof THREE.Mesh ||
+        object instanceof THREE.Line ||
+        object instanceof THREE.Sprite
+      ) {
         object.geometry?.dispose();
 
         const material = object.material;
@@ -452,10 +712,18 @@ export function createOrbitSpatialScene({
         } else {
           material?.dispose();
         }
+
+        const textureFromUserData = object.userData.texture;
+
+        if (textureFromUserData instanceof THREE.Texture) {
+          textureFromUserData.dispose();
+        }
       }
     });
 
+    productTexture.dispose();
     texture.dispose();
+    controllerLineGeometry.dispose();
     renderer.dispose();
 
     if (renderer.domElement.parentElement === mount) {
