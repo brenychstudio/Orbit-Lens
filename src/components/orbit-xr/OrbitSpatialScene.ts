@@ -212,7 +212,7 @@ function createGlassPlane(
   );
 }
 
-function createProductStage(accentColor: THREE.Color) {
+function createProductStage() {
   const group = new THREE.Group();
   group.name = "Orbit Lens product stage";
 
@@ -249,42 +249,6 @@ function createProductStage(accentColor: THREE.Color) {
   edge.position.z = 0.018;
   group.add(edge);
 
-  const ringMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.12,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-  });
-
-  const accentMaterial = new THREE.MeshBasicMaterial({
-    color: accentColor,
-    transparent: true,
-    opacity: 0.18,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-  });
-
-  const lensGeometry = new THREE.TorusGeometry(0.23, 0.012, 16, 96);
-  const leftLens = new THREE.Mesh(lensGeometry, ringMaterial.clone());
-  const rightLens = new THREE.Mesh(lensGeometry, ringMaterial.clone());
-
-  leftLens.position.set(-0.34, 0.02, 0.055);
-  rightLens.position.set(0.34, 0.02, 0.055);
-
-  const bridge = new THREE.Mesh(
-    new THREE.BoxGeometry(0.25, 0.018, 0.018),
-    ringMaterial.clone(),
-  );
-  bridge.position.set(0, 0.025, 0.055);
-
-  const signal = new THREE.Mesh(
-    new THREE.SphereGeometry(0.025, 20, 20),
-    accentMaterial.clone(),
-  );
-  signal.position.set(0.58, 0.18, 0.065);
-
-  group.add(leftLens, rightLens, bridge, signal);
   group.position.set(0, -0.68, -1.48);
 
   return { group, productTexture };
@@ -385,15 +349,15 @@ export function createOrbitSpatialScene({
   );
   panelGroup.add(scanline);
 
-  const { group: productStage, productTexture } = createProductStage(activeAccent);
+  const { group: productStage, productTexture } = createProductStage();
   root.add(productStage);
 
   const halo = new THREE.Mesh(
-    new THREE.TorusGeometry(0.86, 0.004, 12, 160),
+    new THREE.TorusGeometry(0.78, 0.003, 12, 160),
     new THREE.MeshBasicMaterial({
       color: activeAccent,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.1,
       depthWrite: false,
     }),
   );
@@ -532,12 +496,20 @@ export function createOrbitSpatialScene({
     updateNodeVisuals(nextIndex, nextAccent);
 
     productStage.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
+      if (
+        child instanceof THREE.Mesh &&
+        child.name === "product subtle signal dot"
+      ) {
         const material = child.material as THREE.MeshBasicMaterial;
+        material.color.copy(nextAccent);
+      }
 
-        if (material.opacity <= 0.22) {
-          material.color.copy(nextAccent);
-        }
+      if (
+        child instanceof THREE.Line &&
+        child.name === "product optical reflection line"
+      ) {
+        const material = child.material as THREE.LineBasicMaterial;
+        material.color.copy(nextAccent);
       }
     });
 
@@ -642,8 +614,8 @@ export function createOrbitSpatialScene({
     panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.018;
     panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
 
-    productStage.rotation.y = Math.sin(elapsed * 0.4) * 0.055;
-    productStage.position.y = -0.58 + Math.sin(elapsed * 0.58) * 0.018;
+    productStage.rotation.y = Math.sin(elapsed * 0.34) * 0.035;
+    productStage.position.y = -0.72 + Math.sin(elapsed * 0.52) * 0.018;
 
     halo.rotation.z += 0.0024;
     activeHalo.rotation.z -= 0.006;
