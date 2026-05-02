@@ -21,15 +21,15 @@ function getViewportTier(width: number): ViewportTier {
 
 const cardPositions: Record<string, string> = {
   floating:
-    "left-[4%] top-[18%] z-[20] w-[17.5rem] xl:left-[5%] xl:top-[17%] xl:w-[18.5rem]",
+    "left-[5%] top-[14%] z-[20] w-[16.5rem] xl:left-[6%] xl:top-[13%] xl:w-[17.5rem]",
   front:
-    "left-[45%] top-[17%] z-[18] w-[17rem] xl:left-[46%] xl:top-[16%] xl:w-[18rem]",
+    "left-[45%] top-[13%] z-[18] w-[16.5rem] xl:left-[46%] xl:top-[12%] xl:w-[17.5rem]",
   side:
-    "right-[1%] top-[28%] z-[24] w-[22rem] xl:right-[2%] xl:top-[27%] xl:w-[23rem]",
+    "right-[2%] top-[22%] z-[24] w-[20.5rem] xl:right-[3%] xl:top-[21%] xl:w-[21.5rem]",
   material:
-    "left-[20%] bottom-[1%] z-[26] w-[23rem] xl:left-[21%] xl:bottom-[0%] xl:w-[24rem]",
+    "left-[20%] bottom-[15%] z-[26] w-[21.5rem] xl:left-[21%] xl:bottom-[14%] xl:w-[22.5rem]",
   privacy:
-    "left-[55%] bottom-[4%] z-[22] w-[18rem] xl:left-[56%] xl:bottom-[4%] xl:w-[19rem]",
+    "left-[56%] bottom-[17%] z-[22] w-[16.8rem] xl:left-[57%] xl:bottom-[17%] xl:w-[17.8rem]",
 };
 
 function InspectCard({
@@ -581,8 +581,8 @@ function ExpandedAsset({
 
   return (
       <motion.div
-        className={`orbit-detail-material absolute left-1/2 top-[50%] z-50 max-h-[78%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-1/2 md:max-h-[82%] md:rounded-[1.65rem] md:p-2 ${
-        isSquare ? "w-[min(84%,24rem)] md:w-[min(72%,42rem)] lg:w-[min(42%,30rem)]" : "w-[min(88%,29rem)] md:w-[min(82%,58rem)] lg:w-[min(52%,44rem)]"
+        className={`orbit-detail-material absolute left-1/2 top-[46%] z-50 max-h-[70%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-[46%] md:max-h-[74%] md:rounded-[1.65rem] md:p-2 ${
+        isSquare ? "w-[min(82%,23rem)] md:w-[min(66%,37rem)] lg:w-[min(38%,27rem)]" : "w-[min(86%,27rem)] md:w-[min(72%,50rem)] lg:w-[min(45%,38rem)]"
       }`}
       initial={{ opacity: 0, scale: 0.965, y: 8, filter: "blur(6px)" }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
@@ -622,7 +622,7 @@ function ExpandedAsset({
         <OpticalTypewriterCaption text={asset.caption} accent={accent} />
       </div>
 
-      <div className="flex items-center justify-between gap-4 px-2 pb-2 pt-3">
+      <div className="flex items-center justify-between gap-4 px-2 pb-1.5 pt-2.5">
         <div className="min-w-0">
           <p className="text-[0.48rem] uppercase tracking-[0.26em] text-white/30">
             Product Inspection
@@ -636,7 +636,7 @@ function ExpandedAsset({
           type="button"
           onClick={onClose}
           aria-label="Close product inspection detail"
-          className="group relative inline-flex shrink-0 items-center gap-2 px-1 py-2 text-[0.46rem] uppercase tracking-[0.28em] text-white/50 transition hover:text-white/86 md:text-[0.5rem] md:tracking-[0.32em]"
+          className="group relative inline-flex shrink-0 items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.025] px-3 py-2 text-[0.46rem] uppercase tracking-[0.24em] text-white/58 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/88 md:text-[0.48rem] md:tracking-[0.28em]"
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
@@ -681,7 +681,7 @@ export function OpticsInspectLayer({
     if (!isOpen) {
       const resetTimer = window.setTimeout(() => {
         setSelectedId(null);
-      }, 760);
+      }, 620);
 
       return () => window.clearTimeout(resetTimer);
     }
@@ -794,7 +794,7 @@ export function OpticsInspectLayer({
           onSelect={setSelectedId}
         />
       ) : (
-        <div className="absolute inset-0 z-20 lg:left-[3.8rem] lg:right-[3.2rem] lg:top-[5.9rem] lg:bottom-[3.8rem]">
+        <div className="absolute inset-0 z-20 lg:left-[3.8rem] lg:right-[3.2rem] lg:top-[5.4rem] lg:bottom-[5.9rem]">
           {opticsAssets.map((asset, index) => {
             const isSelected = selectedId === asset.id;
             const hasSelection = selectedId !== null;
@@ -830,7 +830,7 @@ export function OpticsInspectLayer({
       </AnimatePresence>
 
       {!selectedAsset && !isTouchLayout ? (
-        <div className="absolute bottom-[4.2rem] left-1/2 z-30 -translate-x-1/2 text-[0.52rem] uppercase tracking-[0.32em] text-white/26">
+        <div className="absolute bottom-[5.8rem] left-1/2 z-30 -translate-x-1/2 text-[0.52rem] uppercase tracking-[0.32em] text-white/26">
           Drag / select / inspect
         </div>
       ) : null}
