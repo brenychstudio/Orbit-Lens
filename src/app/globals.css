@@ -862,4 +862,25 @@ button {
   backface-visibility: hidden;
 }
 
+/* Orbit Lens — Task 20B-J1 Inspect Reveal Root Motion Stabilization */
+.orbit-shell-motion-root,
+.orbit-optical-viewport {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.orbit-shell-motion-root {
+  will-change: transform;
+}
+
+.orbit-shell-motion-root[data-inspect-open="true"] {
+  contain: paint;
+}
+
+.orbit-optical-viewport[data-inspect-open="true"] {
+  contain: paint;
+}
+
 

@@ -1838,6 +1838,7 @@ export function OrbitExperience() {
   const isCreateField = activeMode.id === "create";
   const isFocusField = activeMode.id === "focus";
   const isPrivacyField = activeMode.id === "privacy";
+  const isInspectStabilizing = isInspectOpen && viewportTier === "desktop";
 
   useEffect(() => {
     const syncViewportTier = () => {
@@ -1854,10 +1855,11 @@ export function OrbitExperience() {
   }, []);
 
   const inspectScale =
-    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.055 : 1.18;
+    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.075 : 1.235;
 
   const inspectYOffset =
-    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -1 : -2;
+    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -0.75 : -2.4;
+  const inspectMotionDuration = isInspectOpen ? 1.04 : 0.92;
 
   const currentProgress = useMemo(
     () =>
@@ -1913,20 +1915,25 @@ export function OrbitExperience() {
       <section className="mobile-stability-mode relative z-10 flex min-h-screen items-start justify-center px-2.5 py-3 sm:px-4 md:items-center md:px-8 md:py-6">
         <div className="mx-auto w-full max-w-[1488px]">
           <motion.div
-            className="orbit-shell-material orbit-shell-frame relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border p-3 backdrop-blur-[30px] sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
+            className="orbit-shell-material orbit-shell-frame orbit-shell-motion-root relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border p-3 sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
+            data-inspect-open={isInspectOpen ? "true" : "false"}
             animate={{
               scale: isInspectOpen ? inspectScale : 1,
               y: isInspectOpen ? inspectYOffset : 0,
             }}
             transition={{
               scale: {
-                duration: 0.3,
-                ease: [0.16, 1, 0.3, 1],
+                duration: inspectMotionDuration,
+                ease: isInspectOpen ? [0.19, 1, 0.22, 1] : [0.22, 1, 0.36, 1],
               },
               y: {
-                duration: 0.3,
-                ease: [0.16, 1, 0.3, 1],
+                duration: inspectMotionDuration,
+                ease: isInspectOpen ? [0.19, 1, 0.22, 1] : [0.22, 1, 0.36, 1],
               },
+            }}
+            style={{
+              backfaceVisibility: "hidden",
+              willChange: "transform",
             }}
             drag={isInspectOpen ? false : "x"}
             dragConstraints={{ left: 0, right: 0 }}
@@ -1958,47 +1965,45 @@ export function OrbitExperience() {
               <span>{currentProgress}</span>
             </div>
 
-            <div className="orbit-inner-field-material orbit-optical-viewport relative min-h-[calc(100svh-9.25rem)] overflow-hidden rounded-[1.35rem] border backdrop-blur-[20px] sm:min-h-[38rem] md:min-h-[43rem] md:rounded-[2.3rem] lg:min-h-[680px] xl:rounded-[2.8rem]">
+            <div
+              className="orbit-inner-field-material orbit-optical-viewport relative min-h-[calc(100svh-9.25rem)] overflow-hidden rounded-[1.35rem] border sm:min-h-[38rem] md:min-h-[43rem] md:rounded-[2.3rem] lg:min-h-[680px] xl:rounded-[2.8rem]"
+              data-inspect-open={isInspectOpen ? "true" : "false"}
+            >
               <motion.div
                 className="pointer-events-none absolute inset-0 z-[48] bg-black"
-                animate={{ opacity: isInspectOpen ? 0.86 : 0 }}
+                animate={{ opacity: isInspectOpen ? 0.76 : 0 }}
                 transition={{
-                  duration: 0.14,
-                  ease: [0.18, 1, 0.3, 1],
+                  duration: isInspectOpen ? 0.76 : 0.72,
+                  ease: [0.22, 1, 0.36, 1],
                 }}
               />
 
-              <AnimatePresence mode="wait" custom={transitionDirection}>
+              <AnimatePresence initial={false} custom={transitionDirection}>
                 <motion.div
                   key={`scene-${activeMode.id}`}
                   className="absolute inset-0"
                   custom={transitionDirection}
                   initial={{
                     opacity: 0,
-                    x: transitionDirection * 46,
-                    scale: 1.045,
-                    rotateY: transitionDirection * -4,
-                    filter: "blur(22px)",
-                    clipPath: "inset(0% 0% 0% 18%)",
+                    x: transitionDirection * 32,
+                    scale: 1.025,
                   }}
                   animate={{
                     opacity: 1,
                     x: 0,
                     scale: 1,
-                    rotateY: 0,
-                    filter: "blur(0px)",
-                    clipPath: "inset(0% 0% 0% 0%)",
                   }}
                   exit={{
                     opacity: 0,
-                    x: transitionDirection * -42,
-                    scale: 0.985,
-                    rotateY: transitionDirection * 4,
-                    filter: "blur(20px)",
-                    clipPath: "inset(0% 18% 0% 0%)",
+                    x: transitionDirection * -32,
+                    scale: 1.005,
                   }}
-                  transition={{ duration: 0.92, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ transformPerspective: 1400 }}
+                  transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+                  style={{
+                    transformPerspective: 1400,
+                    backfaceVisibility: "hidden",
+                    willChange: "opacity, transform",
+                  }}
                 >
                   <Image
                     src={copy.visual}
@@ -2015,8 +2020,8 @@ export function OrbitExperience() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,transparent_48%,rgba(0,0,0,0.7)_100%)]" />
               <div className="absolute inset-0 opacity-[0.012] [background-image:linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] [background-size:92px_92px]" />
 
-              {viewportTier === "desktop" ? (
-                <AnimatePresence mode="wait">
+              {viewportTier === "desktop" && !isInspectStabilizing ? (
+                <AnimatePresence initial={false}>
                   <OpticalSweep
                     key={`sweep-${activeMode.id}`}
                     accent={activeMode.accent}
@@ -2028,6 +2033,7 @@ export function OrbitExperience() {
                   modeId={activeMode.id}
                   accent={activeMode.accent}
                   isVisible={
+                    !isInspectStabilizing &&
                     !isRecallField &&
                     !isTranslateField &&
                     !isCreateField &&
@@ -2082,29 +2088,32 @@ export function OrbitExperience() {
                   className="pointer-events-none absolute left-[62%] top-[56%] z-10 h-[15rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:left-[59%] sm:top-[50%] sm:h-[24rem] sm:w-[46rem] md:left-[61%] md:top-[48%] md:h-[29rem] md:w-[56rem] lg:left-[62%] lg:h-[37rem] lg:w-[72rem] [mask-image:radial-gradient(ellipse_at_center,black_48%,transparent_80%)]"
                   initial={{
                     opacity: 0,
-                    x: transitionDirection * 48,
-                    scale: 0.975,
-                    filter: "blur(16px)",
+                    x: transitionDirection * 34,
+                    scale: 0.985,
                   }}
                   animate={{
-                    opacity: isInspectOpen ? 0.18 : 1,
+                    opacity: isInspectOpen ? 0.14 : 1,
                     x: 0,
-                    scale: [0.992, 1, 0.992],
-                    filter: isInspectOpen ? "blur(0px) brightness(0.58)" : "blur(0px) brightness(1)",
-                    y: [5, -5, 5],
+                    scale: isInspectOpen ? 0.992 : [0.992, 1, 0.992],
+                    y: isInspectOpen ? 0 : [5, -5, 5],
                   }}
                   exit={{
                     opacity: 0,
-                    x: transitionDirection * -48,
-                    scale: 1.012,
-                    filter: "blur(14px)",
+                    x: transitionDirection * -34,
+                    scale: 1.005,
                   }}
                   transition={{
-                    opacity: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                    x: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
-                    filter: { duration: 0.82, ease: [0.22, 1, 0.36, 1] },
-                    scale: { duration: 9.5, repeat: Infinity, ease: "easeInOut" },
-                    y: { duration: 9.5, repeat: Infinity, ease: "easeInOut" },
+                    opacity: {
+                      duration: isInspectOpen ? 0.76 : 0.78,
+                      ease: [0.22, 1, 0.36, 1],
+                    },
+                    x: { duration: isInspectOpen ? 0.72 : 0.96, ease: [0.22, 1, 0.36, 1] },
+                    scale: isInspectOpen
+                      ? { duration: 0.76, ease: [0.19, 1, 0.22, 1] }
+                      : { duration: 9.5, repeat: Infinity, ease: "easeInOut" },
+                    y: isInspectOpen
+                      ? { duration: 0.76, ease: [0.19, 1, 0.22, 1] }
+                      : { duration: 9.5, repeat: Infinity, ease: "easeInOut" },
                   }}
                 >
                   <motion.div
@@ -2112,11 +2121,15 @@ export function OrbitExperience() {
                     style={{
                       background: `radial-gradient(ellipse, ${activeMode.accent} 0%, rgba(255,255,255,0.08) 22%, rgba(0,0,0,0.18) 52%, transparent 74%)`,
                     }}
-                  animate={{
-                    opacity: [0.1, 0.2, 0.1],
-                    scaleX: [0.92, 1.06, 0.92],
-                  }}
-                    transition={{ duration: 8.8, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{
+                      opacity: isInspectOpen ? 0.06 : [0.1, 0.2, 0.1],
+                      scaleX: isInspectOpen ? 1 : [0.92, 1.06, 0.92],
+                    }}
+                    transition={
+                      isInspectOpen
+                        ? { duration: 0.22, ease: [0.16, 1, 0.3, 1] }
+                        : { duration: 8.8, repeat: Infinity, ease: "easeInOut" }
+                    }
                   />
 
                   <motion.div
@@ -2124,11 +2137,15 @@ export function OrbitExperience() {
                     style={{
                       background: `linear-gradient(90deg, transparent, ${activeMode.accent}, rgba(255,255,255,0.5), ${activeMode.accent}, transparent)`,
                     }}
-                  animate={{
-                    opacity: [0.12, 0.32, 0.12],
-                    scaleX: [0.88, 1, 0.88],
-                  }}
-                    transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{
+                      opacity: isInspectOpen ? 0.08 : [0.12, 0.32, 0.12],
+                      scaleX: isInspectOpen ? 1 : [0.88, 1, 0.88],
+                    }}
+                    transition={
+                      isInspectOpen
+                        ? { duration: 0.22, ease: [0.16, 1, 0.3, 1] }
+                        : { duration: 6.8, repeat: Infinity, ease: "easeInOut" }
+                    }
                   />
 
                   <Image
@@ -2148,10 +2165,14 @@ export function OrbitExperience() {
                   background: `linear-gradient(90deg, transparent, ${activeMode.accent}, rgba(255,255,255,0.78), ${activeMode.accent}, transparent)`,
                 }}
                 animate={{
-                  opacity: [0.14, 0.46, 0.14],
-                  scaleX: [0.94, 1, 0.94],
+                  opacity: isInspectOpen ? 0.06 : [0.14, 0.46, 0.14],
+                  scaleX: isInspectOpen ? 1 : [0.94, 1, 0.94],
                 }}
-                transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+                transition={
+                  isInspectOpen
+                    ? { duration: 0.18, ease: [0.16, 1, 0.3, 1] }
+                    : { duration: 5.8, repeat: Infinity, ease: "easeInOut" }
+                }
               />
 
               <div className="absolute left-4 top-4 z-20 max-w-[13rem] sm:left-8 sm:top-8 sm:max-w-[32rem] md:left-10 md:top-10 lg:left-12 lg:top-12">

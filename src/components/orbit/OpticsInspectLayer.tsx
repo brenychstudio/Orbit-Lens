@@ -35,6 +35,8 @@ const cardPositions: Record<string, string> = {
 function InspectCard({
   asset,
   accent,
+  isOpen,
+  index,
   isSelected,
   hasSelection,
   dragEnabled,
@@ -42,12 +44,16 @@ function InspectCard({
 }: {
   asset: OpticsAsset;
   accent: string;
+  isOpen: boolean;
+  index: number;
   isSelected: boolean;
   hasSelection: boolean;
   dragEnabled: boolean;
   onSelect: () => void;
 }) {
   const isSquare = asset.ratio === "square";
+  const revealDelay = isOpen ? 0.28 + index * 0.07 : 0;
+  const closeDelay = !isOpen ? Math.max(0, index * 0.024) : 0;
 
   return (
     <motion.button
@@ -65,10 +71,16 @@ function InspectCard({
         filter: "blur(8px)",
       }}
       animate={{
-        opacity: hasSelection ? (isSelected ? 0.08 : 0.28) : 0.94,
-        y: hasSelection ? 0 : [0, -4, 0],
-        scale: hasSelection ? (isSelected ? 0.965 : 0.982) : 1,
-        filter: hasSelection ? "blur(2px)" : "blur(0px)",
+        opacity: !isOpen
+          ? 0
+          : hasSelection
+            ? isSelected
+              ? 0.08
+              : 0.28
+            : 0.94,
+        y: !isOpen ? 12 : hasSelection ? 0 : [0, -4, 0],
+        scale: !isOpen ? 0.986 : hasSelection ? (isSelected ? 0.965 : 0.982) : 1,
+        filter: hasSelection ? "blur(1.5px)" : "blur(0px)",
       }}
       exit={{
         opacity: 0,
@@ -82,10 +94,28 @@ function InspectCard({
         transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] },
       }}
       transition={{
-        opacity: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
-        filter: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
-        scale: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
-        y: { duration: 8.2, repeat: Infinity, ease: "easeInOut" },
+        opacity: {
+          duration: isOpen ? 0.74 : 0.62,
+          delay: isOpen ? revealDelay : closeDelay,
+          ease: [0.22, 1, 0.36, 1],
+        },
+        filter: {
+          duration: 0.36,
+          ease: [0.22, 1, 0.36, 1],
+        },
+        scale: {
+          duration: isOpen ? 0.74 : 0.62,
+          delay: isOpen ? revealDelay : closeDelay,
+          ease: [0.22, 1, 0.36, 1],
+        },
+        y:
+          hasSelection || !isOpen
+            ? {
+                duration: isOpen ? 0.74 : 0.62,
+                delay: isOpen ? revealDelay : closeDelay,
+                ease: [0.22, 1, 0.36, 1],
+              }
+            : { duration: 8.2, repeat: Infinity, ease: "easeInOut" },
       }}
       style={{
         backfaceVisibility: "hidden",
@@ -651,7 +681,7 @@ export function OpticsInspectLayer({
     if (!isOpen) {
       const resetTimer = window.setTimeout(() => {
         setSelectedId(null);
-      }, 0);
+      }, 760);
 
       return () => window.clearTimeout(resetTimer);
     }
@@ -663,7 +693,6 @@ export function OpticsInspectLayer({
   const isTouchLayout = viewportTier !== "desktop";
 
   const handleClose = () => {
-    setSelectedId(null);
     onClose();
   };
 
@@ -675,15 +704,18 @@ export function OpticsInspectLayer({
       initial={false}
       animate={{
         opacity: isOpen ? 1 : 0,
+        y: isOpen ? 0 : 3,
       }}
       transition={{
-        duration: isOpen ? 0.18 : 0.12,
-        ease: [0.18, 1, 0.3, 1],
+        duration: isOpen ? 0.86 : 0.72,
+        delay: isOpen ? 0.16 : 0,
+        ease: isOpen ? [0.19, 1, 0.22, 1] : [0.22, 1, 0.36, 1],
       }}
       style={{
         pointerEvents: isOpen ? "auto" : "none",
         backfaceVisibility: "hidden",
         transformOrigin: "50% 50%",
+        willChange: "opacity, transform",
       }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.055),transparent_34%),linear-gradient(90deg,rgba(0,0,0,0.58),rgba(0,0,0,0.22),rgba(0,0,0,0.58))]" />
@@ -763,7 +795,7 @@ export function OpticsInspectLayer({
         />
       ) : (
         <div className="absolute inset-0 z-20 lg:left-[3.8rem] lg:right-[3.2rem] lg:top-[5.9rem] lg:bottom-[3.8rem]">
-          {opticsAssets.map((asset) => {
+          {opticsAssets.map((asset, index) => {
             const isSelected = selectedId === asset.id;
             const hasSelection = selectedId !== null;
 
@@ -772,6 +804,8 @@ export function OpticsInspectLayer({
                 key={asset.id}
                 asset={asset}
                 accent={accent}
+                isOpen={isOpen}
+                index={index}
                 isSelected={isSelected}
                 hasSelection={hasSelection}
                 dragEnabled={dragEnabled}
