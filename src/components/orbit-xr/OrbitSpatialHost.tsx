@@ -21,6 +21,7 @@ export function OrbitSpatialHost() {
   const sceneRef = useRef<OrbitSpatialSceneApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [xrSupport, setXRSupport] = useState<XRSupportState>(initialXRState);
+  const [isInspectOpen, setIsInspectOpen] = useState(false);
   const [sessionStatus, setSessionStatus] = useState(
     "Desktop spatial preview. Click nodes or use ← / →.",
   );
@@ -63,6 +64,10 @@ export function OrbitSpatialHost() {
   }, [activeIndex]);
 
   useEffect(() => {
+    sceneRef.current?.setInspectMode(isInspectOpen);
+  }, [isInspectOpen]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight") {
         setActiveIndex((current) => (current + 1) % orbitModes.length);
@@ -92,6 +97,18 @@ export function OrbitSpatialHost() {
     }
   };
 
+  const handleToggleInspect = () => {
+    setIsInspectOpen((current) => {
+      const next = !current;
+      setSessionStatus(
+        next
+          ? "XR Inspect Optics active. Click cards or use wheel focus."
+          : "Desktop spatial preview. Click nodes or use в†ђ / в†’.",
+      );
+      return next;
+    });
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030407] text-[#f4efe6]">
       <div
@@ -116,7 +133,7 @@ export function OrbitSpatialHost() {
               <span>Orbit Spatial Interface</span>
               <span className="hidden h-px w-8 bg-white/[0.08] md:block" />
               <span className="hidden text-white/24 md:inline">
-                WebXR-ready field
+                {isInspectOpen ? "Optics inspection field" : "WebXR-ready field"}
               </span>
             </div>
 
@@ -204,8 +221,26 @@ export function OrbitSpatialHost() {
 
                 <div className="flex items-center justify-end gap-3">
                   <p className="hidden text-[0.62rem] text-white/34 lg:block">
-                    Click / wheel / keyboard
+                    {isInspectOpen
+                      ? "Click cards / wheel focus"
+                      : "Click / wheel / keyboard"}
                   </p>
+
+                  <button
+                    type="button"
+                    onClick={handleToggleInspect}
+                    className="group relative inline-flex items-center gap-2 rounded-full border border-white/[0.085] bg-white/[0.025] px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.22em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
+                    aria-pressed={isInspectOpen}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full transition duration-500 group-hover:scale-110"
+                      style={{
+                        background: activeMode.accent,
+                        boxShadow: `0 0 12px ${activeMode.accent}`,
+                      }}
+                    />
+                    {isInspectOpen ? "Close Optics" : "Inspect Optics"}
+                  </button>
 
                   <Link
                     href="/"

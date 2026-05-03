@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { orbitModes } from "@/data/orbitModes";
+import { opticsAssets as rawOpticsAssets } from "@/data/opticsAssets";
 import { orbitSpatialTheme } from "./orbitSpatialTheme";
 
 type NavigatorWithXR = Navigator & {
@@ -19,9 +20,48 @@ type OrbitSpatialSceneOptions = {
 
 export type OrbitSpatialSceneApi = {
   setMode: (index: number) => void;
+  setInspectMode: (isOpen: boolean) => void;
   startVR: () => Promise<string>;
   dispose: () => void;
 };
+
+type XROpticsAsset = {
+  id?: string;
+  title?: string;
+  label?: string;
+  layer?: string;
+  name?: string;
+  description?: string;
+  note?: string;
+  image?: string;
+  src?: string;
+  path?: string;
+  asset?: string;
+  ratio?: string;
+};
+
+const xrOpticsAssets = (rawOpticsAssets as unknown as readonly XROpticsAsset[])
+  .slice(0, 5)
+  .map((asset, index) => ({
+    id: asset.id ?? `xr-optics-${index}`,
+    title:
+      asset.title ??
+      asset.label ??
+      asset.layer ??
+      asset.name ??
+      `Optics layer ${String(index + 1).padStart(2, "0")}`,
+    note:
+      asset.note ??
+      asset.description ??
+      asset.layer ??
+      "Spatial optics layer",
+    image:
+      asset.image ??
+      asset.src ??
+      asset.path ??
+      asset.asset ??
+      orbitSpatialTheme.productImage,
+  }));
 
 function colorFromAccent(accent: string) {
   const match = accent.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
@@ -194,6 +234,46 @@ function createLabelSprite(label: string) {
   return sprite;
 }
 
+function setObjectOpacity(object: THREE.Object3D, weight: number) {
+  object.traverse((child) => {
+    if (
+      child instanceof THREE.Mesh ||
+      child instanceof THREE.Line ||
+      child instanceof THREE.Sprite
+    ) {
+      const material = child.material;
+
+      if (Array.isArray(material)) {
+        material.forEach((item) => {
+          const baseOpacity =
+            typeof item.userData.baseOpacity === "number"
+              ? item.userData.baseOpacity
+              : item.opacity;
+
+          item.userData.baseOpacity = baseOpacity;
+          item.opacity = baseOpacity * weight;
+          item.transparent = true;
+          item.needsUpdate = true;
+        });
+
+        return;
+      }
+
+      if (material) {
+        const baseOpacity =
+          typeof material.userData.baseOpacity === "number"
+            ? material.userData.baseOpacity
+            : material.opacity;
+
+        material.userData.baseOpacity = baseOpacity;
+        material.opacity = baseOpacity * weight;
+        material.transparent = true;
+        material.needsUpdate = true;
+      }
+    }
+  });
+}
+
 function createGlassPlane(
   width: number,
   height: number,
@@ -254,6 +334,115 @@ function createProductStage() {
   return { group, productTexture };
 }
 
+function createInspectCard({
+  asset,
+  index,
+  textureLoader,
+  accentColor,
+}: {
+  asset: (typeof xrOpticsAssets)[number];
+  index: number;
+  textureLoader: THREE.TextureLoader;
+  accentColor: THREE.Color;
+}) {
+  const group = new THREE.Group();
+  group.name = `xr inspect card ${asset.id}`;
+  group.userData.inspectIndex = index;
+
+  const imageTexture = textureLoader.load(asset.image);
+  imageTexture.colorSpace = THREE.SRGBColorSpace;
+  imageTexture.anisotropy = 8;
+
+  const card = createGlassPlane(1.04, 0.64, "#05080a", 0.42);
+  card.name = "xr inspect card backing";
+  card.userData.inspectIndex = index;
+  group.add(card);
+
+  const image = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.96, 0.54),
+    new THREE.MeshBasicMaterial({
+      map: imageTexture,
+      transparent: true,
+      opacity: 0.72,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }),
+  );
+  image.name = "xr inspect card image";
+  image.userData.inspectIndex = index;
+  image.position.set(0, 0.05, 0.018);
+  image.userData.texture = imageTexture;
+  group.add(image);
+
+  const edge = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.06, 0.66)),
+    new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.14,
+    }),
+  );
+  edge.name = "xr inspect card edge";
+  edge.userData.inspectIndex = index;
+  edge.position.z = 0.03;
+  group.add(edge);
+
+  const accentLine = createLine(
+    [
+      new THREE.Vector3(-0.42, -0.22, 0.044),
+      new THREE.Vector3(0.42, -0.22, 0.044),
+    ],
+    accentColor,
+    0.22,
+  );
+  accentLine.name = "xr inspect card accent line";
+  accentLine.userData.inspectIndex = index;
+  group.add(accentLine);
+
+  const label = createLabelSprite(asset.title);
+  label.name = "xr inspect card label";
+  label.userData.inspectIndex = index;
+  label.position.set(0, -0.38, 0.05);
+  label.scale.set(0.52, 0.13, 1);
+  group.add(label);
+
+  const positions = [
+    new THREE.Vector3(-1.76, -0.34, -1.1),
+    new THREE.Vector3(1.76, -0.34, -1.1),
+    new THREE.Vector3(-1.22, -1.02, -1.0),
+    new THREE.Vector3(1.22, -1.02, -1.0),
+    new THREE.Vector3(0, -0.16, -0.92),
+  ];
+
+  const rotations = [
+    new THREE.Euler(0, 0.22, -0.03),
+    new THREE.Euler(0, -0.22, 0.03),
+    new THREE.Euler(0, 0.16, 0.035),
+    new THREE.Euler(0, -0.16, -0.035),
+    new THREE.Euler(0, 0, 0),
+  ];
+
+  const fallbackPosition = new THREE.Vector3(
+    THREE.MathUtils.lerp(-1.5, 1.5, index / Math.max(xrOpticsAssets.length - 1, 1)),
+    -0.62,
+    -1.02,
+  );
+
+  group.position.copy(positions[index] ?? fallbackPosition);
+  group.rotation.copy(rotations[index] ?? new THREE.Euler(0, 0, 0));
+  group.scale.setScalar(index === 4 ? 0.88 : 0.82);
+
+  group.userData.basePosition = group.position.clone();
+  group.userData.baseRotation = group.rotation.clone();
+  group.userData.baseScale = group.scale.x;
+
+  return {
+    group,
+    hitObject: image,
+    imageTexture,
+  };
+}
+
 export function createOrbitSpatialScene({
   mount,
   initialIndex,
@@ -296,6 +485,11 @@ export function createOrbitSpatialScene({
 
   const currentMode = {
     index: Math.min(Math.max(initialIndex, 0), orbitModes.length - 1),
+  };
+  const inspectState = {
+    isOpen: false,
+    weight: 0,
+    focusedIndex: null as number | null,
   };
 
   const activeAccent = colorFromAccent(orbitModes[currentMode.index].accent);
@@ -352,6 +546,32 @@ export function createOrbitSpatialScene({
 
   const { group: productStage, productTexture } = createProductStage();
   root.add(productStage);
+
+  const textureLoader = new THREE.TextureLoader();
+
+  const inspectGroup = new THREE.Group();
+  inspectGroup.name = "XR Inspect Optics layer";
+  inspectGroup.visible = false;
+  inspectGroup.position.set(0, 0.02, 0.02);
+  root.add(inspectGroup);
+
+  const inspectHitObjects: THREE.Object3D[] = [];
+  const inspectTextures: THREE.Texture[] = [];
+
+  xrOpticsAssets.forEach((asset, index) => {
+    const { group, hitObject, imageTexture } = createInspectCard({
+      asset,
+      index,
+      textureLoader,
+      accentColor: activeAccent,
+    });
+
+    inspectGroup.add(group);
+    inspectHitObjects.push(hitObject);
+    inspectTextures.push(imageTexture);
+  });
+
+  setObjectOpacity(inspectGroup, 0);
 
   const halo = new THREE.Mesh(
     new THREE.TorusGeometry(0.78, 0.003, 12, 160),
@@ -496,6 +716,13 @@ export function createOrbitSpatialScene({
     drawTextPanel(context, texture, nextIndex);
     updateNodeVisuals(nextIndex, nextAccent);
 
+    inspectGroup.traverse((child) => {
+      if (child instanceof THREE.Line && child.name === "xr inspect card accent line") {
+        const material = child.material as THREE.LineBasicMaterial;
+        material.color.copy(nextAccent);
+      }
+    });
+
     productStage.traverse((child) => {
       if (
         child instanceof THREE.Mesh &&
@@ -517,6 +744,14 @@ export function createOrbitSpatialScene({
     onModeChange?.(nextIndex);
   }
 
+  function setInspectMode(isOpen: boolean) {
+    inspectState.isOpen = isOpen;
+
+    if (!isOpen) {
+      inspectState.focusedIndex = null;
+    }
+  }
+
   function handlePointerDown(event: PointerEvent) {
     const bounds = renderer.domElement.getBoundingClientRect();
 
@@ -524,6 +759,20 @@ export function createOrbitSpatialScene({
     pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
 
     raycaster.setFromCamera(pointer, camera);
+
+    if (inspectState.isOpen) {
+      const inspectIntersections = raycaster.intersectObjects(inspectHitObjects, false);
+      const inspectObject = inspectIntersections[0]?.object;
+
+      if (inspectObject && typeof inspectObject.userData.inspectIndex === "number") {
+        inspectState.focusedIndex =
+          inspectState.focusedIndex === inspectObject.userData.inspectIndex
+            ? null
+            : inspectObject.userData.inspectIndex;
+
+        return;
+      }
+    }
 
     const intersections = raycaster.intersectObjects(nodeObjects, false);
     const first = intersections[0]?.object;
@@ -542,6 +791,16 @@ export function createOrbitSpatialScene({
     }
 
     lastWheelAt = now;
+
+    if (inspectState.isOpen && xrOpticsAssets.length > 0) {
+      const direction = event.deltaY > 0 ? 1 : -1;
+      const currentFocused = inspectState.focusedIndex ?? 0;
+
+      inspectState.focusedIndex =
+        (currentFocused + direction + xrOpticsAssets.length) % xrOpticsAssets.length;
+
+      return;
+    }
 
     const direction = event.deltaY > 0 ? 1 : -1;
     setMode((currentMode.index + direction + orbitModes.length) % orbitModes.length);
@@ -576,6 +835,23 @@ export function createOrbitSpatialScene({
         .set(0, 0, -1)
         .applyMatrix4(tempMatrix);
 
+      if (inspectState.isOpen) {
+        const inspectIntersections = controllerRaycaster.intersectObjects(
+          inspectHitObjects,
+          false,
+        );
+        const inspectObject = inspectIntersections[0]?.object;
+
+        if (inspectObject && typeof inspectObject.userData.inspectIndex === "number") {
+          inspectState.focusedIndex =
+            inspectState.focusedIndex === inspectObject.userData.inspectIndex
+              ? null
+              : inspectObject.userData.inspectIndex;
+
+          return;
+        }
+      }
+
       const intersections = controllerRaycaster.intersectObjects(nodeObjects, false);
       const first = intersections[0]?.object;
 
@@ -607,7 +883,8 @@ export function createOrbitSpatialScene({
   const clock = new THREE.Clock();
 
   renderer.setAnimationLoop(() => {
-    const elapsed = clock.getElapsedTime();
+    const delta = Math.min(clock.getDelta(), 0.05);
+    const elapsed = clock.elapsedTime;
 
     root.rotation.y = Math.sin(elapsed * 0.16) * 0.022;
     root.position.y = 1.22 + Math.sin(elapsed * 0.28) * 0.014;
@@ -617,6 +894,60 @@ export function createOrbitSpatialScene({
 
     productStage.rotation.y = Math.sin(elapsed * 0.34) * 0.035;
     productStage.position.y = -0.82 + Math.sin(elapsed * 0.52) * 0.014;
+
+    inspectState.weight = THREE.MathUtils.damp(
+      inspectState.weight,
+      inspectState.isOpen ? 1 : 0,
+      5.8,
+      delta,
+    );
+
+    inspectGroup.visible = inspectState.weight > 0.01;
+    setObjectOpacity(inspectGroup, inspectState.weight);
+
+    const productDisplayWeight = 1 - inspectState.weight * 0.18;
+    productStage.scale.setScalar(productDisplayWeight);
+
+    inspectGroup.children.forEach((card, index) => {
+      const basePosition = card.userData.basePosition as THREE.Vector3 | undefined;
+      const baseRotation = card.userData.baseRotation as THREE.Euler | undefined;
+      const baseScale =
+        typeof card.userData.baseScale === "number" ? card.userData.baseScale : 0.82;
+
+      if (!basePosition || !baseRotation) {
+        return;
+      }
+
+      const isFocused = inspectState.focusedIndex === index;
+      const drift = Math.sin(elapsed * 0.62 + index * 0.9) * 0.028;
+
+      const targetPosition = isFocused
+        ? new THREE.Vector3(0, -0.42, -0.72)
+        : new THREE.Vector3(basePosition.x, basePosition.y + drift, basePosition.z);
+
+      card.position.lerp(targetPosition, isFocused ? 0.09 : 0.045);
+
+      card.rotation.x = THREE.MathUtils.lerp(
+        card.rotation.x,
+        isFocused ? 0 : baseRotation.x,
+        0.075,
+      );
+      card.rotation.y = THREE.MathUtils.lerp(
+        card.rotation.y,
+        isFocused ? 0 : baseRotation.y,
+        0.075,
+      );
+      card.rotation.z = THREE.MathUtils.lerp(
+        card.rotation.z,
+        isFocused ? 0 : baseRotation.z,
+        0.075,
+      );
+
+      const targetScale = isFocused ? 1.18 : baseScale;
+      card.scale.setScalar(
+        THREE.MathUtils.lerp(card.scale.x, targetScale, isFocused ? 0.09 : 0.055),
+      );
+    });
 
     halo.rotation.z += 0.0024;
     activeHalo.rotation.z -= 0.006;
@@ -694,6 +1025,7 @@ export function createOrbitSpatialScene({
       }
     });
 
+    inspectTextures.forEach((item) => item.dispose());
     productTexture.dispose();
     texture.dispose();
     controllerLineGeometry.dispose();
@@ -706,6 +1038,7 @@ export function createOrbitSpatialScene({
 
   return {
     setMode,
+    setInspectMode,
     startVR,
     dispose,
   };
