@@ -281,9 +281,10 @@ function applySignalHandMaterial(object: THREE.Object3D, accentColor: THREE.Colo
       child.material = new THREE.MeshBasicMaterial({
         color: accentColor,
         transparent: true,
-        opacity: 0.42,
+        opacity: 0.28,
         depthWrite: false,
         depthTest: false,
+        wireframe: false,
       });
 
       child.renderOrder = 80;
@@ -933,6 +934,7 @@ export function createOrbitSpatialScene({
   const controllerB = makeController(1);
 
   const handModelFactory = new XRHandModelFactory();
+  handModelFactory.setPath("https://cdn.jsdelivr.net/npm/three/examples/models/fbx/");
   const handPresenceNodes: THREE.Mesh[] = [];
   const handModels: THREE.Object3D[] = [];
 
@@ -940,7 +942,7 @@ export function createOrbitSpatialScene({
     const hand = renderer.xr.getHand(index);
     hand.name = `xr ${label} signal hand`;
 
-    const handModel = handModelFactory.createHandModel(hand, "spheres");
+    const handModel = handModelFactory.createHandModel(hand, "mesh");
     handModel.name = `xr ${label} hand model`;
     handModels.push(handModel);
 
