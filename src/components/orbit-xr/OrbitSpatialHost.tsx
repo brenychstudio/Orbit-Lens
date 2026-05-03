@@ -149,22 +149,22 @@ export function OrbitSpatialHost() {
 
             <div className="pointer-events-none absolute inset-0 rounded-[2.45rem] bg-[radial-gradient(circle_at_46%_22%,transparent,rgba(0,0,0,0.22)_48%,rgba(0,0,0,0.58)_100%)]" />
 
-            <div className="pointer-events-none absolute left-8 top-8 z-20 hidden max-w-[20rem] rounded-[1.8rem] border border-white/[0.07] bg-black/30 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-md lg:block">
+            <div className="pointer-events-none absolute left-8 top-8 z-20 hidden max-w-[16.5rem] rounded-[1.5rem] border border-white/[0.055] bg-black/22 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)] backdrop-blur-sm lg:block">
               <p
                 className="text-[0.58rem] uppercase tracking-[0.3em]"
                 style={{ color: activeMode.accent }}
               >
                 {activeMode.eyebrow}
               </p>
-              <h1 className="mt-3 text-2xl font-light leading-tight tracking-[-0.045em] text-white/86">
+              <h1 className="mt-2 text-lg font-light leading-tight tracking-[-0.04em] text-white/72">
                 {activeMode.title}
               </h1>
-              <p className="mt-3 text-[0.72rem] leading-5 text-white/42">
+              <p className="mt-2 text-[0.64rem] leading-4 text-white/34">
                 {activeMode.tagline}
               </p>
             </div>
 
-            <div className="absolute inset-x-8 bottom-6 z-30 rounded-full border border-white/[0.075] bg-[#05080a]/75 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.045),0_20px_80px_rgba(0,0,0,0.46)]">
+            <div className="absolute inset-x-8 bottom-6 z-30 rounded-full border border-white/[0.065] bg-[#05080a]/72 px-4 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_20px_80px_rgba(0,0,0,0.42)]">
               <div className="grid items-center gap-3 md:grid-cols-[0.85fr_1.5fr_auto]">
                 <div className="min-w-0">
                   <p className="text-[0.5rem] uppercase tracking-[0.28em] text-white/26">

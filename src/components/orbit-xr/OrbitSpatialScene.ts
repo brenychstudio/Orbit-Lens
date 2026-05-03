@@ -222,7 +222,7 @@ function createProductStage() {
   productTexture.anisotropy = 8;
 
   const imagePlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.28, 1.28),
+    new THREE.PlaneGeometry(2.86, 1.6),
     new THREE.MeshBasicMaterial({
       map: productTexture,
       transparent: true,
@@ -234,12 +234,12 @@ function createProductStage() {
   imagePlane.position.set(0, -0.02, 0.012);
   group.add(imagePlane);
 
-  const plate = createGlassPlane(2.5, 1.46, "#05080a", 0.28);
+  const plate = createGlassPlane(3.02, 1.68, "#030609", 0.3);
   plate.position.z = -0.01;
   group.add(plate);
 
   const edge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(2.52, 1.48)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(3.02, 1.68)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -249,7 +249,7 @@ function createProductStage() {
   edge.position.z = 0.018;
   group.add(edge);
 
-  group.position.set(0, -0.68, -1.48);
+  group.position.set(0, -0.82, -1.36);
 
   return { group, productTexture };
 }
@@ -315,10 +315,10 @@ export function createOrbitSpatialScene({
     depthWrite: false,
   });
 
-  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(5.18, 2.9), panelMaterial);
+  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(5.55, 3.1), panelMaterial);
   panelGroup.add(mainPanel);
 
-  const backing = createGlassPlane(5.34, 3.04, "#020407", 0.48);
+  const backing = createGlassPlane(5.72, 3.25, "#020407", 0.5);
   backing.position.z = -0.025;
   panelGroup.add(backing);
 
@@ -333,7 +333,7 @@ export function createOrbitSpatialScene({
   panelGroup.add(rightWing);
 
   const panelEdge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(5.24, 2.96)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(5.62, 3.16)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -379,7 +379,7 @@ export function createOrbitSpatialScene({
   root.add(rail);
 
   const activeHalo = new THREE.Mesh(
-    new THREE.TorusGeometry(0.083, 0.004, 10, 48),
+    new THREE.TorusGeometry(0.066, 0.003, 10, 48),
     new THREE.MeshBasicMaterial({
       color: activeAccent,
       transparent: true,
@@ -390,7 +390,7 @@ export function createOrbitSpatialScene({
   activeHalo.rotation.x = Math.PI / 2;
   root.add(activeHalo);
 
-  const nodeGeometry = new THREE.SphereGeometry(0.048, 24, 24);
+  const nodeGeometry = new THREE.SphereGeometry(0.038, 20, 20);
   const nodeObjects: THREE.Mesh[] = [];
   const nodeLabels: THREE.Sprite[] = [];
 
@@ -616,7 +616,7 @@ export function createOrbitSpatialScene({
     panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
 
     productStage.rotation.y = Math.sin(elapsed * 0.34) * 0.035;
-    productStage.position.y = -0.72 + Math.sin(elapsed * 0.52) * 0.018;
+    productStage.position.y = -0.82 + Math.sin(elapsed * 0.52) * 0.014;
 
     halo.rotation.z += 0.0024;
     activeHalo.rotation.z -= 0.006;
