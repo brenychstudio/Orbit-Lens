@@ -275,21 +275,365 @@ function setObjectOpacity(object: THREE.Object3D, weight: number) {
   });
 }
 
-function applySignalHandMaterial(object: THREE.Object3D, accentColor: THREE.Color) {
+const xrHandJointNames = [
+  "wrist",
+  "thumb-metacarpal",
+  "thumb-phalanx-proximal",
+  "thumb-phalanx-distal",
+  "thumb-tip",
+  "index-finger-metacarpal",
+  "index-finger-phalanx-proximal",
+  "index-finger-phalanx-intermediate",
+  "index-finger-phalanx-distal",
+  "index-finger-tip",
+  "middle-finger-metacarpal",
+  "middle-finger-phalanx-proximal",
+  "middle-finger-phalanx-intermediate",
+  "middle-finger-phalanx-distal",
+  "middle-finger-tip",
+  "ring-finger-metacarpal",
+  "ring-finger-phalanx-proximal",
+  "ring-finger-phalanx-intermediate",
+  "ring-finger-phalanx-distal",
+  "ring-finger-tip",
+  "pinky-finger-metacarpal",
+  "pinky-finger-phalanx-proximal",
+  "pinky-finger-phalanx-intermediate",
+  "pinky-finger-phalanx-distal",
+  "pinky-finger-tip",
+] as const;
+
+const xrHandConnections = [
+  ["wrist", "thumb-metacarpal"],
+  ["thumb-metacarpal", "thumb-phalanx-proximal"],
+  ["thumb-phalanx-proximal", "thumb-phalanx-distal"],
+  ["thumb-phalanx-distal", "thumb-tip"],
+
+  ["wrist", "index-finger-metacarpal"],
+  ["index-finger-metacarpal", "index-finger-phalanx-proximal"],
+  ["index-finger-phalanx-proximal", "index-finger-phalanx-intermediate"],
+  ["index-finger-phalanx-intermediate", "index-finger-phalanx-distal"],
+  ["index-finger-phalanx-distal", "index-finger-tip"],
+
+  ["wrist", "middle-finger-metacarpal"],
+  ["middle-finger-metacarpal", "middle-finger-phalanx-proximal"],
+  ["middle-finger-phalanx-proximal", "middle-finger-phalanx-intermediate"],
+  ["middle-finger-phalanx-intermediate", "middle-finger-phalanx-distal"],
+  ["middle-finger-phalanx-distal", "middle-finger-tip"],
+
+  ["wrist", "ring-finger-metacarpal"],
+  ["ring-finger-metacarpal", "ring-finger-phalanx-proximal"],
+  ["ring-finger-phalanx-proximal", "ring-finger-phalanx-intermediate"],
+  ["ring-finger-phalanx-intermediate", "ring-finger-phalanx-distal"],
+  ["ring-finger-phalanx-distal", "ring-finger-tip"],
+
+  ["wrist", "pinky-finger-metacarpal"],
+  ["pinky-finger-metacarpal", "pinky-finger-phalanx-proximal"],
+  ["pinky-finger-phalanx-proximal", "pinky-finger-phalanx-intermediate"],
+  ["pinky-finger-phalanx-intermediate", "pinky-finger-phalanx-distal"],
+  ["pinky-finger-phalanx-distal", "pinky-finger-tip"],
+
+  ["index-finger-metacarpal", "middle-finger-metacarpal"],
+  ["middle-finger-metacarpal", "ring-finger-metacarpal"],
+  ["ring-finger-metacarpal", "pinky-finger-metacarpal"],
+] as const;
+
+const xrHandTipNames = [
+  "thumb-tip",
+  "index-finger-tip",
+  "middle-finger-tip",
+  "ring-finger-tip",
+  "pinky-finger-tip",
+] as const;
+
+function applyHiddenHandTrackerMaterial(object: THREE.Object3D) {
   object.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       child.material = new THREE.MeshBasicMaterial({
-        color: accentColor,
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.32,
+        opacity: 0.001,
         depthWrite: false,
         depthTest: false,
       });
 
-      child.scale.multiplyScalar(0.82);
-      child.renderOrder = 80;
+      child.renderOrder = 1;
     }
   });
+}
+
+function collectJointMeshes(root: THREE.Object3D) {
+  const meshes: THREE.Object3D[] = [];
+
+  root.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      meshes.push(child);
+    }
+  });
+
+  return meshes;
+}
+
+function findHandJoint(
+  handModel: THREE.Object3D,
+  jointName: (typeof xrHandJointNames)[number],
+) {
+  const exact = handModel.getObjectByName(jointName);
+
+  if (exact) {
+    return exact;
+  }
+
+  let approximate: THREE.Object3D | null = null;
+
+  handModel.traverse((child) => {
+    if (approximate) {
+      return;
+    }
+
+    if (child.name.toLowerCase().includes(jointName)) {
+      approximate = child;
+    }
+  });
+
+  if (approximate) {
+    return approximate;
+  }
+
+  const fallbackIndex = xrHandJointNames.indexOf(jointName);
+  const meshes = collectJointMeshes(handModel);
+
+  return meshes[fallbackIndex] ?? null;
+}
+
+function createSignalHandRenderer({
+  hand,
+  handModel,
+  accentColor,
+  camera,
+  scene,
+  label,
+}: {
+  hand: THREE.Group;
+  handModel: THREE.Object3D;
+  accentColor: THREE.Color;
+  camera: THREE.Camera;
+  scene: THREE.Scene;
+  label: "left" | "right";
+}) {
+  const signalGroup = new THREE.Group();
+  signalGroup.name = `xr ${label} custom signal hand`;
+  signalGroup.visible = false;
+  scene.add(signalGroup);
+
+  const linePositions = new Float32Array(xrHandConnections.length * 2 * 3);
+  const lineGeometry = new THREE.BufferGeometry();
+  lineGeometry.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
+
+  const lineMaterial = new THREE.LineBasicMaterial({
+    color: accentColor,
+    transparent: true,
+    opacity: 0.28,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const lattice = new THREE.LineSegments(lineGeometry, lineMaterial);
+  lattice.name = `xr ${label} hand signal lattice`;
+  lattice.renderOrder = 84;
+  signalGroup.add(lattice);
+
+  const fingertipMaterial = new THREE.MeshBasicMaterial({
+    color: accentColor,
+    transparent: true,
+    opacity: 0.72,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const fingertipNodes = xrHandTipNames.map((tipName, index) => {
+    const node = new THREE.Mesh(
+      new THREE.SphereGeometry(index === 1 ? 0.022 : 0.017, 18, 18),
+      fingertipMaterial.clone(),
+    );
+
+    node.name = `xr ${label} ${tipName} signal point`;
+    node.renderOrder = 88;
+    signalGroup.add(node);
+
+    return node;
+  });
+
+  const palmMaterial = new THREE.MeshBasicMaterial({
+    color: accentColor,
+    transparent: true,
+    opacity: 0.12,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const palmPlate = new THREE.Mesh(new THREE.CircleGeometry(0.105, 40), palmMaterial);
+  palmPlate.name = `xr ${label} palm signal plate`;
+  palmPlate.renderOrder = 82;
+  signalGroup.add(palmPlate);
+
+  const wristMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.16,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const wristNode = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), wristMaterial);
+  wristNode.name = `xr ${label} wrist quiet node`;
+  wristNode.renderOrder = 86;
+  signalGroup.add(wristNode);
+
+  const tempA = new THREE.Vector3();
+  const tempB = new THREE.Vector3();
+  const tempPalm = new THREE.Vector3();
+  const cameraWorld = new THREE.Vector3();
+
+  function setAccent(nextAccent: THREE.Color) {
+    lineMaterial.color.copy(nextAccent);
+    palmMaterial.color.copy(nextAccent);
+
+    fingertipNodes.forEach((node) => {
+      const material = node.material as THREE.MeshBasicMaterial;
+      material.color.copy(nextAccent);
+    });
+  }
+
+  function update(elapsed: number) {
+    const hasHand = hand.visible;
+
+    signalGroup.visible = hasHand;
+
+    if (!hasHand) {
+      return;
+    }
+
+    let visibleConnectionCount = 0;
+
+    xrHandConnections.forEach(([fromName, toName], connectionIndex) => {
+      const from = findHandJoint(handModel, fromName);
+      const to = findHandJoint(handModel, toName);
+
+      const offset = connectionIndex * 6;
+
+      if (!from || !to) {
+        linePositions[offset] = 0;
+        linePositions[offset + 1] = 0;
+        linePositions[offset + 2] = 0;
+        linePositions[offset + 3] = 0;
+        linePositions[offset + 4] = 0;
+        linePositions[offset + 5] = 0;
+        return;
+      }
+
+      from.getWorldPosition(tempA);
+      to.getWorldPosition(tempB);
+
+      linePositions[offset] = tempA.x;
+      linePositions[offset + 1] = tempA.y;
+      linePositions[offset + 2] = tempA.z;
+      linePositions[offset + 3] = tempB.x;
+      linePositions[offset + 4] = tempB.y;
+      linePositions[offset + 5] = tempB.z;
+
+      visibleConnectionCount += 1;
+    });
+
+    const positionAttribute = lineGeometry.getAttribute("position");
+    positionAttribute.needsUpdate = true;
+
+    lineMaterial.opacity =
+      visibleConnectionCount > 0 ? 0.18 + Math.sin(elapsed * 1.8) * 0.035 : 0;
+
+    xrHandTipNames.forEach((tipName, index) => {
+      const tip = findHandJoint(handModel, tipName);
+      const node = fingertipNodes[index];
+
+      node.visible = Boolean(tip);
+
+      if (!tip) {
+        return;
+      }
+
+      tip.getWorldPosition(tempA);
+      node.position.copy(tempA);
+
+      const material = node.material as THREE.MeshBasicMaterial;
+      material.opacity = 0.46 + Math.sin(elapsed * 2.4 + index * 0.7) * 0.12;
+      node.scale.setScalar(0.85 + Math.sin(elapsed * 2.1 + index) * 0.08);
+    });
+
+    const wrist = findHandJoint(handModel, "wrist");
+    const indexBase = findHandJoint(handModel, "index-finger-metacarpal");
+    const middleBase = findHandJoint(handModel, "middle-finger-metacarpal");
+    const pinkyBase = findHandJoint(handModel, "pinky-finger-metacarpal");
+
+    if (wrist) {
+      wrist.getWorldPosition(tempA);
+      wristNode.position.copy(tempA);
+      wristNode.visible = true;
+    } else {
+      wristNode.visible = false;
+    }
+
+    if (wrist && indexBase && middleBase && pinkyBase) {
+      tempPalm.set(0, 0, 0);
+
+      wrist.getWorldPosition(tempA);
+      tempPalm.add(tempA);
+
+      indexBase.getWorldPosition(tempA);
+      tempPalm.add(tempA);
+
+      middleBase.getWorldPosition(tempA);
+      tempPalm.add(tempA);
+
+      pinkyBase.getWorldPosition(tempA);
+      tempPalm.add(tempA);
+
+      tempPalm.multiplyScalar(0.25);
+
+      palmPlate.position.copy(tempPalm);
+      camera.getWorldPosition(cameraWorld);
+      palmPlate.lookAt(cameraWorld);
+      palmPlate.visible = true;
+
+      palmMaterial.opacity = 0.075 + Math.sin(elapsed * 1.5) * 0.02;
+      palmPlate.scale.setScalar(0.86 + Math.sin(elapsed * 1.6) * 0.08);
+    } else {
+      palmPlate.visible = false;
+    }
+  }
+
+  function dispose() {
+    lineGeometry.dispose();
+    lineMaterial.dispose();
+    palmMaterial.dispose();
+    wristMaterial.dispose();
+
+    fingertipNodes.forEach((node) => {
+      node.geometry.dispose();
+      (node.material as THREE.Material).dispose();
+    });
+
+    palmPlate.geometry.dispose();
+    wristNode.geometry.dispose();
+
+    scene.remove(signalGroup);
+  }
+
+  return {
+    setAccent,
+    update,
+    dispose,
+  };
 }
 
 function createGlassPlane(
@@ -778,6 +1122,10 @@ export function createOrbitSpatialScene({
       }
     });
 
+    signalHandRenderers.forEach((rendererItem) => {
+      rendererItem.setAccent(nextAccent);
+    });
+
     productStage.traverse((child) => {
       if (
         child instanceof THREE.Mesh &&
@@ -934,54 +1282,43 @@ export function createOrbitSpatialScene({
   const controllerB = makeController(1);
 
   const handModelFactory = new XRHandModelFactory();
-  const handPresenceNodes: THREE.Mesh[] = [];
-  const handModels: THREE.Object3D[] = [];
+  const signalHandRenderers: ReturnType<typeof createSignalHandRenderer>[] = [];
 
   function makeSignalHand(index: number, label: "left" | "right") {
     const hand = renderer.xr.getHand(index);
     hand.name = `xr ${label} signal hand`;
 
     const handModel = handModelFactory.createHandModel(hand, "spheres");
-    handModel.name = `xr ${label} hand model`;
-    handModels.push(handModel);
+    handModel.name = `xr ${label} hidden hand tracker`;
+    applyHiddenHandTrackerMaterial(handModel);
 
-    const signalCore = new THREE.Mesh(
-      new THREE.SphereGeometry(0.038, 24, 24),
-      new THREE.MeshBasicMaterial({
-        color: activeAccent,
-        transparent: true,
-        opacity: 0.34,
-        depthWrite: false,
-        depthTest: false,
-      }),
-    );
+    const signalHandRenderer = createSignalHandRenderer({
+      hand,
+      handModel,
+      accentColor: activeAccent,
+      camera,
+      scene,
+      label,
+    });
 
-    signalCore.name = `xr ${label} hand signal core`;
-    signalCore.renderOrder = 90;
-    handPresenceNodes.push(signalCore);
+    signalHandRenderers.push(signalHandRenderer);
 
     hand.add(handModel);
-    hand.add(signalCore);
 
     hand.addEventListener("connected", (event) => {
       const inputSource = event.data as XRInputSource | undefined;
 
       hand.visible = Boolean(inputSource?.hand);
       handModel.visible = Boolean(inputSource?.hand);
-      signalCore.visible = Boolean(inputSource?.hand);
-
-      applySignalHandMaterial(handModel, activeAccent);
     });
 
     hand.addEventListener("disconnected", () => {
       hand.visible = false;
       handModel.visible = false;
-      signalCore.visible = false;
     });
 
     hand.visible = false;
     handModel.visible = false;
-    signalCore.visible = false;
 
     scene.add(hand);
 
@@ -1096,17 +1433,8 @@ export function createOrbitSpatialScene({
 
     atmosphereGroup.rotation.y += 0.00038;
 
-    handModels.forEach((handModel) => {
-      applySignalHandMaterial(handModel, activeAccent);
-    });
-
-    handPresenceNodes.forEach((node, index) => {
-      const material = node.material as THREE.MeshBasicMaterial;
-      const pulse = 0.28 + Math.sin(elapsed * 2.4 + index * 0.8) * 0.08;
-
-      material.opacity = pulse;
-      material.color.copy(activeAccent);
-      node.scale.setScalar(0.9 + Math.sin(elapsed * 2.1 + index) * 0.1);
+    signalHandRenderers.forEach((rendererItem) => {
+      rendererItem.update(elapsed);
     });
 
     horizonLines.forEach((line, index) => {
@@ -1146,6 +1474,10 @@ export function createOrbitSpatialScene({
     controllerB.clear();
     handA.clear();
     handB.clear();
+
+    signalHandRenderers.forEach((rendererItem) => {
+      rendererItem.dispose();
+    });
 
     scene.traverse((object) => {
       if (
