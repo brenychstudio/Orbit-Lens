@@ -202,11 +202,13 @@ function createLine(
   return new THREE.Line(geometry, material);
 }
 
-const HAND_NODE_HOVER_RADIUS = 0.22;
-const HAND_INSPECT_HOVER_RADIUS = 0.56;
-const HAND_PINCH_SELECT_RADIUS = 0.038;
+const HAND_NODE_HOVER_RADIUS = 0.28;
+const HAND_INSPECT_HOVER_RADIUS = 0.62;
+const HAND_NAV_HOVER_RADIUS = 0.34;
+const HAND_PINCH_SELECT_RADIUS = 0.044;
 const HAND_SELECT_COOLDOWN_MS = 720;
 const HAND_INSPECT_SELECT_COOLDOWN_MS = 680;
+const HAND_NAV_SELECT_COOLDOWN_MS = 620;
 
 function readXRHandJointPosition({
   frame,
@@ -280,6 +282,43 @@ function createLabelSprite(label: string) {
 
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(0.44, 0.11, 1);
+  sprite.userData.texture = texture;
+
+  return sprite;
+}
+
+function createVRControlLabel(label: string) {
+  const { canvas, context, texture } = makeCanvasTexture(512, 160);
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  context.fillStyle = "rgba(3, 6, 9, 0.72)";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  context.strokeStyle = "rgba(255,255,255,0.13)";
+  context.lineWidth = 2;
+  context.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+
+  context.font =
+    "600 34px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  context.letterSpacing = "7px";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillStyle = "rgba(244,239,230,0.78)";
+  context.fillText(label.toUpperCase(), canvas.width / 2, canvas.height / 2);
+
+  texture.needsUpdate = true;
+
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    opacity: 0.72,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(0.52, 0.16, 1);
   sprite.userData.texture = texture;
 
   return sprite;
@@ -567,8 +606,8 @@ export function createOrbitSpatialScene({
   scene.add(rig);
 
   const root = new THREE.Group();
-  root.position.set(0, 1.06, -1.08);
-  root.scale.setScalar(0.92);
+  root.position.set(0, 0.98, -1.92);
+  root.scale.setScalar(0.78);
   scene.add(root);
 
   const currentMode = {
@@ -729,6 +768,80 @@ export function createOrbitSpatialScene({
   handHoverHalo.visible = false;
   handHoverHalo.renderOrder = 72;
   root.add(handHoverHalo);
+
+  type VRNavAction = "prev" | "next" | "inspect" | "exit";
+
+  const vrNavGroup = new THREE.Group();
+  vrNavGroup.name = "VR runtime navigation console";
+  vrNavGroup.position.set(0, -1.05, -0.42);
+  vrNavGroup.visible = false;
+  root.add(vrNavGroup);
+
+  const vrNavHitObjects: THREE.Mesh[] = [];
+  const vrNavLabels: THREE.Sprite[] = [];
+  const vrNavActions: VRNavAction[] = ["prev", "next", "inspect", "exit"];
+  const vrNavLabelMap: Record<VRNavAction, string> = {
+    prev: "Prev",
+    next: "Next",
+    inspect: "Inspect",
+    exit: "Exit",
+  };
+
+  const vrNavState = {
+    hoveredAction: null as VRNavAction | null,
+    lastPinchActive: false,
+    lastSelectAt: 0,
+    isImmersive: false,
+  };
+
+  const vrNavWorldPosition = new THREE.Vector3();
+
+  vrNavActions.forEach((action, index) => {
+    const x = THREE.MathUtils.lerp(-1.35, 1.35, index / 3);
+
+    const button = new THREE.Mesh(
+      new THREE.PlaneGeometry(action === "inspect" ? 0.82 : 0.56, 0.24),
+      new THREE.MeshBasicMaterial({
+        color: action === "inspect" ? activeAccent : new THREE.Color("#091016"),
+        transparent: true,
+        opacity: action === "inspect" ? 0.24 : 0.18,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        depthTest: false,
+      }),
+    );
+
+    button.name = `vr nav ${action}`;
+    button.userData.vrNavAction = action;
+    button.position.set(x, 0, 0);
+    button.renderOrder = 100;
+    vrNavGroup.add(button);
+    vrNavHitObjects.push(button);
+
+    const label = createVRControlLabel(vrNavLabelMap[action]);
+    label.name = `vr nav ${action} label`;
+    label.position.set(x, 0.006, 0.026);
+    label.renderOrder = 104;
+    vrNavGroup.add(label);
+    vrNavLabels.push(label);
+
+    const edge = new THREE.LineSegments(
+      new THREE.EdgesGeometry(
+        new THREE.PlaneGeometry(action === "inspect" ? 0.84 : 0.58, 0.26),
+      ),
+      new THREE.LineBasicMaterial({
+        color: action === "inspect" ? activeAccent : 0xffffff,
+        transparent: true,
+        opacity: action === "inspect" ? 0.22 : 0.12,
+        depthTest: false,
+      }),
+    );
+
+    edge.name = `vr nav ${action} edge`;
+    edge.position.set(x, 0, 0.032);
+    edge.renderOrder = 103;
+    vrNavGroup.add(edge);
+  });
 
   const nodeGeometry = new THREE.SphereGeometry(0.038, 20, 20);
   const nodeObjects: THREE.Mesh[] = [];
@@ -1153,11 +1266,146 @@ export function createOrbitSpatialScene({
     handInspectInteraction.lastPinchActive = isPinchActive;
   }
 
+  function findNearestVRNavFromHand(tipPosition: THREE.Vector3) {
+    let nearestAction: VRNavAction | null = null;
+    let nearestDistance = Infinity;
+
+    vrNavHitObjects.forEach((button) => {
+      button.getWorldPosition(vrNavWorldPosition);
+
+      const distance = tipPosition.distanceTo(vrNavWorldPosition);
+
+      if (distance < nearestDistance && distance <= HAND_NAV_HOVER_RADIUS) {
+        nearestDistance = distance;
+        nearestAction = button.userData.vrNavAction as VRNavAction;
+      }
+    });
+
+    return nearestAction;
+  }
+
+  function updateHandVRNavInteraction(frame: XRFrame | undefined) {
+    if (!vrNavState.isImmersive) {
+      vrNavState.hoveredAction = null;
+      vrNavState.lastPinchActive = false;
+      return;
+    }
+
+    const xrManager = renderer.xr as THREE.WebXRManager & {
+      getReferenceSpace?: () => XRReferenceSpace | null;
+      getSession?: () => XRSession | null;
+    };
+
+    const referenceSpace =
+      typeof xrManager.getReferenceSpace === "function"
+        ? xrManager.getReferenceSpace()
+        : null;
+
+    const session =
+      typeof xrManager.getSession === "function" ? xrManager.getSession() : null;
+
+    if (!frame || !referenceSpace || !session) {
+      vrNavState.hoveredAction = null;
+      vrNavState.lastPinchActive = false;
+      return;
+    }
+
+    let nextHoveredAction: VRNavAction | null = null;
+    let isPinchActive = false;
+
+    Array.from(session.inputSources).forEach((inputSource) => {
+      if (!inputSource.hand) {
+        return;
+      }
+
+      const hasIndexTip = readXRHandJointPosition({
+        frame,
+        referenceSpace,
+        inputSource,
+        jointName: "index-finger-tip",
+        target: handIndexTipWorld,
+      });
+
+      if (!hasIndexTip) {
+        return;
+      }
+
+      const hoveredAction = findNearestVRNavFromHand(handIndexTipWorld);
+
+      if (hoveredAction) {
+        nextHoveredAction = hoveredAction;
+      }
+
+      const hasThumbTip = readXRHandJointPosition({
+        frame,
+        referenceSpace,
+        inputSource,
+        jointName: "thumb-tip",
+        target: handThumbTipWorld,
+      });
+
+      if (!hasThumbTip) {
+        return;
+      }
+
+      const pinchDistance = handIndexTipWorld.distanceTo(handThumbTipWorld);
+
+      if (pinchDistance <= HAND_PINCH_SELECT_RADIUS) {
+        isPinchActive = true;
+      }
+    });
+
+    vrNavState.hoveredAction = nextHoveredAction;
+
+    const now = performance.now();
+    const canSelect = now - vrNavState.lastSelectAt > HAND_NAV_SELECT_COOLDOWN_MS;
+
+    if (
+      isPinchActive &&
+      !vrNavState.lastPinchActive &&
+      canSelect &&
+      vrNavState.hoveredAction
+    ) {
+      runVRNavAction(vrNavState.hoveredAction);
+      vrNavState.lastSelectAt = now;
+    }
+
+    vrNavState.lastPinchActive = isPinchActive;
+  }
+
   function setInspectMode(isOpen: boolean) {
     inspectState.isOpen = isOpen;
 
     if (!isOpen) {
       inspectState.focusedIndex = null;
+    }
+  }
+
+  function runVRNavAction(action: VRNavAction) {
+    if (action === "prev") {
+      setMode((currentMode.index - 1 + orbitModes.length) % orbitModes.length);
+      return;
+    }
+
+    if (action === "next") {
+      setMode((currentMode.index + 1) % orbitModes.length);
+      return;
+    }
+
+    if (action === "inspect") {
+      setInspectMode(!inspectState.isOpen);
+      return;
+    }
+
+    if (action === "exit") {
+      const xrManager = renderer.xr as THREE.WebXRManager & {
+        getSession?: () => XRSession | null;
+      };
+
+      const session =
+        typeof xrManager.getSession === "function" ? xrManager.getSession() : null;
+
+      session?.end();
     }
   }
 
@@ -1254,6 +1502,20 @@ export function createOrbitSpatialScene({
         .set(0, 0, -1)
         .applyMatrix4(tempMatrix);
 
+      if (vrNavState.isImmersive) {
+        const navIntersections = controllerRaycaster.intersectObjects(
+          vrNavHitObjects,
+          false,
+        );
+
+        const navObject = navIntersections[0]?.object;
+
+        if (navObject && navObject.userData.vrNavAction) {
+          runVRNavAction(navObject.userData.vrNavAction as VRNavAction);
+          return;
+        }
+      }
+
       if (inspectState.isOpen) {
         const inspectIntersections = controllerRaycaster.intersectObjects(
           inspectHitObjects,
@@ -1316,8 +1578,8 @@ export function createOrbitSpatialScene({
     const delta = Math.min(clock.getDelta(), 0.05);
     const elapsed = clock.elapsedTime;
 
-    root.rotation.y = Math.sin(elapsed * 0.16) * 0.014;
-    root.position.y = 1.06 + Math.sin(elapsed * 0.28) * 0.008;
+    root.rotation.y = Math.sin(elapsed * 0.16) * 0.01;
+    root.position.y = 0.98 + Math.sin(elapsed * 0.28) * 0.006;
 
     panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.018;
     panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
@@ -1464,8 +1726,44 @@ export function createOrbitSpatialScene({
       timeMs: performance.now(),
     });
 
-    updateHandNodeInteraction(elapsed, xrFrame);
-    updateHandInspectInteraction(elapsed, xrFrame);
+    updateHandVRNavInteraction(xrFrame);
+
+    if (!vrNavState.isImmersive) {
+      updateHandNodeInteraction(elapsed, xrFrame);
+      updateHandInspectInteraction(elapsed, xrFrame);
+    }
+
+    vrNavGroup.visible = vrNavState.isImmersive;
+
+    vrNavHitObjects.forEach((button) => {
+      const action = button.userData.vrNavAction as VRNavAction;
+      const isHovered = vrNavState.hoveredAction === action;
+      const isInspectButton = action === "inspect";
+      const isInspectActive = isInspectButton && inspectState.isOpen;
+
+      const material = button.material as THREE.MeshBasicMaterial;
+      material.opacity = isHovered
+        ? 0.42
+        : isInspectActive
+          ? 0.34
+          : isInspectButton
+            ? 0.24
+            : 0.18;
+
+      material.color.copy(
+        isInspectActive || isHovered ? activeAccent : new THREE.Color("#091016"),
+      );
+
+      button.scale.setScalar(isHovered ? 1.12 : 1);
+    });
+
+    vrNavLabels.forEach((label, index) => {
+      const action = vrNavActions[index];
+      const isHovered = vrNavState.hoveredAction === action;
+      const material = label.material as THREE.SpriteMaterial;
+      material.opacity = isHovered ? 0.94 : 0.7;
+      label.scale.set(isHovered ? 0.58 : 0.52, isHovered ? 0.18 : 0.16, 1);
+    });
 
     horizonLines.forEach((line, index) => {
       const material = line.material as THREE.LineBasicMaterial;
@@ -1487,8 +1785,17 @@ export function createOrbitSpatialScene({
         optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
       });
 
+      session.addEventListener("end", () => {
+        vrNavState.isImmersive = false;
+        vrNavState.hoveredAction = null;
+        vrNavGroup.visible = false;
+      });
+
       await renderer.xr.setSession(session);
-      return "VR session active. Hand tracking requested; controller fallback remains active.";
+      vrNavState.isImmersive = true;
+      vrNavGroup.visible = true;
+
+      return "VR session active. Use VR controls, hands, or controller fallback.";
     } catch {
       return "Could not start VR session.";
     }
