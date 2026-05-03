@@ -349,88 +349,125 @@ function createInspectCard({
   group.name = `xr inspect card ${asset.id}`;
   group.userData.inspectIndex = index;
 
-  const imageTexture = textureLoader.load(asset.image);
+  const imageTexture = textureLoader.load(asset.image, (loadedTexture) => {
+    const source = loadedTexture.image as {
+      width?: number;
+      height?: number;
+      naturalWidth?: number;
+      naturalHeight?: number;
+    };
+
+    const sourceWidth = source.naturalWidth ?? source.width ?? 1600;
+    const sourceHeight = source.naturalHeight ?? source.height ?? 900;
+    const aspect = sourceWidth / Math.max(sourceHeight, 1);
+
+    const maxWidth = 1.14;
+    const maxHeight = 0.66;
+    const targetRatio = maxWidth / maxHeight;
+
+    const width = aspect >= targetRatio ? maxWidth : maxHeight * aspect;
+    const height = aspect >= targetRatio ? maxWidth / aspect : maxHeight;
+
+    image.scale.set(width, height, 1);
+    loadedTexture.needsUpdate = true;
+  });
   imageTexture.colorSpace = THREE.SRGBColorSpace;
   imageTexture.anisotropy = 8;
 
-  const card = createGlassPlane(1.04, 0.64, "#05080a", 0.42);
+  const card = createGlassPlane(1.26, 0.82, "#05080a", 0.42);
   card.name = "xr inspect card backing";
   card.userData.inspectIndex = index;
+  card.renderOrder = 30 + index;
+
+  const cardMaterial = card.material as THREE.MeshBasicMaterial;
+  cardMaterial.depthTest = false;
   group.add(card);
 
   const image = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.96, 0.54),
+    new THREE.PlaneGeometry(1, 1),
     new THREE.MeshBasicMaterial({
       map: imageTexture,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.82,
       side: THREE.DoubleSide,
       depthWrite: false,
+      depthTest: false,
     }),
   );
   image.name = "xr inspect card image";
   image.userData.inspectIndex = index;
-  image.position.set(0, 0.05, 0.018);
+  image.position.set(0, 0.06, 0.035);
+  image.scale.set(1.14, 0.64, 1);
+  image.renderOrder = 32 + index;
   image.userData.texture = imageTexture;
   group.add(image);
 
   const edge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.06, 0.66)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.28, 0.84)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.14,
+      opacity: 0.13,
+      depthTest: false,
     }),
   );
   edge.name = "xr inspect card edge";
   edge.userData.inspectIndex = index;
-  edge.position.z = 0.03;
+  edge.position.z = 0.052;
+  edge.renderOrder = 33 + index;
   group.add(edge);
 
   const accentLine = createLine(
     [
-      new THREE.Vector3(-0.42, -0.22, 0.044),
-      new THREE.Vector3(0.42, -0.22, 0.044),
+      new THREE.Vector3(-0.48, -0.27, 0.062),
+      new THREE.Vector3(0.48, -0.27, 0.062),
     ],
     accentColor,
-    0.22,
+    0.24,
   );
   accentLine.name = "xr inspect card accent line";
   accentLine.userData.inspectIndex = index;
+  accentLine.renderOrder = 34 + index;
+  const accentMaterial = accentLine.material as THREE.LineBasicMaterial;
+  accentMaterial.depthTest = false;
   group.add(accentLine);
 
   const label = createLabelSprite(asset.title);
   label.name = "xr inspect card label";
   label.userData.inspectIndex = index;
-  label.position.set(0, -0.38, 0.05);
-  label.scale.set(0.52, 0.13, 1);
+  label.position.set(0, -0.46, 0.07);
+  label.scale.set(0.5, 0.12, 1);
+  label.renderOrder = 35 + index;
+  const labelMaterial = label.material as THREE.SpriteMaterial;
+  labelMaterial.depthTest = false;
+  labelMaterial.opacity = 0.34;
   group.add(label);
 
   const positions = [
-    new THREE.Vector3(-1.76, -0.34, -1.1),
-    new THREE.Vector3(1.76, -0.34, -1.1),
-    new THREE.Vector3(-1.22, -1.02, -1.0),
-    new THREE.Vector3(1.22, -1.02, -1.0),
-    new THREE.Vector3(0, -0.16, -0.92),
+    new THREE.Vector3(-2.28, -0.18, -0.72),
+    new THREE.Vector3(-1.12, 0.12, -0.62),
+    new THREE.Vector3(0, 0.28, -0.54),
+    new THREE.Vector3(1.12, 0.12, -0.62),
+    new THREE.Vector3(2.28, -0.18, -0.72),
   ];
 
   const rotations = [
-    new THREE.Euler(0, 0.22, -0.03),
-    new THREE.Euler(0, -0.22, 0.03),
-    new THREE.Euler(0, 0.16, 0.035),
-    new THREE.Euler(0, -0.16, -0.035),
+    new THREE.Euler(0, 0.2, -0.035),
+    new THREE.Euler(0, 0.1, -0.012),
     new THREE.Euler(0, 0, 0),
+    new THREE.Euler(0, -0.1, 0.012),
+    new THREE.Euler(0, -0.2, 0.035),
   ];
 
   const fallbackPosition = new THREE.Vector3(
-    THREE.MathUtils.lerp(-1.5, 1.5, index / Math.max(xrOpticsAssets.length - 1, 1)),
+    THREE.MathUtils.lerp(-2.2, 2.2, index / Math.max(xrOpticsAssets.length - 1, 1)),
     -0.62,
-    -1.02,
+    -0.66,
   );
 
   group.position.copy(positions[index] ?? fallbackPosition);
   group.rotation.copy(rotations[index] ?? new THREE.Euler(0, 0, 0));
-  group.scale.setScalar(index === 4 ? 0.88 : 0.82);
+  group.scale.setScalar(index === 2 ? 0.88 : 0.78);
 
   group.userData.basePosition = group.position.clone();
   group.userData.baseRotation = group.rotation.clone();
@@ -552,7 +589,7 @@ export function createOrbitSpatialScene({
   const inspectGroup = new THREE.Group();
   inspectGroup.name = "XR Inspect Optics layer";
   inspectGroup.visible = false;
-  inspectGroup.position.set(0, 0.02, 0.02);
+  inspectGroup.position.set(0, 0.08, 0.28);
   root.add(inspectGroup);
 
   const inspectHitObjects: THREE.Object3D[] = [];
@@ -905,7 +942,15 @@ export function createOrbitSpatialScene({
     inspectGroup.visible = inspectState.weight > 0.01;
     setObjectOpacity(inspectGroup, inspectState.weight);
 
-    const productDisplayWeight = 1 - inspectState.weight * 0.18;
+    const normalSceneWeight = 1 - inspectState.weight * 0.46;
+    const productOpacityWeight = 1 - inspectState.weight * 0.28;
+    const productDisplayWeight = 1 - inspectState.weight * 0.12;
+
+    setObjectOpacity(panelGroup, normalSceneWeight);
+    setObjectOpacity(productStage, productOpacityWeight);
+    setObjectOpacity(rail, 1 - inspectState.weight * 0.32);
+    setObjectOpacity(activeHalo, 1 - inspectState.weight * 0.24);
+
     productStage.scale.setScalar(productDisplayWeight);
 
     inspectGroup.children.forEach((card, index) => {
@@ -922,7 +967,7 @@ export function createOrbitSpatialScene({
       const drift = Math.sin(elapsed * 0.62 + index * 0.9) * 0.028;
 
       const targetPosition = isFocused
-        ? new THREE.Vector3(0, -0.42, -0.72)
+        ? new THREE.Vector3(0, 0.02, -0.42)
         : new THREE.Vector3(basePosition.x, basePosition.y + drift, basePosition.z);
 
       card.position.lerp(targetPosition, isFocused ? 0.09 : 0.045);
@@ -943,7 +988,7 @@ export function createOrbitSpatialScene({
         0.075,
       );
 
-      const targetScale = isFocused ? 1.18 : baseScale;
+      const targetScale = isFocused ? 1.04 : baseScale;
       card.scale.setScalar(
         THREE.MathUtils.lerp(card.scale.x, targetScale, isFocused ? 0.09 : 0.055),
       );
