@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { XRHandModelFactory } from "three/examples/jsm/webxr/XRHandModelFactory.js";
 import { orbitModes } from "@/data/orbitModes";
 import { opticsAssets as rawOpticsAssets } from "@/data/opticsAssets";
 import { orbitSpatialTheme } from "./orbitSpatialTheme";
@@ -270,6 +271,19 @@ function setObjectOpacity(object: THREE.Object3D, weight: number) {
         material.transparent = true;
         material.needsUpdate = true;
       }
+    }
+  });
+}
+
+function applySignalHandMaterial(object: THREE.Object3D, accentColor: THREE.Color) {
+  object.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.material = new THREE.MeshBasicMaterial({
+        color: accentColor,
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+      });
     }
   });
 }
@@ -905,6 +919,52 @@ export function createOrbitSpatialScene({
   const controllerA = makeController(0);
   const controllerB = makeController(1);
 
+  const handModelFactory = new XRHandModelFactory();
+  const handPresenceNodes: THREE.Mesh[] = [];
+
+  function makeSignalHand(index: number, label: "left" | "right") {
+    const hand = renderer.xr.getHand(index);
+    hand.name = `xr ${label} signal hand`;
+
+    const signalCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.034, 24, 24),
+      new THREE.MeshBasicMaterial({
+        color: activeAccent,
+        transparent: true,
+        opacity: 0.16,
+        depthWrite: false,
+      }),
+    );
+
+    signalCore.name = `xr ${label} hand signal core`;
+    signalCore.position.set(0, 0, 0);
+    handPresenceNodes.push(signalCore);
+
+    hand.addEventListener("connected", () => {
+      if (hand.getObjectByName(`xr ${label} hand model`)) {
+        return;
+      }
+
+      const handModel = handModelFactory.createHandModel(hand, "spheres");
+      handModel.name = `xr ${label} hand model`;
+      applySignalHandMaterial(handModel, activeAccent);
+
+      hand.add(handModel);
+      hand.add(signalCore);
+    });
+
+    hand.addEventListener("disconnected", () => {
+      hand.clear();
+    });
+
+    scene.add(hand);
+
+    return hand;
+  }
+
+  const handA = makeSignalHand(0, "left");
+  const handB = makeSignalHand(1, "right");
+
   const resizeObserver = new ResizeObserver(() => {
     const width = mount.clientWidth;
     const height = Math.max(mount.clientHeight, 1);
@@ -1010,6 +1070,14 @@ export function createOrbitSpatialScene({
 
     atmosphereGroup.rotation.y += 0.00038;
 
+    handPresenceNodes.forEach((node, index) => {
+      const material = node.material as THREE.MeshBasicMaterial;
+      const pulse = 0.12 + Math.sin(elapsed * 2.4 + index * 0.8) * 0.045;
+
+      material.opacity = pulse;
+      node.scale.setScalar(0.86 + Math.sin(elapsed * 2.1 + index) * 0.08);
+    });
+
     horizonLines.forEach((line, index) => {
       const material = line.material as THREE.LineBasicMaterial;
       material.opacity = 0.045 + Math.sin(elapsed * 0.42 + index) * 0.018;
@@ -1031,7 +1099,7 @@ export function createOrbitSpatialScene({
       });
 
       await renderer.xr.setSession(session);
-      return "VR session active. Point at mode nodes and select.";
+      return "VR session active. Hand tracking requested; controller fallback remains active.";
     } catch {
       return "Could not start VR session.";
     }
@@ -1045,6 +1113,8 @@ export function createOrbitSpatialScene({
 
     controllerA.clear();
     controllerB.clear();
+    handA.clear();
+    handB.clear();
 
     scene.traverse((object) => {
       if (
