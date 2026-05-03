@@ -23,7 +23,7 @@ export function OrbitSpatialHost() {
   const [xrSupport, setXRSupport] = useState<XRSupportState>(initialXRState);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
   const [sessionStatus, setSessionStatus] = useState(
-    "Desktop spatial preview. Click nodes or use ← / →.",
+    "Desktop spatial preview. Click nodes, wheel, or pinch mode nodes.",
   );
 
   useEffect(() => {
@@ -102,8 +102,8 @@ export function OrbitSpatialHost() {
       const next = !current;
       setSessionStatus(
         next
-          ? "XR Inspect Optics active. Click cards or use wheel focus."
-          : "Desktop spatial preview. Click nodes or use в†ђ / в†’.",
+          ? "XR Inspect Optics active. Hand hover or pinch cards."
+          : "Desktop spatial preview. Click nodes, wheel, or pinch mode nodes.",
       );
       return next;
     });
@@ -222,7 +222,7 @@ export function OrbitSpatialHost() {
                 <div className="flex items-center justify-end gap-3">
                   <p className="hidden text-[0.62rem] text-white/34 lg:block">
                     {isInspectOpen
-                      ? "Click cards / wheel focus"
+                      ? "Hand hover / pinch card"
                       : "Click / wheel / hand pinch"}
                   </p>
 

@@ -203,8 +203,10 @@ function createLine(
 }
 
 const HAND_NODE_HOVER_RADIUS = 0.22;
+const HAND_INSPECT_HOVER_RADIUS = 0.56;
 const HAND_PINCH_SELECT_RADIUS = 0.038;
 const HAND_SELECT_COOLDOWN_MS = 720;
+const HAND_INSPECT_SELECT_COOLDOWN_MS = 680;
 
 function readXRHandJointPosition({
   frame,
@@ -659,6 +661,22 @@ export function createOrbitSpatialScene({
 
   setObjectOpacity(inspectGroup, 0);
 
+  const inspectHandHoverFrame = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.42, 0.94)),
+    new THREE.LineBasicMaterial({
+      color: activeAccent,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      depthTest: false,
+    }),
+  );
+
+  inspectHandHoverFrame.name = "hand hover inspect card frame";
+  inspectHandHoverFrame.visible = false;
+  inspectHandHoverFrame.renderOrder = 96;
+  inspectGroup.add(inspectHandHoverFrame);
+
   const halo = new THREE.Mesh(
     new THREE.TorusGeometry(0.78, 0.003, 12, 160),
     new THREE.MeshBasicMaterial({
@@ -721,9 +739,16 @@ export function createOrbitSpatialScene({
     lastSelectAt: 0,
   };
 
+  const handInspectInteraction = {
+    hoveredIndex: null as number | null,
+    lastPinchActive: false,
+    lastSelectAt: 0,
+  };
+
   const handIndexTipWorld = new THREE.Vector3();
   const handThumbTipWorld = new THREE.Vector3();
   const nodeWorldPosition = new THREE.Vector3();
+  const inspectCardWorldPosition = new THREE.Vector3();
 
   orbitModes.forEach((mode, index) => {
     const t =
@@ -831,11 +856,18 @@ export function createOrbitSpatialScene({
     updateNodeVisuals(nextIndex, nextAccent);
 
     inspectGroup.traverse((child) => {
-      if (child instanceof THREE.Line && child.name === "xr inspect card accent line") {
+      if (
+        child instanceof THREE.Line &&
+        child.name === "xr inspect card accent line"
+      ) {
         const material = child.material as THREE.LineBasicMaterial;
         material.color.copy(nextAccent);
       }
     });
+
+    const inspectHoverFrameMaterial =
+      inspectHandHoverFrame.material as THREE.LineBasicMaterial;
+    inspectHoverFrameMaterial.color.copy(nextAccent);
 
     productStage.traverse((child) => {
       if (
@@ -880,6 +912,13 @@ export function createOrbitSpatialScene({
     elapsed: number,
     frame: XRFrame | undefined,
   ) {
+    if (inspectState.isOpen) {
+      handNodeInteraction.hoveredIndex = null;
+      handNodeInteraction.lastPinchActive = false;
+      handHoverHalo.visible = false;
+      return;
+    }
+
     const xrManager = renderer.xr as THREE.WebXRManager & {
       getReferenceSpace?: () => XRReferenceSpace | null;
       getSession?: () => XRSession | null;
@@ -974,6 +1013,144 @@ export function createOrbitSpatialScene({
     }
 
     handNodeInteraction.lastPinchActive = isPinchActive;
+  }
+
+  function findNearestInspectCardFromHand(tipPosition: THREE.Vector3) {
+    let nearestIndex: number | null = null;
+    let nearestDistance = Infinity;
+
+    inspectGroup.children.forEach((child) => {
+      if (typeof child.userData.inspectIndex !== "number") {
+        return;
+      }
+
+      child.getWorldPosition(inspectCardWorldPosition);
+
+      const distance = tipPosition.distanceTo(inspectCardWorldPosition);
+
+      if (distance < nearestDistance && distance <= HAND_INSPECT_HOVER_RADIUS) {
+        nearestDistance = distance;
+        nearestIndex = child.userData.inspectIndex;
+      }
+    });
+
+    return nearestIndex;
+  }
+
+  function updateHandInspectInteraction(
+    elapsed: number,
+    frame: XRFrame | undefined,
+  ) {
+    if (!inspectState.isOpen || inspectState.weight < 0.35) {
+      handInspectInteraction.hoveredIndex = null;
+      handInspectInteraction.lastPinchActive = false;
+      inspectHandHoverFrame.visible = false;
+      return;
+    }
+
+    const xrManager = renderer.xr as THREE.WebXRManager & {
+      getReferenceSpace?: () => XRReferenceSpace | null;
+      getSession?: () => XRSession | null;
+    };
+
+    const referenceSpace =
+      typeof xrManager.getReferenceSpace === "function"
+        ? xrManager.getReferenceSpace()
+        : null;
+
+    const session =
+      typeof xrManager.getSession === "function" ? xrManager.getSession() : null;
+
+    if (!frame || !referenceSpace || !session) {
+      handInspectInteraction.hoveredIndex = null;
+      handInspectInteraction.lastPinchActive = false;
+      inspectHandHoverFrame.visible = false;
+      return;
+    }
+
+    let nextHoveredIndex: number | null = null;
+    let isPinchActive = false;
+
+    Array.from(session.inputSources).forEach((inputSource) => {
+      if (!inputSource.hand) {
+        return;
+      }
+
+      const hasIndexTip = readXRHandJointPosition({
+        frame,
+        referenceSpace,
+        inputSource,
+        jointName: "index-finger-tip",
+        target: handIndexTipWorld,
+      });
+
+      if (!hasIndexTip) {
+        return;
+      }
+
+      const hoveredIndex = findNearestInspectCardFromHand(handIndexTipWorld);
+
+      if (hoveredIndex !== null) {
+        nextHoveredIndex = hoveredIndex;
+      }
+
+      const hasThumbTip = readXRHandJointPosition({
+        frame,
+        referenceSpace,
+        inputSource,
+        jointName: "thumb-tip",
+        target: handThumbTipWorld,
+      });
+
+      if (!hasThumbTip) {
+        return;
+      }
+
+      const pinchDistance = handIndexTipWorld.distanceTo(handThumbTipWorld);
+
+      if (pinchDistance <= HAND_PINCH_SELECT_RADIUS) {
+        isPinchActive = true;
+      }
+    });
+
+    handInspectInteraction.hoveredIndex = nextHoveredIndex;
+
+    if (nextHoveredIndex !== null) {
+      const hoveredCard = inspectGroup.children.find(
+        (child) => child.userData.inspectIndex === nextHoveredIndex,
+      );
+
+      if (hoveredCard) {
+        inspectHandHoverFrame.visible = true;
+        inspectHandHoverFrame.position.copy(hoveredCard.position);
+        inspectHandHoverFrame.rotation.copy(hoveredCard.rotation);
+
+        const frameMaterial = inspectHandHoverFrame.material as THREE.LineBasicMaterial;
+        frameMaterial.opacity = 0.18 + Math.sin(elapsed * 2.4) * 0.07;
+      }
+    } else {
+      inspectHandHoverFrame.visible = false;
+    }
+
+    const now = performance.now();
+    const canSelect =
+      now - handInspectInteraction.lastSelectAt > HAND_INSPECT_SELECT_COOLDOWN_MS;
+
+    if (
+      isPinchActive &&
+      !handInspectInteraction.lastPinchActive &&
+      canSelect &&
+      handInspectInteraction.hoveredIndex !== null
+    ) {
+      inspectState.focusedIndex =
+        inspectState.focusedIndex === handInspectInteraction.hoveredIndex
+          ? null
+          : handInspectInteraction.hoveredIndex;
+
+      handInspectInteraction.lastSelectAt = now;
+    }
+
+    handInspectInteraction.lastPinchActive = isPinchActive;
   }
 
   function setInspectMode(isOpen: boolean) {
@@ -1180,6 +1357,7 @@ export function createOrbitSpatialScene({
       }
 
       const isFocused = inspectState.focusedIndex === index;
+      const isHandHovered = handInspectInteraction.hoveredIndex === index;
       const drift = Math.sin(elapsed * 0.62 + index * 0.9) * 0.028;
 
       const targetPosition = isFocused
@@ -1204,10 +1382,55 @@ export function createOrbitSpatialScene({
         0.075,
       );
 
-      const targetScale = isFocused ? 1.04 : baseScale;
+      const targetScale = isFocused
+        ? 1.04
+        : isHandHovered
+          ? baseScale * 1.12
+          : baseScale;
+
       card.scale.setScalar(
-        THREE.MathUtils.lerp(card.scale.x, targetScale, isFocused ? 0.09 : 0.055),
+        THREE.MathUtils.lerp(
+          card.scale.x,
+          targetScale,
+          isFocused || isHandHovered ? 0.09 : 0.055,
+        ),
       );
+
+      card.traverse((child) => {
+        if (
+          child instanceof THREE.Mesh ||
+          child instanceof THREE.Line ||
+          child instanceof THREE.Sprite
+        ) {
+          const material = child.material;
+
+          if (Array.isArray(material)) {
+            material.forEach((item) => {
+              if (typeof item.userData.baseOpacity !== "number") {
+                item.userData.baseOpacity = item.opacity;
+              }
+
+              item.opacity =
+                item.userData.baseOpacity *
+                inspectState.weight *
+                (isHandHovered && !isFocused ? 1.18 : 1);
+            });
+
+            return;
+          }
+
+          if (material) {
+            if (typeof material.userData.baseOpacity !== "number") {
+              material.userData.baseOpacity = material.opacity;
+            }
+
+            material.opacity =
+              material.userData.baseOpacity *
+              inspectState.weight *
+              (isHandHovered && !isFocused ? 1.18 : 1);
+          }
+        }
+      });
     });
 
     halo.rotation.z += 0.0024;
@@ -1242,6 +1465,7 @@ export function createOrbitSpatialScene({
     });
 
     updateHandNodeInteraction(elapsed, xrFrame);
+    updateHandInspectInteraction(elapsed, xrFrame);
 
     horizonLines.forEach((line, index) => {
       const material = line.material as THREE.LineBasicMaterial;
