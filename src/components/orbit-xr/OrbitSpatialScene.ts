@@ -205,13 +205,40 @@ function createLine(
 const HAND_NODE_HOVER_RADIUS = 0.28;
 const HAND_INSPECT_HOVER_RADIUS = 0.62;
 const HAND_NAV_HOVER_RADIUS = 0.58;
-const HAND_POINTER_MAX_DISTANCE = 4.4;
-const HAND_PINCH_SELECT_RADIUS = 0.082;
+const HAND_POINTER_MAX_DISTANCE = 4.2;
+const HAND_PINCH_SELECT_RADIUS = 0.095;
 const HAND_SELECT_COOLDOWN_MS = 720;
 const HAND_INSPECT_SELECT_COOLDOWN_MS = 680;
 const HAND_NAV_SELECT_COOLDOWN_MS = 760;
-const HAND_POINTER_ORIGIN_LERP = 0.24;
-const HAND_POINTER_DIRECTION_LERP = 0.18;
+const HAND_NAV_HOVER_LATCH_MS = 620;
+const HAND_POINTER_ORIGIN_LERP = 0.2;
+const HAND_POINTER_DIRECTION_LERP = 0.075;
+const WHISPER_PINCH_THRESHOLD = 0.55;
+
+function isWhisperPinchActive(handPresence: {
+  getSide: (side: "left" | "right") =>
+    | {
+        connected?: boolean;
+        visible?: boolean;
+        source?: string;
+        gesture?: string;
+        pinch?: number;
+      }
+    | undefined;
+}) {
+  const sides = [handPresence.getSide("left"), handPresence.getSide("right")];
+
+  return sides.some((side) => {
+    if (!side?.connected || !side.visible || side.source !== "hand-tracking") {
+      return false;
+    }
+
+    return (
+      side.gesture === "invoke" ||
+      (typeof side.pinch === "number" && side.pinch > WHISPER_PINCH_THRESHOLD)
+    );
+  });
+}
 
 function readXRHandJointPosition({
   frame,
@@ -364,8 +391,8 @@ function createHandPointerVisual(accentColor: THREE.Color) {
       hasSmoothedOnce = true;
     }
 
-    smoothOrigin.lerp(origin, 0.34);
-    smoothEnd.lerp(targetEnd, hasHit ? 0.3 : 0.2);
+    smoothOrigin.lerp(origin, 0.26);
+    smoothEnd.lerp(targetEnd, hasHit ? 0.24 : 0.16);
 
     positions[0] = smoothOrigin.x;
     positions[1] = smoothOrigin.y;
@@ -376,13 +403,13 @@ function createHandPointerVisual(accentColor: THREE.Color) {
 
     geometry.attributes.position.needsUpdate = true;
 
-    material.opacity = hasHit ? 0.42 : 0.2;
-    reticleMaterial.opacity = hasHit ? 0.88 : 0;
+    material.opacity = hasHit ? 0.44 : 0.22;
+    reticleMaterial.opacity = hasHit ? 0.9 : 0;
 
     reticle.visible = hasHit && Boolean(hitPoint);
 
     if (hitPoint) {
-      smoothReticle.lerp(hitPoint, 0.32);
+      smoothReticle.lerp(hitPoint, 0.28);
       reticle.position.copy(smoothReticle);
     }
   }
@@ -889,7 +916,7 @@ export function createOrbitSpatialScene({
 
   const vrNavGroup = new THREE.Group();
   vrNavGroup.name = "VR runtime navigation console";
-  vrNavGroup.position.set(0, -0.46, -0.32);
+  vrNavGroup.position.set(0, -0.62, -0.42);
   vrNavGroup.visible = false;
   root.add(vrNavGroup);
 
@@ -905,6 +932,8 @@ export function createOrbitSpatialScene({
 
   const vrNavState = {
     hoveredAction: null as VRNavAction | null,
+    lastHoveredAction: null as VRNavAction | null,
+    lastHoveredAt: 0,
     lastPinchActive: false,
     lastSelectAt: 0,
     isImmersive: false,
@@ -916,6 +945,7 @@ export function createOrbitSpatialScene({
 
   const handPointerOrigin = new THREE.Vector3();
   const handPointerBase = new THREE.Vector3();
+  const handPointerAim = new THREE.Vector3();
   const handPointerThumb = new THREE.Vector3();
   const handPointerDirection = new THREE.Vector3();
   const handPointerEnd = new THREE.Vector3();
@@ -941,7 +971,7 @@ export function createOrbitSpatialScene({
     const x = THREE.MathUtils.lerp(-1.35, 1.35, index / 3);
 
     const button = new THREE.Mesh(
-      new THREE.PlaneGeometry(action === "inspect" ? 1.42 : 1.06, 0.58),
+      new THREE.PlaneGeometry(action === "inspect" ? 1.02 : 0.72, 0.34),
       new THREE.MeshBasicMaterial({
         color: action === "inspect" ? activeAccent : new THREE.Color("#091016"),
         transparent: true,
@@ -968,7 +998,7 @@ export function createOrbitSpatialScene({
 
     const edge = new THREE.LineSegments(
       new THREE.EdgesGeometry(
-        new THREE.PlaneGeometry(action === "inspect" ? 1.44 : 1.08, 0.6),
+        new THREE.PlaneGeometry(action === "inspect" ? 1.04 : 0.74, 0.36),
       ),
       new THREE.LineBasicMaterial({
         color: action === "inspect" ? activeAccent : 0xffffff,
@@ -1414,6 +1444,8 @@ export function createOrbitSpatialScene({
   function updateHandVRNavInteraction(frame: XRFrame | undefined) {
     if (!vrNavState.isImmersive) {
       vrNavState.hoveredAction = null;
+      vrNavState.lastHoveredAction = null;
+      vrNavState.lastHoveredAt = 0;
       vrNavState.lastPinchActive = false;
 
       handPointerVisuals.forEach((visual) => {
@@ -1438,6 +1470,8 @@ export function createOrbitSpatialScene({
 
     if (!frame || !referenceSpace || !session) {
       vrNavState.hoveredAction = null;
+      vrNavState.lastHoveredAction = null;
+      vrNavState.lastHoveredAt = 0;
       vrNavState.lastPinchActive = false;
 
       handPointerVisuals.forEach((visual) => {
@@ -1448,7 +1482,6 @@ export function createOrbitSpatialScene({
     }
 
     let nextHoveredAction: VRNavAction | null = null;
-    let isPinchActive = false;
     let hasAnyHand = false;
 
     Array.from(session.inputSources).forEach((inputSource, sourceIndex) => {
@@ -1467,23 +1500,40 @@ export function createOrbitSpatialScene({
         target: handIndexTipWorld,
       });
 
-      const hasIndexBase =
-        readXRHandJointPosition({
-          frame,
-          referenceSpace,
-          inputSource,
-          jointName: "index-finger-phalanx-proximal",
-          target: handPointerBase,
-        }) ||
+      const hasAimBase =
         readXRHandJointPosition({
           frame,
           referenceSpace,
           inputSource,
           jointName: "index-finger-metacarpal",
           target: handPointerBase,
+        }) ||
+        readXRHandJointPosition({
+          frame,
+          referenceSpace,
+          inputSource,
+          jointName: "wrist",
+          target: handPointerBase,
         });
 
-      if (!hasIndexTip || !hasIndexBase) {
+      const hasAim =
+        readXRHandJointPosition({
+          frame,
+          referenceSpace,
+          inputSource,
+          jointName: "index-finger-phalanx-proximal",
+          target: handPointerAim,
+        }) ||
+        readXRHandJointPosition({
+          frame,
+          referenceSpace,
+          inputSource,
+          jointName: "index-finger-phalanx-intermediate",
+          target: handPointerAim,
+        }) ||
+        hasIndexTip;
+
+      if (!hasIndexTip || !hasAimBase || !hasAim) {
         pointerVisual.setVisible(false);
         handPointerHasSmooth[pointerIndex] = false;
         return;
@@ -1491,7 +1541,7 @@ export function createOrbitSpatialScene({
 
       hasAnyHand = true;
 
-      handPointerDirection.subVectors(handIndexTipWorld, handPointerBase);
+      handPointerDirection.subVectors(handPointerAim, handPointerBase);
 
       if (handPointerDirection.lengthSq() < 0.00001) {
         pointerVisual.setVisible(false);
@@ -1501,16 +1551,20 @@ export function createOrbitSpatialScene({
 
       handPointerDirection.normalize();
 
+      handPointerOrigin
+        .copy(handPointerAim)
+        .addScaledVector(handPointerDirection, 0.04);
+
       const smoothOrigin = handPointerSmoothOrigins[pointerIndex];
       const smoothDirection = handPointerSmoothDirections[pointerIndex];
 
       if (!handPointerHasSmooth[pointerIndex]) {
-        smoothOrigin.copy(handIndexTipWorld);
+        smoothOrigin.copy(handPointerOrigin);
         smoothDirection.copy(handPointerDirection);
         handPointerHasSmooth[pointerIndex] = true;
       }
 
-      smoothOrigin.lerp(handIndexTipWorld, HAND_POINTER_ORIGIN_LERP);
+      smoothOrigin.lerp(handPointerOrigin, HAND_POINTER_ORIGIN_LERP);
       smoothDirection.lerp(handPointerDirection, HAND_POINTER_DIRECTION_LERP);
 
       if (smoothDirection.lengthSq() < 0.00001) {
@@ -1550,24 +1604,8 @@ export function createOrbitSpatialScene({
 
       if (hitAction) {
         nextHoveredAction = hitAction;
-      }
-
-      const hasThumbTip = readXRHandJointPosition({
-        frame,
-        referenceSpace,
-        inputSource,
-        jointName: "thumb-tip",
-        target: handPointerThumb,
-      });
-
-      if (!hasThumbTip) {
-        return;
-      }
-
-      const pinchDistance = handIndexTipWorld.distanceTo(handPointerThumb);
-
-      if (pinchDistance <= HAND_PINCH_SELECT_RADIUS) {
-        isPinchActive = true;
+        vrNavState.lastHoveredAction = hitAction;
+        vrNavState.lastHoveredAt = performance.now();
       }
     });
 
@@ -1585,17 +1623,27 @@ export function createOrbitSpatialScene({
     const now = performance.now();
     const canSelect = now - vrNavState.lastSelectAt > HAND_NAV_SELECT_COOLDOWN_MS;
 
+    const latchedAction =
+      vrNavState.lastHoveredAction &&
+      now - vrNavState.lastHoveredAt <= HAND_NAV_HOVER_LATCH_MS
+        ? vrNavState.lastHoveredAction
+        : null;
+
+    const actionToSelect = vrNavState.hoveredAction ?? latchedAction;
+
+    const whisperPinchActive = isWhisperPinchActive(handPresence);
+
     if (
-      isPinchActive &&
+      whisperPinchActive &&
       !vrNavState.lastPinchActive &&
       canSelect &&
-      vrNavState.hoveredAction
+      actionToSelect
     ) {
-      runVRNavAction(vrNavState.hoveredAction);
+      runVRNavAction(actionToSelect);
       vrNavState.lastSelectAt = now;
     }
 
-    vrNavState.lastPinchActive = isPinchActive;
+    vrNavState.lastPinchActive = whisperPinchActive;
   }
   function setInspectMode(isOpen: boolean) {
     inspectState.isOpen = isOpen;
