@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -2420,11 +2421,29 @@ export function OrbitExperience() {
 
             <ShellChrome accent={activeMode.accent} />
 
-            <div className="orbit-status-strip orbit-status-strip-etched orbit-glass-panel mb-3 flex items-center justify-between rounded-full border px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[18px] sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
+            <div className="orbit-status-strip orbit-status-strip-etched orbit-glass-panel mb-3 flex items-center justify-between gap-4 rounded-full border px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[18px] sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
               <span>
                 {isInspectOpen ? "Optics Inspection Field" : "Orbit Field Interface"}
               </span>
-              <span>{currentProgress}</span>
+
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/spatial"
+                  className="group relative hidden items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.026] px-3 py-1.5 text-[0.5rem] uppercase tracking-[0.22em] text-white/42 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-white/76 md:inline-flex"
+                  aria-label="Enter Orbit Lens Spatial Mode"
+                >
+                  <span
+                    className="h-1.5 w-1.5 rounded-full transition duration-500 group-hover:scale-110"
+                    style={{
+                      background: activeMode.accent,
+                      boxShadow: `0 0 12px ${activeMode.accent}`,
+                    }}
+                  />
+                  <span>Spatial Mode</span>
+                </Link>
+
+                <span>{currentProgress}</span>
+              </div>
             </div>
 
             <div
@@ -2779,6 +2798,21 @@ export function OrbitExperience() {
               <p className="hidden text-[0.54rem] uppercase tracking-[0.3em] text-white/20 md:block">
                 Swipe / wheel / keyboard to shift field
               </p>
+
+              <Link
+                href="/spatial"
+                className="absolute bottom-1 right-5 z-30 inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[0.48rem] uppercase tracking-[0.2em] text-white/38 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/72 md:hidden"
+                aria-label="Enter Orbit Lens Spatial Mode"
+              >
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{
+                    background: activeMode.accent,
+                    boxShadow: `0 0 10px ${activeMode.accent}`,
+                  }}
+                />
+                Spatial
+              </Link>
             </div>
           </motion.div>
         </div>
