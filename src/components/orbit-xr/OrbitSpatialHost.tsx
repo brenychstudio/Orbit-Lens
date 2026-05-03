@@ -105,7 +105,7 @@ export function OrbitSpatialHost() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_28%,rgba(0,0,0,0.72))]" />
 
       <section className="relative z-10 flex min-h-screen items-center justify-center px-5 py-8">
-        <div className="relative aspect-[16/8.3] w-[min(88vw,92rem)] overflow-hidden rounded-[3.2rem] border border-white/[0.075] bg-[#05080a]/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(255,255,255,0.025),0_44px_180px_rgba(0,0,0,0.7)]">
+        <div className="relative aspect-[16/8.3] w-[min(94vw,110rem)] overflow-hidden rounded-[3.2rem] border border-white/[0.075] bg-[#05080a]/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(255,255,255,0.025),0_44px_180px_rgba(0,0,0,0.7)]">
           <div className="pointer-events-none absolute inset-0 rounded-[3.2rem] ring-1 ring-white/[0.035]" />
           <div className="pointer-events-none absolute inset-[1px] rounded-[3rem] ring-1 ring-white/[0.018]" />
           <div className="pointer-events-none absolute inset-x-16 top-px h-px bg-gradient-to-r from-transparent via-white/16 to-transparent" />
@@ -145,7 +145,7 @@ export function OrbitSpatialHost() {
           </div>
 
           <div className="relative overflow-hidden rounded-[2.45rem] border border-white/[0.065] bg-black shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <div ref={mountRef} className="relative h-[min(66vh,42rem)] w-full" />
+            <div ref={mountRef} className="relative h-[min(74vh,50rem)] w-full" />
 
             <div className="pointer-events-none absolute inset-0 rounded-[2.45rem] bg-[radial-gradient(circle_at_46%_22%,transparent,rgba(0,0,0,0.22)_48%,rgba(0,0,0,0.58)_100%)]" />
 

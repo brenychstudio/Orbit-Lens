@@ -283,14 +283,15 @@ export function createOrbitSpatialScene({
     0.05,
     90,
   );
-  camera.position.set(0, 1.48, 2.85);
+  camera.position.set(0, 1.44, 2.58);
 
   const rig = new THREE.Group();
   rig.add(camera);
   scene.add(rig);
 
   const root = new THREE.Group();
-  root.position.set(0, 1.28, 0.22);
+  root.position.set(0, 1.22, 0.28);
+  root.scale.setScalar(1.2);
   scene.add(root);
 
   const currentMode = {
@@ -608,8 +609,8 @@ export function createOrbitSpatialScene({
   renderer.setAnimationLoop(() => {
     const elapsed = clock.getElapsedTime();
 
-    root.rotation.y = Math.sin(elapsed * 0.16) * 0.025;
-    root.position.y = 1.38 + Math.sin(elapsed * 0.28) * 0.018;
+    root.rotation.y = Math.sin(elapsed * 0.16) * 0.022;
+    root.position.y = 1.22 + Math.sin(elapsed * 0.28) * 0.014;
 
     panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.018;
     panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
