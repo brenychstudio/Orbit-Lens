@@ -223,7 +223,7 @@ export function OrbitSpatialHost() {
                   <p className="hidden text-[0.62rem] text-white/34 lg:block">
                     {isInspectOpen
                       ? "Click cards / wheel focus"
-                      : "Click / wheel / keyboard"}
+                      : "Click / wheel / hand pinch"}
                   </p>
 
                   <button

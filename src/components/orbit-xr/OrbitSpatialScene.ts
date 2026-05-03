@@ -202,6 +202,53 @@ function createLine(
   return new THREE.Line(geometry, material);
 }
 
+const HAND_NODE_HOVER_RADIUS = 0.22;
+const HAND_PINCH_SELECT_RADIUS = 0.038;
+const HAND_SELECT_COOLDOWN_MS = 720;
+
+function readXRHandJointPosition({
+  frame,
+  referenceSpace,
+  inputSource,
+  jointName,
+  target,
+}: {
+  frame: XRFrame;
+  referenceSpace: XRReferenceSpace;
+  inputSource: XRInputSource;
+  jointName: XRHandJoint;
+  target: THREE.Vector3;
+}) {
+  const hand = inputSource.hand;
+
+  if (!hand) {
+    return false;
+  }
+
+  const jointSpace = hand.get(jointName);
+
+  if (!jointSpace) {
+    return false;
+  }
+
+  const getJointPose = frame.getJointPose;
+
+  if (typeof getJointPose !== "function") {
+    return false;
+  }
+
+  const jointPose = getJointPose.call(frame, jointSpace, referenceSpace);
+
+  if (!jointPose) {
+    return false;
+  }
+
+  const position = jointPose.transform.position;
+  target.set(position.x, position.y, position.z);
+
+  return true;
+}
+
 function createLabelSprite(label: string) {
   const { canvas, context, texture } = makeCanvasTexture(512, 128);
 
@@ -649,9 +696,34 @@ export function createOrbitSpatialScene({
   activeHalo.rotation.x = Math.PI / 2;
   root.add(activeHalo);
 
+  const handHoverHalo = new THREE.Mesh(
+    new THREE.TorusGeometry(0.108, 0.004, 10, 56),
+    new THREE.MeshBasicMaterial({
+      color: activeAccent,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      depthTest: false,
+    }),
+  );
+  handHoverHalo.name = "hand hover mode node halo";
+  handHoverHalo.rotation.x = Math.PI / 2;
+  handHoverHalo.visible = false;
+  handHoverHalo.renderOrder = 72;
+  root.add(handHoverHalo);
+
   const nodeGeometry = new THREE.SphereGeometry(0.038, 20, 20);
   const nodeObjects: THREE.Mesh[] = [];
   const nodeLabels: THREE.Sprite[] = [];
+  const handNodeInteraction = {
+    hoveredIndex: null as number | null,
+    lastPinchActive: false,
+    lastSelectAt: 0,
+  };
+
+  const handIndexTipWorld = new THREE.Vector3();
+  const handThumbTipWorld = new THREE.Vector3();
+  const nodeWorldPosition = new THREE.Vector3();
 
   orbitModes.forEach((mode, index) => {
     const t =
@@ -735,6 +807,9 @@ export function createOrbitSpatialScene({
     const activeHaloMaterial = activeHalo.material as THREE.MeshBasicMaterial;
     activeHaloMaterial.color.copy(nextAccent);
 
+    const handHoverHaloMaterial = handHoverHalo.material as THREE.MeshBasicMaterial;
+    handHoverHaloMaterial.color.copy(nextAccent);
+
     const railMaterial = rail.material as THREE.LineBasicMaterial;
     railMaterial.color.copy(nextAccent);
 
@@ -781,6 +856,124 @@ export function createOrbitSpatialScene({
     });
 
     onModeChange?.(nextIndex);
+  }
+
+  function findNearestModeNodeFromHand(tipPosition: THREE.Vector3) {
+    let nearestIndex: number | null = null;
+    let nearestDistance = Infinity;
+
+    nodeObjects.forEach((node, index) => {
+      node.getWorldPosition(nodeWorldPosition);
+
+      const distance = tipPosition.distanceTo(nodeWorldPosition);
+
+      if (distance < nearestDistance && distance <= HAND_NODE_HOVER_RADIUS) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+
+    return nearestIndex;
+  }
+
+  function updateHandNodeInteraction(
+    elapsed: number,
+    frame: XRFrame | undefined,
+  ) {
+    const xrManager = renderer.xr as THREE.WebXRManager & {
+      getReferenceSpace?: () => XRReferenceSpace | null;
+      getSession?: () => XRSession | null;
+    };
+
+    const referenceSpace =
+      typeof xrManager.getReferenceSpace === "function"
+        ? xrManager.getReferenceSpace()
+        : null;
+
+    const session =
+      typeof xrManager.getSession === "function" ? xrManager.getSession() : null;
+
+    if (!frame || !referenceSpace || !session) {
+      handNodeInteraction.hoveredIndex = null;
+      handNodeInteraction.lastPinchActive = false;
+      handHoverHalo.visible = false;
+      return;
+    }
+
+    let nextHoveredIndex: number | null = null;
+    let isPinchActive = false;
+
+    Array.from(session.inputSources).forEach((inputSource) => {
+      if (!inputSource.hand) {
+        return;
+      }
+
+      const hasIndexTip = readXRHandJointPosition({
+        frame,
+        referenceSpace,
+        inputSource,
+        jointName: "index-finger-tip",
+        target: handIndexTipWorld,
+      });
+
+      if (!hasIndexTip) {
+        return;
+      }
+
+      const hoveredIndex = findNearestModeNodeFromHand(handIndexTipWorld);
+
+      if (hoveredIndex !== null) {
+        nextHoveredIndex = hoveredIndex;
+      }
+
+      const hasThumbTip = readXRHandJointPosition({
+        frame,
+        referenceSpace,
+        inputSource,
+        jointName: "thumb-tip",
+        target: handThumbTipWorld,
+      });
+
+      if (!hasThumbTip) {
+        return;
+      }
+
+      const pinchDistance = handIndexTipWorld.distanceTo(handThumbTipWorld);
+
+      if (pinchDistance <= HAND_PINCH_SELECT_RADIUS) {
+        isPinchActive = true;
+      }
+    });
+
+    handNodeInteraction.hoveredIndex = nextHoveredIndex;
+
+    if (nextHoveredIndex !== null) {
+      const hoveredNode = nodeObjects[nextHoveredIndex];
+      hoveredNode.getWorldPosition(nodeWorldPosition);
+
+      handHoverHalo.visible = true;
+      handHoverHalo.position.copy(hoveredNode.position);
+
+      const hoverMaterial = handHoverHalo.material as THREE.MeshBasicMaterial;
+      hoverMaterial.opacity = 0.24 + Math.sin(elapsed * 2.4) * 0.08;
+    } else {
+      handHoverHalo.visible = false;
+    }
+
+    const now = performance.now();
+    const canSelect = now - handNodeInteraction.lastSelectAt > HAND_SELECT_COOLDOWN_MS;
+
+    if (
+      isPinchActive &&
+      !handNodeInteraction.lastPinchActive &&
+      canSelect &&
+      handNodeInteraction.hoveredIndex !== null
+    ) {
+      setMode(handNodeInteraction.hoveredIndex);
+      handNodeInteraction.lastSelectAt = now;
+    }
+
+    handNodeInteraction.lastPinchActive = isPinchActive;
   }
 
   function setInspectMode(isOpen: boolean) {
@@ -942,7 +1135,7 @@ export function createOrbitSpatialScene({
 
   const clock = new THREE.Clock();
 
-  renderer.setAnimationLoop(() => {
+  renderer.setAnimationLoop((_time, xrFrame) => {
     const delta = Math.min(clock.getDelta(), 0.05);
     const elapsed = clock.elapsedTime;
 
@@ -1024,8 +1217,14 @@ export function createOrbitSpatialScene({
 
     nodeObjects.forEach((node, index) => {
       const isActive = index === currentMode.index;
+      const isHovered = handNodeInteraction.hoveredIndex === index;
       const pulse = isActive ? activeAccentPulse : 1;
-      node.scale.setScalar(pulse);
+      const hoverBoost = isHovered ? 1.42 : 1;
+
+      node.scale.setScalar(pulse * hoverBoost);
+
+      const material = node.material as THREE.MeshBasicMaterial;
+      material.opacity = isHovered ? 0.96 : isActive ? 0.95 : 0.32;
     });
 
     const scanlineMaterial = scanline.material as THREE.LineBasicMaterial;
@@ -1041,6 +1240,8 @@ export function createOrbitSpatialScene({
       currentRoomId: "signal-corridor",
       timeMs: performance.now(),
     });
+
+    updateHandNodeInteraction(elapsed, xrFrame);
 
     horizonLines.forEach((line, index) => {
       const material = line.material as THREE.LineBasicMaterial;
