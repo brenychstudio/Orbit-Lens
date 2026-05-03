@@ -329,7 +329,7 @@ function createProductStage() {
   edge.position.z = 0.018;
   group.add(edge);
 
-  group.position.set(0, -0.86, -1.58);
+  group.position.set(0, -0.9, -1.78);
 
   return { group, productTexture };
 }
@@ -516,8 +516,8 @@ export function createOrbitSpatialScene({
   scene.add(rig);
 
   const root = new THREE.Group();
-  root.position.set(0, 1.12, -0.46);
-  root.scale.setScalar(1.04);
+  root.position.set(0, 1.06, -1.08);
+  root.scale.setScalar(0.92);
   scene.add(root);
 
   const currentMode = {
@@ -589,7 +589,7 @@ export function createOrbitSpatialScene({
   const inspectGroup = new THREE.Group();
   inspectGroup.name = "XR Inspect Optics layer";
   inspectGroup.visible = false;
-  inspectGroup.position.set(0, 0.08, -0.12);
+  inspectGroup.position.set(0, 0.08, -0.58);
   root.add(inspectGroup);
 
   const inspectHitObjects: THREE.Object3D[] = [];
@@ -923,14 +923,14 @@ export function createOrbitSpatialScene({
     const delta = Math.min(clock.getDelta(), 0.05);
     const elapsed = clock.elapsedTime;
 
-    root.rotation.y = Math.sin(elapsed * 0.16) * 0.018;
-    root.position.y = 1.12 + Math.sin(elapsed * 0.28) * 0.01;
+    root.rotation.y = Math.sin(elapsed * 0.16) * 0.014;
+    root.position.y = 1.06 + Math.sin(elapsed * 0.28) * 0.008;
 
     panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.018;
     panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
 
     productStage.rotation.y = Math.sin(elapsed * 0.34) * 0.035;
-    productStage.position.y = -0.86 + Math.sin(elapsed * 0.52) * 0.01;
+    productStage.position.y = -0.9 + Math.sin(elapsed * 0.52) * 0.008;
 
     inspectState.weight = THREE.MathUtils.damp(
       inspectState.weight,
@@ -967,7 +967,7 @@ export function createOrbitSpatialScene({
       const drift = Math.sin(elapsed * 0.62 + index * 0.9) * 0.028;
 
       const targetPosition = isFocused
-        ? new THREE.Vector3(0, 0.02, -0.78)
+        ? new THREE.Vector3(0, 0.02, -1.12)
         : new THREE.Vector3(basePosition.x, basePosition.y + drift, basePosition.z);
 
       card.position.lerp(targetPosition, isFocused ? 0.09 : 0.045);
