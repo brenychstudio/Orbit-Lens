@@ -281,9 +281,12 @@ function applySignalHandMaterial(object: THREE.Object3D, accentColor: THREE.Colo
       child.material = new THREE.MeshBasicMaterial({
         color: accentColor,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.42,
         depthWrite: false,
+        depthTest: false,
       });
+
+      child.renderOrder = 80;
     }
   });
 }
@@ -878,6 +881,16 @@ export function createOrbitSpatialScene({
 
     controller.add(line);
 
+    controller.addEventListener("connected", (event) => {
+      const inputSource = event.data as XRInputSource | undefined;
+
+      line.visible = !inputSource?.hand;
+    });
+
+    controller.addEventListener("disconnected", () => {
+      line.visible = true;
+    });
+
     controller.addEventListener("selectstart", () => {
       tempMatrix.identity().extractRotation(controller.matrixWorld);
 
@@ -921,41 +934,53 @@ export function createOrbitSpatialScene({
 
   const handModelFactory = new XRHandModelFactory();
   const handPresenceNodes: THREE.Mesh[] = [];
+  const handModels: THREE.Object3D[] = [];
 
   function makeSignalHand(index: number, label: "left" | "right") {
     const hand = renderer.xr.getHand(index);
     hand.name = `xr ${label} signal hand`;
 
+    const handModel = handModelFactory.createHandModel(hand, "spheres");
+    handModel.name = `xr ${label} hand model`;
+    handModels.push(handModel);
+
     const signalCore = new THREE.Mesh(
-      new THREE.SphereGeometry(0.034, 24, 24),
+      new THREE.SphereGeometry(0.038, 24, 24),
       new THREE.MeshBasicMaterial({
         color: activeAccent,
         transparent: true,
-        opacity: 0.16,
+        opacity: 0.34,
         depthWrite: false,
+        depthTest: false,
       }),
     );
 
     signalCore.name = `xr ${label} hand signal core`;
-    signalCore.position.set(0, 0, 0);
+    signalCore.renderOrder = 90;
     handPresenceNodes.push(signalCore);
 
-    hand.addEventListener("connected", () => {
-      if (hand.getObjectByName(`xr ${label} hand model`)) {
-        return;
-      }
+    hand.add(handModel);
+    hand.add(signalCore);
 
-      const handModel = handModelFactory.createHandModel(hand, "spheres");
-      handModel.name = `xr ${label} hand model`;
+    hand.addEventListener("connected", (event) => {
+      const inputSource = event.data as XRInputSource | undefined;
+
+      hand.visible = Boolean(inputSource?.hand);
+      handModel.visible = Boolean(inputSource?.hand);
+      signalCore.visible = Boolean(inputSource?.hand);
+
       applySignalHandMaterial(handModel, activeAccent);
-
-      hand.add(handModel);
-      hand.add(signalCore);
     });
 
     hand.addEventListener("disconnected", () => {
-      hand.clear();
+      hand.visible = false;
+      handModel.visible = false;
+      signalCore.visible = false;
     });
+
+    hand.visible = false;
+    handModel.visible = false;
+    signalCore.visible = false;
 
     scene.add(hand);
 
@@ -1070,12 +1095,17 @@ export function createOrbitSpatialScene({
 
     atmosphereGroup.rotation.y += 0.00038;
 
+    handModels.forEach((handModel) => {
+      applySignalHandMaterial(handModel, activeAccent);
+    });
+
     handPresenceNodes.forEach((node, index) => {
       const material = node.material as THREE.MeshBasicMaterial;
-      const pulse = 0.12 + Math.sin(elapsed * 2.4 + index * 0.8) * 0.045;
+      const pulse = 0.28 + Math.sin(elapsed * 2.4 + index * 0.8) * 0.08;
 
       material.opacity = pulse;
-      node.scale.setScalar(0.86 + Math.sin(elapsed * 2.1 + index) * 0.08);
+      material.color.copy(activeAccent);
+      node.scale.setScalar(0.9 + Math.sin(elapsed * 2.1 + index) * 0.1);
     });
 
     horizonLines.forEach((line, index) => {
