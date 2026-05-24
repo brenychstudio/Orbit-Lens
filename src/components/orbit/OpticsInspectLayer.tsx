@@ -622,12 +622,12 @@ function ExpandedAsset({
         <OpticalTypewriterCaption text={asset.caption} accent={accent} />
       </div>
 
-      <div className="flex items-center justify-between gap-4 px-2 pb-1.5 pt-2.5">
+      <div className="grid min-h-[4.75rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-5 border-t border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(0,0,0,0.24))] px-3 pb-3 pt-3.5 md:min-h-[5.15rem] md:px-4 md:pb-3.5 md:pt-4">
         <div className="min-w-0">
-          <p className="text-[0.48rem] uppercase tracking-[0.26em] text-white/30">
+          <p className="text-[0.48rem] uppercase tracking-[0.28em] text-white/38">
             Product Inspection
           </p>
-          <h3 className="mt-1 truncate text-lg font-light tracking-[-0.045em] text-white md:text-xl">
+          <h3 className="mt-1.5 truncate text-xl font-light leading-none tracking-[-0.055em] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.72)] md:text-2xl">
             {asset.label}
           </h3>
         </div>
@@ -636,7 +636,7 @@ function ExpandedAsset({
           type="button"
           onClick={onClose}
           aria-label="Close product inspection detail"
-          className="group relative inline-flex shrink-0 items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.025] px-3 py-2 text-[0.46rem] uppercase tracking-[0.24em] text-white/58 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/88 md:text-[0.48rem] md:tracking-[0.28em]"
+          className="group relative inline-flex shrink-0 items-center gap-2 overflow-hidden rounded-full border border-white/[0.11] bg-black/55 px-4 py-2.5 text-[0.5rem] uppercase tracking-[0.28em] text-white/72 shadow-[0_14px_34px_rgba(0,0,0,0.46),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-[18px] transition hover:border-white/[0.18] hover:bg-black/68 hover:text-white md:px-[1.125rem] md:text-[0.54rem] md:tracking-[0.32em]"
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
@@ -764,13 +764,17 @@ export function OpticsInspectLayer({
           event.stopPropagation();
           handleClose();
         }}
-        className="absolute right-6 top-6 z-[80] inline-flex items-center gap-3 px-2 py-2 text-[0.72rem] uppercase tracking-[0.42em] text-white/58 transition hover:text-white md:right-8 md:top-8 lg:right-10"
+        className="absolute right-5 top-5 z-[120] inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/[0.1] bg-black/62 px-4 py-2.5 text-[0.68rem] uppercase tracking-[0.38em] text-white/78 shadow-[0_18px_42px_rgba(0,0,0,0.62),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-[20px] transition hover:border-white/[0.18] hover:bg-black/72 hover:text-white md:right-7 md:top-7 lg:right-9"
       >
         <span
-          className="h-1.5 w-1.5 rounded-full"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.08),transparent_58%)] opacity-60"
+          aria-hidden="true"
+        />
+        <span
+          className="relative h-1.5 w-1.5 rounded-full"
           style={{ background: accent, boxShadow: `0 0 14px ${accent}` }}
         />
-        <span>Return</span>
+        <span className="relative">Return</span>
       </button>
 
       {isMobileLayout ? (
