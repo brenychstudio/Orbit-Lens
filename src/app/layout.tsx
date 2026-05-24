@@ -13,7 +13,7 @@ export const metadata = {
     siteName: "Orbit Lens",
     images: [
       {
-        url: "/og/orbit-lens-og-1200x630.png",
+        url: "/og/orbit-lens-og-1200x630.webp",
         width: 1200,
         height: 630,
         alt: "Orbit Lens AI spatial glasses interface concept",
@@ -27,7 +27,7 @@ export const metadata = {
     title: "Orbit Lens — AI Spatial Glasses Interface Concept",
     description:
       "A fictional AI spatial glasses product concept with cinematic spatial interface layers.",
-    images: ["/og/orbit-lens-og-1200x630.png"],
+    images: ["/og/orbit-lens-og-1200x630.webp"],
   },
   icons: {
     icon: "/favicon.ico",

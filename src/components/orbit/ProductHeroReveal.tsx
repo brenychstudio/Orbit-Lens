@@ -51,7 +51,7 @@ export function ProductHeroReveal({ accent }: ProductHeroRevealProps) {
         }}
       >
         <Image
-          src="/glasses/orbit-lens-hero-16x9.png"
+          src="/glasses/orbit-lens-hero-16x9.webp"
           alt="Orbit Lens AI spatial glasses hero product render"
           fill
           priority

@@ -10,27 +10,27 @@ type ModeVisualProps = {
 
 const modeVisuals: Record<string, { src: string; alt: string }> = {
   vision: {
-    src: "/interface/vision-mode-city-16x9.png",
+    src: "/interface/vision-mode-city-16x9.webp",
     alt: "Orbit Lens vision mode city navigation interface",
   },
   translate: {
-    src: "/interface/spatial-cards-overview-16x9.png",
+    src: "/interface/spatial-cards-overview-16x9.webp",
     alt: "Orbit Lens spatial cards overview interface",
   },
   recall: {
-    src: "/interface/recall-mode-memory-16x9.png",
+    src: "/interface/recall-mode-memory-16x9.webp",
     alt: "Orbit Lens recall mode memory interface",
   },
   create: {
-    src: "/interface/create-mode-framing-16x9.png",
+    src: "/interface/create-mode-framing-16x9.webp",
     alt: "Orbit Lens create mode framing interface",
   },
   focus: {
-    src: "/interface/focus-mode-minimal-16x9.png",
+    src: "/interface/focus-mode-minimal-16x9.webp",
     alt: "Orbit Lens focus mode minimal interface",
   },
   privacy: {
-    src: "/interface/privacy-visible-capture-16x9.png",
+    src: "/interface/privacy-visible-capture-16x9.webp",
     alt: "Orbit Lens privacy visible capture interface",
   },
 };

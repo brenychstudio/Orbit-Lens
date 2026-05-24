@@ -11,7 +11,7 @@ export function ProductOptics({ accent }: ProductOpticsProps) {
   return (
     <div className="relative mx-auto aspect-[2.35/1] w-full max-w-md overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/30 shadow-[inset_0_0_80px_rgba(255,255,255,0.035)] md:rounded-[2rem]">
       <Image
-        src="/glasses/orbit-lens-side-4x3.png"
+        src="/glasses/orbit-lens-side-4x3.webp"
         alt="Orbit Lens smart glasses side product render"
         fill
         sizes="(max-width: 768px) 90vw, 420px"

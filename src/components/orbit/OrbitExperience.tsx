@@ -40,7 +40,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "City layer detected",
     rightCard: "Route signal / 12 m",
     bottomCard: "Context density: low",
-    visual: "/interface/spatial-cards-overview-16x9.png",
+    visual: "/interface/spatial-cards-overview-16x9.webp",
   },
   translate: {
     field: "Field 02 / Translate",
@@ -51,7 +51,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Live caption stream",
     rightCard: "Language layer active",
     bottomCard: "Subtitle opacity: adaptive",
-    visual: "/interface/vision-mode-city-16x9.png",
+    visual: "/interface/vision-mode-city-16x9.webp",
   },
   recall: {
     field: "Field 03 / Recall",
@@ -62,7 +62,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Memory note ready",
     rightCard: "Place context saved",
     bottomCard: "Manual capture only",
-    visual: "/interface/recall-mode-memory-16x9.png",
+    visual: "/interface/recall-mode-memory-16x9.webp",
   },
   create: {
     field: "Field 04 / Create",
@@ -72,7 +72,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Framing assist",
     rightCard: "Scene reference locked",
     bottomCard: "Capture angle: stable",
-    visual: "/interface/create-mode-framing-16x9.png",
+    visual: "/interface/create-mode-framing-16x9.webp",
   },
   focus: {
     field: "Field 05 / Focus",
@@ -83,7 +83,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Noise reduced",
     rightCard: "Priority signal only",
     bottomCard: "Notifications muted",
-    visual: "/interface/focus-mode-minimal-16x9.png",
+    visual: "/interface/focus-mode-minimal-16x9.webp",
   },
   privacy: {
     field: "Field 06 / Privacy",
@@ -94,7 +94,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Visible capture state",
     rightCard: "Consent layer active",
     bottomCard: "User-controlled memory",
-    visual: "/interface/privacy-visible-capture-16x9.png",
+    visual: "/interface/privacy-visible-capture-16x9.webp",
   },
   access: {
     field: "Field 07 / Access",
@@ -105,7 +105,7 @@ const fieldCopy: Record<string, FieldCopy> = {
     leftCard: "Brenych Studio",
     rightCard: "Private preview",
     bottomCard: "Contact / portfolio / GitHub",
-    visual: "/interface/orbit-mode-selector-16x9.png",
+    visual: "/interface/orbit-mode-selector-16x9.webp",
   },
 };
 
@@ -173,32 +173,32 @@ const field04ReferenceItems = [
   {
     title: "Mountain Light",
     meta: "Landscape / saved",
-    src: "/interface/create-mode-framing-16x9.png",
+    src: "/interface/create-mode-framing-16x9.webp",
   },
   {
     title: "City Route",
     meta: "Context / pinned",
-    src: "/interface/vision-mode-city-16x9.png",
+    src: "/interface/vision-mode-city-16x9.webp",
   },
   {
     title: "Caption Field",
     meta: "Language / reference",
-    src: "/interface/spatial-cards-overview-16x9.png",
+    src: "/interface/spatial-cards-overview-16x9.webp",
   },
   {
     title: "Memory Trace",
     meta: "Recall / manual",
-    src: "/interface/recall-mode-memory-16x9.png",
+    src: "/interface/recall-mode-memory-16x9.webp",
   },
   {
     title: "Quiet Signal",
     meta: "Focus / low noise",
-    src: "/interface/focus-mode-minimal-16x9.png",
+    src: "/interface/focus-mode-minimal-16x9.webp",
   },
   {
     title: "Visible Trust",
     meta: "Privacy / indicator",
-    src: "/interface/privacy-visible-capture-16x9.png",
+    src: "/interface/privacy-visible-capture-16x9.webp",
   },
 ];
 
@@ -2318,10 +2318,10 @@ export function OrbitExperience() {
   }, []);
 
   const inspectScale =
-    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.075 : 1.235;
+    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.025 : 1.04;
 
   const inspectYOffset =
-    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -0.75 : -2.4;
+    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -0.35 : -0.8;
   const inspectMotionDuration = isInspectOpen ? 1.04 : 0.92;
 
   const currentProgress = useMemo(
@@ -2630,7 +2630,7 @@ export function OrbitExperience() {
                   />
 
                   <Image
-                    src="/glasses/orbit-lens-hero-16x9.png"
+                    src="/glasses/orbit-lens-hero-16x9.webp"
                     alt="Orbit Lens AI spatial glasses"
                     fill
                     priority
