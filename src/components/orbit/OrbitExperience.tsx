@@ -2536,10 +2536,10 @@ export function OrbitExperience() {
   }, []);
 
   const inspectScale =
-    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.025 : 1.04;
+    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.12 : 1.2;
 
   const inspectYOffset =
-    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -0.35 : -0.8;
+    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -0.65 : -1.25;
   const inspectMotionDuration = isInspectOpen ? 1.04 : 0.92;
 
   const currentProgress = useMemo(
