@@ -723,7 +723,7 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="absolute inset-y-[14%] right-[7%] w-[24.5rem] xl:right-[8%]">
+      <div className="absolute inset-y-[12%] right-[7%] w-[24.5rem] xl:right-[8%]">
         <motion.div
           className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-white/[0.07] bg-[#030609]/[0.46] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_30px_90px_rgba(0,0,0,0.36)]"
           initial={{ opacity: 0, y: 18, x: 14 }}
@@ -871,7 +871,7 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
             </div>
           </div>
 
-          <div className="relative mt-4 rounded-[1.65rem] border border-white/[0.055] bg-black/[0.18] px-4 py-3.5">
+          <div className="relative mt-5 rounded-[1.65rem] border border-white/[0.055] bg-black/[0.18] px-4 py-4">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-[0.5rem] uppercase tracking-[0.26em] text-white/25">
                 Muted layer
