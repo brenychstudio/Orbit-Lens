@@ -204,7 +204,6 @@ function createLine(
 
 const HAND_NODE_HOVER_RADIUS = 0.28;
 const HAND_INSPECT_HOVER_RADIUS = 0.62;
-const HAND_NAV_HOVER_RADIUS = 0.58;
 const HAND_POINTER_MAX_DISTANCE = 4.2;
 const HAND_PINCH_SELECT_RADIUS = 0.095;
 const HAND_SELECT_COOLDOWN_MS = 720;
@@ -939,14 +938,12 @@ export function createOrbitSpatialScene({
     isImmersive: false,
   };
 
-  const vrNavWorldPosition = new THREE.Vector3();
   const handPointerRaycaster = new THREE.Raycaster();
   handPointerRaycaster.far = HAND_POINTER_MAX_DISTANCE;
 
   const handPointerOrigin = new THREE.Vector3();
   const handPointerBase = new THREE.Vector3();
   const handPointerAim = new THREE.Vector3();
-  const handPointerThumb = new THREE.Vector3();
   const handPointerDirection = new THREE.Vector3();
   const handPointerEnd = new THREE.Vector3();
   const handPointerHitPoint = new THREE.Vector3();
@@ -1088,7 +1085,7 @@ export function createOrbitSpatialScene({
     const y = -0.22 - i * 0.18;
     const line = createLine(
       [new THREE.Vector3(-4.6, y, -4.6), new THREE.Vector3(4.6, y, -4.6)],
-      "rgba(255,255,255,0.14)",
+      0xffffff,
       0.07,
     );
     horizonLines.push(line);

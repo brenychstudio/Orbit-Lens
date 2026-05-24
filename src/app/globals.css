@@ -610,7 +610,7 @@ button {
     opacity: 0;
   }
 }
-/* Orbit Lens вЂ” Field 06 Trust Boundary System */
+/* Orbit Lens - Field 06 Trust Boundary System */
 .orbit-trust-private-zone {
   pointer-events: none;
   mix-blend-mode: screen;
@@ -671,7 +671,7 @@ button {
     opacity: 0;
   }
 }
-/* Orbit Lens вЂ” Field 02 Transparent Language Layer */
+/* Orbit Lens - Field 02 Transparent Language Layer */
 .orbit-language-plane {
   position: relative;
   overflow: hidden;

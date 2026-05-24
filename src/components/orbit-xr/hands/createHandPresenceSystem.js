@@ -9,6 +9,24 @@ const JOINT_NAMES = {
   pinky: "pinky-finger-tip",
 };
 
+const PINCH_ON_DIST = 0.024;
+const PINCH_OFF_DIST = 0.038;
+const PINCH_CONFIRM_MS = 70;
+const MIDDLE_GUARD_DIST = 0.026;
+
+function createPinchRuntimeState() {
+  return {
+    pinching: false,
+    rawPinching: false,
+    rawSince: 0,
+  };
+}
+
+const pinchRuntime = {
+  left: createPinchRuntimeState(),
+  right: createPinchRuntimeState(),
+};
+
 const PALM_JOINT_CANDIDATES = [
   "wrist",
   "middle-finger-metacarpal",
@@ -207,6 +225,71 @@ function getGesture({ sourceType, trigger, squeeze, pinch }) {
   return "idle";
 }
 
+function distanceFromArray(a, b) {
+  if (!a || !b) return Infinity;
+
+  const dx = a[0] - b[0];
+  const dy = a[1] - b[1];
+  const dz = a[2] - b[2];
+
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+function resetPinchRuntime(side) {
+  const runtime = pinchRuntime[side];
+
+  if (!runtime) return;
+
+  runtime.pinching = false;
+  runtime.rawPinching = false;
+  runtime.rawSince = 0;
+}
+
+function resolveJointPinch(side, fingertips) {
+  const runtime = pinchRuntime[side];
+
+  if (!runtime) return 0;
+
+  const thumbTip = fingertips?.thumb ?? null;
+  const indexTip = fingertips?.index ?? null;
+  const middleTip = fingertips?.middle ?? null;
+
+  const thumbIndexDist = distanceFromArray(thumbTip, indexTip);
+  const thumbMiddleDist = distanceFromArray(thumbTip, middleTip);
+
+  if (!Number.isFinite(thumbIndexDist) || !Number.isFinite(thumbMiddleDist)) {
+    resetPinchRuntime(side);
+    return 0;
+  }
+
+  const threshold = runtime.pinching ? PINCH_OFF_DIST : PINCH_ON_DIST;
+
+  // Important guard:
+  // Do not treat a closed fist as pinch.
+  // Thumb + index should close while middle finger remains sufficiently separate.
+  const rawPinch =
+    thumbIndexDist <= threshold &&
+    thumbMiddleDist >= MIDDLE_GUARD_DIST;
+
+  if (!rawPinch) {
+    resetPinchRuntime(side);
+    return 0;
+  }
+
+  const now = performance.now();
+
+  if (!runtime.rawPinching) {
+    runtime.rawPinching = true;
+    runtime.rawSince = now;
+  }
+
+  if (!runtime.pinching && now - runtime.rawSince >= PINCH_CONFIRM_MS) {
+    runtime.pinching = true;
+  }
+
+  return runtime.pinching ? 1 : 0;
+}
+
 export function createHandPresenceSystem({
   scene,
   renderer,
@@ -283,6 +366,8 @@ export function createHandPresenceSystem({
       const worldResponseMultiplier = getWorldResponseMultiplier(currentRoomId);
 
       if (!resolved) {
+        resetPinchRuntime(side);
+
         handState.applySide(side, {
           presenting,
           worldResponseMultiplier,
@@ -294,6 +379,8 @@ export function createHandPresenceSystem({
       const sourceObject = getTrackedObjectForSource(spaceSet, resolved.inputSource);
 
       if (!sourceObject) {
+        resetPinchRuntime(side);
+
         handState.applySide(side, {
           presenting,
           worldResponseMultiplier,
@@ -316,11 +403,6 @@ export function createHandPresenceSystem({
 
       const buttons = getButtons(resolved.inputSource);
 
-      const pinch =
-        resolved.sourceType === "hand-tracking"
-          ? (sourceObject?.inputState?.pinching ? 1 : 0)
-          : buttons.trigger;
-
       const fingertips =
         resolved.sourceType === "hand-tracking"
           ? extractFingertips(sourceObject, mount)
@@ -331,6 +413,11 @@ export function createHandPresenceSystem({
               ring: null,
               pinky: null,
             };
+
+      const pinch =
+        resolved.sourceType === "hand-tracking"
+          ? resolveJointPinch(side, fingertips)
+          : buttons.trigger;
 
       handState.applySide(side, {
         connected: true,
