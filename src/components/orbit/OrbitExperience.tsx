@@ -3,7 +3,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
 import { ModeInteractiveOverlay } from "@/components/orbit/ModeInteractiveOverlay";
@@ -120,6 +128,208 @@ function GlassPane({
     <div className={`orbit-glass-panel overflow-hidden rounded-[2rem] border backdrop-blur-[24px] ${className}`}>
       {children}
     </div>
+  );
+}
+
+type FieldCopySnapshot = {
+  activeModeId: string;
+  copy: FieldCopy;
+  accent: string;
+  isAccessField: boolean;
+  transitionDirection: number;
+};
+
+function FieldCopyTextBlock({
+  copy,
+  accent,
+  isAccessField,
+}: {
+  copy: FieldCopy;
+  accent: string;
+  isAccessField: boolean;
+}) {
+  return (
+    <>
+      <p
+        className="mb-5 text-[0.62rem] uppercase tracking-[0.34em]"
+        style={{ color: accent }}
+      >
+        {copy.field}
+      </p>
+
+      <h1
+        className={`max-w-[34rem] font-light leading-[0.9] tracking-[-0.085em] text-white drop-shadow-[0_14px_42px_rgba(0,0,0,0.9)] ${
+          isAccessField
+            ? "text-[2rem] sm:text-5xl md:text-6xl lg:text-[4.8rem]"
+            : "text-[2.15rem] sm:text-5xl md:text-7xl lg:text-[5.7rem]"
+        }`}
+      >
+        {copy.headline}
+      </h1>
+
+      <p className="mt-4 max-w-[29rem] text-xs leading-5 text-white/66 drop-shadow-[0_8px_26px_rgba(0,0,0,0.9)] sm:text-base sm:leading-6 md:mt-5 md:text-lg md:leading-7">
+        {copy.subline}
+      </p>
+    </>
+  );
+}
+
+function PersistentFieldCopyPanel({
+  activeModeId,
+  copy,
+  accent,
+  isAccessField,
+  transitionDirection,
+}: {
+  activeModeId: string;
+  copy: FieldCopy;
+  accent: string;
+  isAccessField: boolean;
+  transitionDirection: number;
+}) {
+  const direction = transitionDirection === 0 ? 1 : transitionDirection;
+
+  const currentSnapshotRef = useRef<FieldCopySnapshot>({
+    activeModeId,
+    copy,
+    accent,
+    isAccessField,
+    transitionDirection: direction,
+  });
+
+  const clearTimerRef = useRef<number | null>(null);
+  const [previousSnapshot, setPreviousSnapshot] =
+    useState<FieldCopySnapshot | null>(null);
+
+  useLayoutEffect(() => {
+    const previous = currentSnapshotRef.current;
+
+    if (previous.activeModeId !== activeModeId) {
+      if (clearTimerRef.current !== null) {
+        window.clearTimeout(clearTimerRef.current);
+      }
+
+      setPreviousSnapshot({
+        ...previous,
+        transitionDirection: direction,
+      });
+
+      currentSnapshotRef.current = {
+        activeModeId,
+        copy,
+        accent,
+        isAccessField,
+        transitionDirection: direction,
+      };
+
+      clearTimerRef.current = window.setTimeout(() => {
+        setPreviousSnapshot(null);
+        clearTimerRef.current = null;
+      }, 760);
+
+      return;
+    }
+
+    currentSnapshotRef.current = {
+      activeModeId,
+      copy,
+      accent,
+      isAccessField,
+      transitionDirection: direction,
+    };
+  }, [activeModeId, copy, accent, isAccessField, direction]);
+
+  useEffect(() => {
+    return () => {
+      if (clearTimerRef.current !== null) {
+        window.clearTimeout(clearTimerRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <GlassPane
+      className={`relative max-w-[calc(100vw-3.5rem)] overflow-hidden px-4 py-4 sm:px-6 sm:py-6 md:px-7 md:py-7 ${
+        isAccessField ? "sm:max-w-[31rem]" : "sm:max-w-[36rem]"
+      }`}
+    >
+      <div className="relative grid">
+        {previousSnapshot ? (
+          <motion.div
+            key={`previous-copy-${previousSnapshot.activeModeId}`}
+            className="pointer-events-none absolute inset-0 z-20"
+            initial={{ opacity: 0.72, x: 0, y: 0 }}
+            animate={{
+              opacity: 0,
+              x: previousSnapshot.transitionDirection * -16,
+              y: -5,
+            }}
+            transition={{
+              opacity: { duration: 0.58, ease: [0.22, 1, 0.36, 1] },
+              x: { duration: 0.72, ease: [0.19, 1, 0.22, 1] },
+              y: { duration: 0.72, ease: [0.19, 1, 0.22, 1] },
+            }}
+            style={{
+              backfaceVisibility: "hidden",
+              willChange: "opacity, transform",
+            }}
+          >
+            <FieldCopyTextBlock
+              copy={previousSnapshot.copy}
+              accent={previousSnapshot.accent}
+              isAccessField={previousSnapshot.isAccessField}
+            />
+          </motion.div>
+        ) : null}
+
+        <motion.div
+          key={`current-copy-${activeModeId}`}
+          className="relative z-10 [grid-area:1/1]"
+          initial={{
+            opacity: 0,
+            x: direction * 18,
+            y: 7,
+          }}
+          animate={{
+            opacity: 1,
+            x: 0,
+            y: 0,
+          }}
+          transition={{
+            opacity: { duration: 0.68, ease: [0.22, 1, 0.36, 1] },
+            x: { duration: 0.86, ease: [0.19, 1, 0.22, 1] },
+            y: { duration: 0.86, ease: [0.19, 1, 0.22, 1] },
+          }}
+          style={{
+            backfaceVisibility: "hidden",
+            willChange: "opacity, transform",
+          }}
+        >
+          <FieldCopyTextBlock
+            copy={copy}
+            accent={accent}
+            isAccessField={isAccessField}
+          />
+        </motion.div>
+
+        <motion.div
+          key={`copy-panel-sweep-${activeModeId}`}
+          className="pointer-events-none absolute inset-y-[-18%] -left-1/3 z-0 w-1/2 -skew-x-12"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${accent}18, rgba(255,255,255,0.035), transparent)`,
+          }}
+          initial={{ x: "-20%", opacity: 0 }}
+          animate={{
+            x: "260%",
+            opacity: [0, 0.22, 0],
+          }}
+          transition={{
+            duration: 1.15,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        />
+      </div>
+    </GlassPane>
   );
 }
 
@@ -2657,57 +2867,13 @@ export function OrbitExperience() {
               />
 
               <div className="absolute left-4 top-4 z-20 max-w-[13rem] sm:left-8 sm:top-8 sm:max-w-[32rem] md:left-10 md:top-10 lg:left-12 lg:top-12">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`copy-${activeMode.id}`}
-                    initial={{
-                      opacity: 0,
-                      y: 20,
-                      x: transitionDirection * 18,
-                      filter: "blur(16px)",
-                    }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      x: 0,
-                      filter: "blur(0px)",
-                    }}
-                    exit={{
-                      opacity: 0,
-                      y: -12,
-                      x: transitionDirection * -18,
-                      filter: "blur(14px)",
-                    }}
-                    transition={{ duration: 0.74, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <GlassPane
-                      className={`max-w-[calc(100vw-3.5rem)] px-4 py-4 sm:px-6 sm:py-6 md:px-7 md:py-7 ${
-                        isAccessField ? "sm:max-w-[31rem]" : "sm:max-w-[36rem]"
-                      }`}
-                    >
-                      <p
-                        className="mb-5 text-[0.62rem] uppercase tracking-[0.34em]"
-                        style={{ color: activeMode.accent }}
-                      >
-                        {copy.field}
-                      </p>
-
-                      <h1
-                        className={`max-w-[34rem] font-light leading-[0.9] tracking-[-0.085em] text-white drop-shadow-[0_14px_42px_rgba(0,0,0,0.9)] ${
-                          isAccessField
-                            ? "text-[2rem] sm:text-5xl md:text-6xl lg:text-[4.8rem]"
-                            : "text-[2.15rem] sm:text-5xl md:text-7xl lg:text-[5.7rem]"
-                        }`}
-                      >
-                        {copy.headline}
-                      </h1>
-
-                      <p className="mt-4 max-w-[29rem] text-xs leading-5 text-white/66 drop-shadow-[0_8px_26px_rgba(0,0,0,0.9)] sm:text-base sm:leading-6 md:mt-5 md:text-lg md:leading-7">
-                        {copy.subline}
-                      </p>
-                    </GlassPane>
-                  </motion.div>
-                </AnimatePresence>
+                <PersistentFieldCopyPanel
+                  activeModeId={activeMode.id}
+                  copy={copy}
+                  accent={activeMode.accent}
+                  isAccessField={isAccessField}
+                  transitionDirection={transitionDirection}
+                />
               </div>
 
               {isAccessField ? <AccessConsole accent={activeMode.accent} /> : null}
