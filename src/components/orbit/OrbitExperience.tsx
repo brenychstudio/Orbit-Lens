@@ -1321,35 +1321,35 @@ const languageLayerFragments = [
     label: "Detected",
     className: "left-[53%] top-[31%]",
     delay: 0.2,
-    opacity: [0.16, 0.34, 0.18],
+    opacity: [0.08, 0.2, 0.1],
     y: [0, -5, 0],
   },
   {
     label: "Source",
     className: "right-[16%] top-[35%]",
     delay: 0.48,
-    opacity: [0.12, 0.28, 0.16],
+    opacity: [0.07, 0.18, 0.09],
     y: [0, 4, 0],
   },
   {
     label: "Context",
     className: "left-[58%] top-[61%]",
     delay: 0.82,
-    opacity: [0.13, 0.3, 0.16],
+    opacity: [0.07, 0.18, 0.09],
     y: [0, -4, 0],
   },
   {
     label: "Adaptive",
     className: "right-[12.5%] top-[63%]",
     delay: 1.05,
-    opacity: [0.11, 0.26, 0.14],
+    opacity: [0.06, 0.16, 0.08],
     y: [0, 5, 0],
   },
   {
     label: "Voice",
     className: "left-[66%] top-[75%]",
     delay: 1.32,
-    opacity: [0.1, 0.22, 0.13],
+    opacity: [0.05, 0.13, 0.07],
     y: [0, -3, 0],
   },
 ];
@@ -1461,11 +1461,14 @@ function TransparentLanguageLayer({ accent }: { accent: string }) {
       transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1] }}
       aria-hidden="true"
     >
+      <div className="absolute inset-y-0 right-0 w-[46%] bg-[linear-gradient(90deg,transparent,rgba(0,0,0,0.28)_32%,rgba(0,0,0,0.58)_100%)]" />
+      <div className="absolute right-[3.5%] top-[17%] h-[31rem] w-[42rem] rounded-[3rem] bg-[radial-gradient(ellipse_at_52%_38%,rgba(0,0,0,0.58)_0%,rgba(0,0,0,0.36)_46%,transparent_76%)] blur-[10px]" />
+
       {/* Floating language fragments */}
       {languageLayerFragments.map((item) => (
         <motion.p
           key={item.label}
-          className={`orbit-language-fragment absolute ${item.className} text-[0.58rem] uppercase tracking-[0.34em] text-white/22`}
+          className={`orbit-language-fragment absolute ${item.className} text-[0.56rem] uppercase tracking-[0.34em] text-white/18`}
           initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
           animate={{
             opacity: item.opacity,
@@ -1506,71 +1509,76 @@ function TransparentLanguageLayer({ accent }: { accent: string }) {
           style={{ willChange: "transform" }}
         >
           <GlassPane className="orbit-language-plane px-6 py-5">
-            <div className="mb-5 flex items-center justify-between gap-5">
-              <div className="flex items-center gap-2">
-                <motion.span
-                  className="h-2 w-2 rounded-full"
-                  style={{
-                    background: accent,
-                    boxShadow: `0 0 18px ${accent}`,
-                  }}
-                  animate={{
-                    opacity: [0.46, 1, 0.56],
-                    scale: [0.9, 1.16, 0.9],
-                  }}
-                  transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/42">
-                  Language Layer
+            <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(135deg,rgba(3,6,10,0.72),rgba(7,11,15,0.48)_48%,rgba(3,5,8,0.62))]" />
+            <div className="pointer-events-none absolute inset-x-4 top-px z-0 h-px bg-gradient-to-r from-transparent via-white/18 to-transparent" />
+
+            <div className="relative z-10">
+              <div className="mb-5 flex items-center justify-between gap-5">
+                <div className="flex items-center gap-2">
+                  <motion.span
+                    className="h-2 w-2 rounded-full"
+                    style={{
+                      background: accent,
+                      boxShadow: `0 0 18px ${accent}`,
+                    }}
+                    animate={{
+                      opacity: [0.52, 1, 0.62],
+                      scale: [0.9, 1.16, 0.9],
+                    }}
+                    transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <p className="text-[0.58rem] uppercase tracking-[0.3em] text-white/58">
+                    Language Layer
+                  </p>
+                </div>
+
+                <p className="text-[0.52rem] uppercase tracking-[0.26em] text-white/42">
+                  Live / Adaptive
                 </p>
               </div>
 
-              <p className="text-[0.52rem] uppercase tracking-[0.26em] text-white/28">
-                Live / Adaptive
-              </p>
-            </div>
-
-            <div className="border-t border-white/[0.075] pt-5">
-              <p className="text-[0.52rem] uppercase tracking-[0.3em] text-white/25">
-                Source audio
-              </p>
-
-              <p className="mt-2 min-h-[1.8rem] text-sm leading-6 text-white/46">
-                <ResolvedLanguageLine
-                  text={sourceText}
-                  ghost="bue... tar... des..."
-                  progress={sourceProgress}
-                />
-              </p>
-            </div>
-
-            <div className="mt-5 border-t border-white/[0.075] pt-5">
-              <div className="mb-2 flex items-center justify-between gap-4">
-                <p
-                  className="text-[0.52rem] uppercase tracking-[0.3em]"
-                  style={{ color: "rgba(210, 232, 255, 0.54)" }}
-                >
-                  Translated layer
+              <div className="border-t border-white/[0.105] pt-5">
+                <p className="text-[0.52rem] uppercase tracking-[0.3em] text-white/34">
+                  Source audio
                 </p>
 
-                <motion.p
-                  className="text-[0.5rem] uppercase tracking-[0.24em] text-white/24"
-                  animate={{
-                    opacity: translatedProgress >= 1 ? [0.32, 0.58, 0.38] : [0.16, 0.32, 0.18],
-                  }}
-                  transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  Resolve {Math.round(translatedProgress * 100)}%
-                </motion.p>
+                <p className="mt-2 min-h-[1.8rem] text-sm font-medium leading-6 text-white/62 drop-shadow-[0_8px_22px_rgba(0,0,0,0.72)]">
+                  <ResolvedLanguageLine
+                    text={sourceText}
+                    ghost="bue... tar... des..."
+                    progress={sourceProgress}
+                  />
+                </p>
               </div>
 
-              <p className="min-h-[2.2rem] text-[1.02rem] leading-8 text-white/74">
-                <ResolvedLanguageLine
-                  text={translatedText}
-                  ghost="goo... eve... ing..."
-                  progress={translatedProgress}
-                />
-              </p>
+              <div className="mt-5 border-t border-white/[0.105] pt-5">
+                <div className="mb-2 flex items-center justify-between gap-4">
+                  <p
+                    className="text-[0.52rem] uppercase tracking-[0.3em]"
+                    style={{ color: "rgba(210, 232, 255, 0.68)" }}
+                  >
+                    Translated layer
+                  </p>
+
+                  <motion.p
+                    className="text-[0.5rem] uppercase tracking-[0.24em] text-white/36"
+                    animate={{
+                      opacity: translatedProgress >= 1 ? [0.42, 0.68, 0.48] : [0.22, 0.42, 0.26],
+                    }}
+                    transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    Resolve {Math.round(translatedProgress * 100)}%
+                  </motion.p>
+                </div>
+
+                <p className="min-h-[2.2rem] text-[1.02rem] font-medium leading-8 text-white/86 drop-shadow-[0_10px_28px_rgba(0,0,0,0.72)]">
+                  <ResolvedLanguageLine
+                    text={translatedText}
+                    ghost="goo... eve... ing..."
+                    progress={translatedProgress}
+                  />
+                </p>
+              </div>
             </div>
           </GlassPane>
         </motion.div>
