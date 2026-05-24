@@ -581,8 +581,8 @@ function ExpandedAsset({
 
   return (
       <motion.div
-        className={`orbit-detail-material absolute left-1/2 top-[46%] z-50 max-h-[70%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-[46%] md:max-h-[74%] md:rounded-[1.65rem] md:p-2 ${
-        isSquare ? "w-[min(82%,23rem)] md:w-[min(66%,37rem)] lg:w-[min(38%,27rem)]" : "w-[min(86%,27rem)] md:w-[min(72%,50rem)] lg:w-[min(45%,38rem)]"
+        className={`orbit-detail-material absolute left-1/2 top-[43%] z-50 max-h-[82%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.2rem] border p-1.5 backdrop-blur-[26px] md:top-[43%] md:max-h-[82%] md:rounded-[1.65rem] md:p-2 ${
+        isSquare ? "w-[min(82%,23rem)] md:w-[min(66%,37rem)] lg:w-[min(38%,27rem)]" : "w-[min(86%,27rem)] md:w-[min(72%,50rem)] lg:w-[min(48%,38rem)]"
       }`}
       initial={{ opacity: 0, scale: 0.965, y: 8, filter: "blur(6px)" }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
@@ -593,7 +593,7 @@ function ExpandedAsset({
 
       <div
         className={`relative overflow-hidden rounded-[1.2rem] border border-white/[0.11] bg-black/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ${
-          isSquare ? "aspect-square" : "aspect-[4/3]"
+          isSquare ? "aspect-square" : "aspect-[5/3]"
         }`}
       >
         <Image
@@ -622,7 +622,7 @@ function ExpandedAsset({
         <OpticalTypewriterCaption text={asset.caption} accent={accent} />
       </div>
 
-      <div className="grid min-h-[4.75rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-5 border-t border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(0,0,0,0.24))] px-3 pb-3 pt-3.5 md:min-h-[5.15rem] md:px-4 md:pb-3.5 md:pt-4">
+      <div className="grid min-h-[4.45rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-5 border-t border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(0,0,0,0.24))] px-3 pb-3 pt-3.5 md:min-h-[4.8rem] md:px-4 md:pb-3.5 md:pt-4">
         <div className="min-w-0">
           <p className="text-[0.48rem] uppercase tracking-[0.28em] text-white/38">
             Product Inspection
@@ -764,7 +764,7 @@ export function OpticsInspectLayer({
           event.stopPropagation();
           handleClose();
         }}
-        className="absolute right-5 top-5 z-[120] inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/[0.1] bg-black/62 px-4 py-2.5 text-[0.68rem] uppercase tracking-[0.38em] text-white/78 shadow-[0_18px_42px_rgba(0,0,0,0.62),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-[20px] transition hover:border-white/[0.18] hover:bg-black/72 hover:text-white md:right-7 md:top-7 lg:right-9"
+        className="absolute right-8 top-5 z-[120] inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/[0.1] bg-black/62 px-4 py-2.5 text-[0.68rem] uppercase tracking-[0.38em] text-white/78 shadow-[0_18px_42px_rgba(0,0,0,0.62),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-[20px] transition hover:border-white/[0.18] hover:bg-black/72 hover:text-white md:right-10 md:top-7 lg:right-14"
       >
         <span
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.08),transparent_58%)] opacity-60"
