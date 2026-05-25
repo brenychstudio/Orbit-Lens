@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
 import { ModeInteractiveOverlay } from "@/components/orbit/ModeInteractiveOverlay";
 import { OpticsInspectLayer } from "@/components/orbit/OpticsInspectLayer";
+import { OrbitShaderAtmosphere } from "@/components/orbit/OrbitShaderAtmosphere";
 import {
   OrbitVisualMaturityLayer,
   VisionDeHudScrim,
@@ -3113,6 +3114,12 @@ export function OrbitExperience() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_56%_42%,rgba(255,255,255,0.11),transparent_30%),linear-gradient(90deg,rgba(0,0,0,0.68)_0%,rgba(0,0,0,0.38)_34%,rgba(0,0,0,0.18)_58%,rgba(0,0,0,0.58)_100%)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,transparent_48%,rgba(0,0,0,0.7)_100%)]" />
               <div className="absolute inset-0 opacity-[0.012] [background-image:linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] [background-size:92px_92px]" />
+
+              <OrbitShaderAtmosphere
+                accent={activeMode.accent}
+                isVisionField={isVisionField}
+                isInspectOpen={isInspectOpen}
+              />
 
               <OrbitVisualMaturityLayer
                 accent={activeMode.accent}
