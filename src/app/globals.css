@@ -1211,4 +1211,105 @@ button {
   }
 }
 
+/* Orbit Lens - 24E-F Low-height fit + Inspect clipping guard */
+
+@media (min-width: 1024px) and (max-height: 820px) {
+  .orbit-shell-motion-root {
+    transform-origin: 50% 48%;
+  }
+
+  .orbit-optical-viewport {
+    min-height: min(650px, calc(100svh - 7.7rem)) !important;
+  }
+
+  .orbit-dehud-top-strip {
+    margin-bottom: 0.55rem !important;
+    padding-top: 0.38rem !important;
+    padding-bottom: 0.38rem !important;
+  }
+
+  .orbit-dehud-rail-frame {
+    bottom: 0.75rem !important;
+    padding-top: 0.58rem !important;
+    padding-bottom: 0.58rem !important;
+  }
+
+  .orbit-lowheight-copy-panel {
+    transform: scale(0.94);
+    transform-origin: left top;
+  }
+
+  .orbit-lowheight-right-panel {
+    transform: scale(0.94);
+    transform-origin: right top;
+  }
+
+  .orbit-lowheight-right-panel > * {
+    max-height: calc(100svh - 9.8rem);
+  }
+
+  .orbit-inspect-intro-safe {
+    top: 3.9rem !important;
+    left: 6.9rem !important;
+    max-width: min(29rem, calc(100vw - 8rem)) !important;
+    transform: scale(0.94);
+    transform-origin: left top;
+  }
+
+  .orbit-inspect-return-safe {
+    top: 1rem !important;
+    right: 4.35rem !important;
+    transform: scale(0.94);
+    transform-origin: right top;
+  }
+
+  .orbit-inspect-stage-safe {
+    top: 5.9rem !important;
+    bottom: 6.2rem !important;
+  }
+
+  .orbit-inspect-helper-safe {
+    bottom: 6.35rem !important;
+  }
+
+  .orbit-detail-material {
+    max-height: 68% !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 760px) {
+  .orbit-optical-viewport {
+    min-height: min(610px, calc(100svh - 7.1rem)) !important;
+  }
+
+  .orbit-lowheight-copy-panel {
+    transform: scale(0.9);
+  }
+
+  .orbit-lowheight-right-panel {
+    transform: scale(0.9);
+  }
+
+  .orbit-inspect-intro-safe {
+    top: 3.55rem !important;
+    left: 6.6rem !important;
+    transform: scale(0.9);
+  }
+
+  .orbit-inspect-return-safe {
+    top: 0.85rem !important;
+    right: 4rem !important;
+    transform: scale(0.9);
+  }
+
+  .orbit-inspect-stage-safe {
+    top: 5.55rem !important;
+    bottom: 6.4rem !important;
+  }
+
+  .orbit-dehud-rail-frame {
+    bottom: 0.55rem !important;
+  }
+}
+
 

@@ -1166,7 +1166,7 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
       })}
 
       <motion.div
-        className="orbit-focus-priority absolute z-[25] w-[26rem] rounded-[1.9rem] px-5 py-4"
+        className="orbit-lowheight-right-panel orbit-focus-priority absolute z-[25] w-[26rem] rounded-[1.9rem] px-5 py-4"
         style={{
           right: "7.2%",
           top: "36.5%",
@@ -1566,7 +1566,7 @@ function TrustBoundarySystem({ accent }: { accent: string }) {
       />
 
       <motion.div
-        className="orbit-trust-signal absolute right-[14.6%] top-[41.5%] w-[22rem] px-5 py-4"
+        className="orbit-lowheight-right-panel orbit-trust-signal absolute right-[14.6%] top-[41.5%] w-[22rem] px-5 py-4"
         initial={{ opacity: 0, y: 16, scale: 0.985, filter: "blur(14px)" }}
         animate={{
           opacity: 1,
@@ -1887,7 +1887,7 @@ function TransparentLanguageLayer({ accent }: { accent: string }) {
 
       {/* Transparent caption plane */}
       <motion.div
-        className="absolute right-[8.8%] top-[24%] w-[33rem]"
+        className="orbit-lowheight-right-panel absolute right-[8.8%] top-[24%] w-[33rem]"
         initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(18px)" }}
         animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
         exit={{ opacity: 0, y: -12, scale: 0.99, filter: "blur(14px)" }}
@@ -2750,7 +2750,7 @@ function AccessStatusRow({
 function AccessConsole({ accent }: { accent: string }) {
   return (
     <motion.div
-      className="absolute right-10 top-12 z-20 hidden w-[24.5rem] lg:block xl:right-14 xl:top-14"
+      className="orbit-lowheight-right-panel absolute right-10 top-12 z-20 hidden w-[24.5rem] lg:block xl:right-14 xl:top-14"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
@@ -2902,6 +2902,7 @@ export function OrbitExperience() {
   const [transitionDirection, setTransitionDirection] = useState(1);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
   const [viewportTier, setViewportTier] = useState<ViewportTier>("desktop");
+  const [viewportHeight, setViewportHeight] = useState(900);
   const wheelLockRef = useRef(0);
 
   const activeMode = orbitModes[activeIndex] ?? orbitModes[0]!;
@@ -2918,6 +2919,7 @@ export function OrbitExperience() {
   useEffect(() => {
     const syncViewportTier = () => {
       setViewportTier(getViewportTier(window.innerWidth));
+      setViewportHeight(window.innerHeight);
     };
 
     const initialSync = window.setTimeout(syncViewportTier, 0);
@@ -2929,11 +2931,25 @@ export function OrbitExperience() {
     };
   }, []);
 
+  const isLowHeightDesktop = viewportTier === "desktop" && viewportHeight <= 820;
+
   const inspectScale =
-    viewportTier === "mobile" ? 1 : viewportTier === "tablet" ? 1.12 : 1.2;
+    viewportTier === "mobile"
+      ? 1
+      : viewportTier === "tablet"
+        ? 1.12
+        : isLowHeightDesktop
+          ? 1.06
+          : 1.2;
 
   const inspectYOffset =
-    viewportTier === "mobile" ? 0 : viewportTier === "tablet" ? -0.65 : -1.25;
+    viewportTier === "mobile"
+      ? 0
+      : viewportTier === "tablet"
+        ? -0.65
+        : isLowHeightDesktop
+          ? 0
+          : -1.25;
   const inspectMotionDuration = isInspectOpen ? 1.04 : 0.92;
 
   const currentProgress = useMemo(
@@ -3293,7 +3309,7 @@ export function OrbitExperience() {
                 }
               />
 
-              <div className="absolute left-4 top-4 z-20 max-w-[13rem] sm:left-8 sm:top-8 sm:max-w-[32rem] md:left-10 md:top-10 lg:left-12 lg:top-12">
+              <div className="orbit-lowheight-copy-panel absolute left-4 top-4 z-20 max-w-[13rem] sm:left-8 sm:top-8 sm:max-w-[32rem] md:left-10 md:top-10 lg:left-12 lg:top-12">
                 <PersistentFieldCopyPanel
                   activeModeId={activeMode.id}
                   copy={copy}

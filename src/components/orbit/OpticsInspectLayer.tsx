@@ -736,7 +736,7 @@ export function OpticsInspectLayer({
         }}
       />
 
-      <div className="absolute left-4 top-4 z-30 max-w-[12.5rem] md:left-7 md:top-7 md:max-w-[19rem] lg:left-8 lg:top-8 lg:max-w-[20rem]">
+      <div className="orbit-inspect-intro-safe absolute left-4 top-4 z-30 max-w-[12.5rem] md:left-7 md:top-7 md:max-w-[19rem] lg:left-8 lg:top-8 lg:max-w-[20rem]">
         <p
           className="text-[0.56rem] uppercase tracking-[0.34em]"
           style={{ color: accent }}
@@ -764,7 +764,7 @@ export function OpticsInspectLayer({
           event.stopPropagation();
           handleClose();
         }}
-        className="absolute right-8 top-5 z-[120] inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/[0.1] bg-black/62 px-4 py-2.5 text-[0.68rem] uppercase tracking-[0.38em] text-white/78 shadow-[0_18px_42px_rgba(0,0,0,0.62),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-[20px] transition hover:border-white/[0.18] hover:bg-black/72 hover:text-white md:right-10 md:top-7 lg:right-14"
+        className="orbit-inspect-return-safe absolute right-8 top-5 z-[120] inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/[0.1] bg-black/62 px-4 py-2.5 text-[0.68rem] uppercase tracking-[0.38em] text-white/78 shadow-[0_18px_42px_rgba(0,0,0,0.62),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-[20px] transition hover:border-white/[0.18] hover:bg-black/72 hover:text-white md:right-10 md:top-7 lg:right-14"
       >
         <span
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.08),transparent_58%)] opacity-60"
@@ -798,7 +798,7 @@ export function OpticsInspectLayer({
           onSelect={setSelectedId}
         />
       ) : (
-        <div className="absolute inset-0 z-20 lg:left-[3.8rem] lg:right-[3.2rem] lg:top-[5.4rem] lg:bottom-[5.9rem]">
+        <div className="orbit-inspect-stage-safe absolute inset-0 z-20 lg:left-[3.8rem] lg:right-[3.2rem] lg:top-[5.4rem] lg:bottom-[5.9rem]">
           {opticsAssets.map((asset, index) => {
             const isSelected = selectedId === asset.id;
             const hasSelection = selectedId !== null;
@@ -834,7 +834,7 @@ export function OpticsInspectLayer({
       </AnimatePresence>
 
       {!selectedAsset && !isTouchLayout ? (
-        <div className="absolute bottom-[5.8rem] left-1/2 z-30 -translate-x-1/2 text-[0.52rem] uppercase tracking-[0.32em] text-white/26">
+        <div className="orbit-inspect-helper-safe absolute bottom-[5.8rem] left-1/2 z-30 -translate-x-1/2 text-[0.52rem] uppercase tracking-[0.32em] text-white/26">
           Drag / select / inspect
         </div>
       ) : null}
