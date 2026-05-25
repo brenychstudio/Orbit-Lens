@@ -1174,4 +1174,23 @@ button {
     0 0 80px rgba(120, 170, 210, 0.048);
 }
 
+.orbit-vision-hero-image {
+  transform: scale(1.028);
+  transform-origin: 58% 50%;
+  filter: contrast(1.055) saturate(0.92) brightness(0.96);
+}
+
+@media (min-width: 1536px) {
+  .orbit-vision-hero-image {
+    transform: scale(1.04);
+    transform-origin: 58% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-vision-hero-image {
+    transform: none;
+  }
+}
+
 

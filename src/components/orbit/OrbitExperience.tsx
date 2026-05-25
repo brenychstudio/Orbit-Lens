@@ -19,6 +19,7 @@ import { OpticsInspectLayer } from "@/components/orbit/OpticsInspectLayer";
 import {
   OrbitVisualMaturityLayer,
   VisionDeHudScrim,
+  VisionProductConfidenceLayer,
 } from "@/components/orbit/OrbitVisualMaturityLayer";
 import { ShellChrome } from "@/components/orbit/ShellChrome";
 import { orbitModes } from "@/data/orbitModes";
@@ -3102,7 +3103,9 @@ export function OrbitExperience() {
                     fill
                     priority={activeMode.id === "vision"}
                     sizes="100vw"
-                    className="scale-[1.06] object-cover opacity-[0.42]"
+                    className={`scale-[1.06] object-cover opacity-[0.42] ${
+                      isVisionField ? "orbit-vision-hero-image" : ""
+                    }`}
                   />
                 </motion.div>
               </AnimatePresence>
@@ -3116,6 +3119,13 @@ export function OrbitExperience() {
                 isVisionField={isVisionField}
                 isInspectOpen={isInspectOpen}
               />
+
+              {isVisionField ? (
+                <VisionProductConfidenceLayer
+                  accent={activeMode.accent}
+                  isInspectOpen={isInspectOpen}
+                />
+              ) : null}
 
               {isVisionField && !isInspectOpen ? (
                 <VisionDeHudScrim accent={activeMode.accent} />
