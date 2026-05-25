@@ -16,6 +16,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { AtmosphericBackdrop } from "@/components/orbit/AtmosphericBackdrop";
 import { ModeInteractiveOverlay } from "@/components/orbit/ModeInteractiveOverlay";
 import { OpticsInspectLayer } from "@/components/orbit/OpticsInspectLayer";
+import {
+  OrbitVisualMaturityLayer,
+  VisionDeHudScrim,
+} from "@/components/orbit/OrbitVisualMaturityLayer";
 import { ShellChrome } from "@/components/orbit/ShellChrome";
 import { orbitModes } from "@/data/orbitModes";
 
@@ -692,250 +696,635 @@ function ReferenceOrbitDeck({ accent }: { accent: string }) {
   );
 }
 
-function FocusQuietingSystem({ accent }: { accent: string }) {
-  const mutedSignals = [
-    "calendar noise",
-    "social alerts",
-    "background prompts",
-    "low-priority messages",
-  ];
+const focusPrioritySignals = [
+  {
+    label: "Conversation thread",
+    detail: "Hold the human voice in foreground",
+    metric: "0.94",
+  },
+  {
+    label: "Route edge",
+    detail: "Keep only the next spatial cue",
+    metric: "0.88",
+  },
+  {
+    label: "Manual intent",
+    detail: "Wait until the user asks",
+    metric: "0.91",
+  },
+] as const;
 
-  const quietRows = [
-    {
-      label: "Attention state",
-      value: "Stable",
-    },
-    {
-      label: "Interruptions",
-      value: "Muted",
-    },
-    {
-      label: "Context",
-      value: "Preserved",
-    },
-  ];
+const focusMutedSignals = [
+  {
+    label: "calendar noise",
+    value: "deferred",
+    level: 68,
+    delay: 0.12,
+  },
+  {
+    label: "social alerts",
+    value: "folded",
+    level: 82,
+    delay: 0.24,
+  },
+  {
+    label: "ambient prompts",
+    value: "background",
+    level: 58,
+    delay: 0.36,
+  },
+  {
+    label: "low priority",
+    value: "muted",
+    level: 76,
+    delay: 0.48,
+  },
+] as const;
+
+const focusNoiseFragments = [
+  {
+    label: "Calendar",
+    value: "quieted",
+    className: "left-[51.5%] top-[27%]",
+    repelX: -13,
+    repelY: 7,
+    delay: 0.18,
+    tone: "rgba(255,255,255,0.36)",
+  },
+  {
+    label: "Social",
+    value: "held",
+    className: "right-[12%] top-[29.5%]",
+    repelX: 10,
+    repelY: 5,
+    delay: 0.32,
+    tone: "rgba(220,235,255,0.42)",
+  },
+  {
+    label: "Prompt",
+    value: "dimmed",
+    className: "left-[58%] top-[63%]",
+    repelX: -9,
+    repelY: -8,
+    delay: 0.48,
+    tone: "rgba(255,255,255,0.31)",
+  },
+  {
+    label: "Thread",
+    value: "below",
+    className: "right-[9.5%] top-[68%]",
+    repelX: 12,
+    repelY: -6,
+    delay: 0.62,
+    tone: "rgba(220,235,255,0.35)",
+  },
+  {
+    label: "Signal",
+    value: "selected",
+    className: "right-[24%] top-[21%]",
+    repelX: 6,
+    repelY: 8,
+    delay: 0.76,
+    tone: "rgba(255,255,255,0.52)",
+  },
+] as const;
+
+const focusApertureTicks = Array.from({ length: 32 }, (_, index) => ({
+  rotate: index * 11.25,
+  height: index % 8 === 0 ? 22 : index % 4 === 0 ? 15 : 8,
+  opacity: index % 8 === 0 ? 0.48 : index % 4 === 0 ? 0.3 : 0.17,
+}));
+
+function FocusSignalLine({ text, accent }: { text: string; accent: string }) {
+  const chars = Array.from(text);
+
+  return (
+    <span className="relative block min-h-5 text-[0.72rem] leading-5 text-white/64">
+      {chars.map((char, index) => (
+        <motion.span
+          key={`${text}-${index}`}
+          className="inline-block"
+          initial={{ opacity: 0, y: 3, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{
+            duration: 0.24,
+            delay: index * 0.026,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+
+      <motion.span
+        className="ml-1 inline-block h-3.5 w-px translate-y-[2px]"
+        style={{
+          background: accent,
+          boxShadow: `0 0 12px ${accent}`,
+        }}
+        animate={{ opacity: [0.18, 0.76, 0.18] }}
+        transition={{
+          duration: 0.95,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: chars.length * 0.026,
+        }}
+      />
+    </span>
+  );
+}
+
+function FocusQuietingSystem({ accent }: { accent: string }) {
+  const focusRef = useRef<HTMLDivElement | null>(null);
+  const [pointer, setPointer] = useState({ x: 0, y: 0, active: false });
+  const [activeSignalIndex, setActiveSignalIndex] = useState(0);
+  const pendingPointerRef = useRef(pointer);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const schedulePointerUpdate = (next: { x: number; y: number; active: boolean }) => {
+      pendingPointerRef.current = next;
+
+      if (rafRef.current !== null) return;
+
+      rafRef.current = window.requestAnimationFrame(() => {
+        setPointer(pendingPointerRef.current);
+        rafRef.current = null;
+      });
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const element = focusRef.current;
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const isInside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+
+      if (!isInside) {
+        schedulePointerUpdate({ x: 0, y: 0, active: false });
+        return;
+      }
+
+      const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+
+      schedulePointerUpdate({
+        x: Math.max(-1, Math.min(1, x)),
+        y: Math.max(-1, Math.min(1, y)),
+        active: true,
+      });
+    };
+
+    const handlePointerLeave = () => {
+      schedulePointerUpdate({ x: 0, y: 0, active: false });
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerleave", handlePointerLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", handlePointerLeave);
+
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSignalIndex((current) => (current + 1) % focusPrioritySignals.length);
+    }, 2900);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const activeSignal =
+    focusPrioritySignals[activeSignalIndex] ?? focusPrioritySignals[0]!;
+  const focusPressure = pointer.active
+    ? Math.max(0.18, 1 - Math.hypot(pointer.x * 0.78, pointer.y * 1.08) / 1.32)
+    : 0.36;
+  const fieldDriftX = pointer.active ? pointer.x * 10 : 0;
+  const fieldDriftY = pointer.active ? pointer.y * 7 : 0;
 
   return (
     <motion.div
-      className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+      ref={focusRef}
+      className="pointer-events-none absolute inset-0 z-[22] hidden lg:block"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+      aria-hidden="true"
     >
-      <div className="absolute inset-y-[12%] right-[7%] w-[24.5rem] xl:right-[8%]">
-        <motion.div
-          className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-white/[0.07] bg-[#030609]/[0.46] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_30px_90px_rgba(0,0,0,0.36)]"
-          initial={{ opacity: 0, y: 18, x: 14 }}
-          animate={{ opacity: 1, y: 0, x: 0 }}
-          transition={{
-            duration: 0.82,
-            delay: 0.12,
-            ease: [0.19, 1, 0.22, 1],
-          }}
-        >
-          <div
-            className="pointer-events-none absolute inset-0 opacity-80"
-            style={{
-              background:
-                "radial-gradient(circle at 78% 12%, rgba(220,235,255,0.075), transparent 35%), linear-gradient(180deg, rgba(255,255,255,0.028), transparent 46%, rgba(0,0,0,0.22))",
-            }}
-          />
-
-          <div className="pointer-events-none absolute inset-x-8 top-px h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-10 bottom-px h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
-
-          <div className="relative">
-            <div className="mb-5 flex items-start justify-between gap-5">
-              <div>
-                <p
-                  className="text-[0.58rem] uppercase tracking-[0.32em]"
-                  style={{ color: accent }}
-                >
-                  Focus Quieting
-                </p>
-                <p className="mt-2 text-[0.58rem] uppercase tracking-[0.22em] text-white/27">
-                  Priority signal only
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.022] px-3 py-2">
-                <motion.span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{
-                    background: accent,
-                    boxShadow: `0 0 14px ${accent}`,
-                  }}
-                  animate={{
-                    opacity: [0.28, 0.78, 0.28],
-                    scale: [0.88, 1.12, 0.88],
-                  }}
-                  transition={{
-                    duration: 5.2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <span className="text-[0.5rem] uppercase tracking-[0.22em] text-white/40">
-                  Quiet
-                </span>
-              </div>
-            </div>
-
-            <div className="relative rounded-[1.65rem] border border-white/[0.08] bg-white/[0.032] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
-              <div
-                className="pointer-events-none absolute inset-0 rounded-[1.65rem] opacity-70"
-                style={{
-                  background: `radial-gradient(circle at 50% 0%, ${accent}16, transparent 46%)`,
-                }}
-              />
-
-              <div className="relative flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[0.5rem] uppercase tracking-[0.26em] text-white/28">
-                    Active priority
-                  </p>
-                  <p className="mt-2 text-[1.05rem] font-light leading-6 tracking-[-0.02em] text-white/82">
-                    Keep only the signal that deserves attention.
-                  </p>
-                </div>
-
-                <motion.div
-                  className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/[0.085] bg-black/[0.22]"
-                  animate={{
-                    scale: [0.98, 1.02, 0.98],
-                  }}
-                  transition={{
-                    duration: 5.6,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <motion.div
-                    className="absolute inset-3 rounded-full border"
-                    style={{
-                      borderColor: accent,
-                      boxShadow: `0 0 18px ${accent}33`,
-                    }}
-                    animate={{
-                      opacity: [0.14, 0.36, 0.14],
-                      scale: [0.86, 1.12, 0.86],
-                    }}
-                    transition={{
-                      duration: 4.8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                  <motion.div
-                    className="h-2 w-2 rounded-full"
-                    style={{
-                      background: accent,
-                      boxShadow: `0 0 18px ${accent}`,
-                    }}
-                    animate={{
-                      opacity: [0.48, 0.92, 0.48],
-                      scale: [0.86, 1.12, 0.86],
-                    }}
-                    transition={{
-                      duration: 4.2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </motion.div>
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-2">
-              {quietRows.map((row, index) => (
-                <motion.div
-                  key={row.label}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-white/[0.055] bg-white/[0.02] px-3.5 py-2.5"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.52,
-                    delay: 0.42 + index * 0.1,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                >
-                  <span className="text-[0.52rem] uppercase tracking-[0.22em] text-white/28">
-                    {row.label}
-                  </span>
-                  <span className="text-[0.58rem] uppercase tracking-[0.2em] text-white/58">
-                    {row.value}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative mt-5 rounded-[1.65rem] border border-white/[0.055] bg-black/[0.18] px-4 py-4">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-[0.5rem] uppercase tracking-[0.26em] text-white/25">
-                Muted layer
-              </p>
-              <p className="text-[0.48rem] uppercase tracking-[0.22em] text-white/28">
-                background only
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              {mutedSignals.map((signal, index) => (
-                <motion.div
-                  key={signal}
-                  className="flex items-center justify-between gap-3"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: 0.7 + index * 0.08,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="h-1 w-1 rounded-full bg-white/18" />
-                    <span className="text-[0.64rem] leading-4 text-white/34">
-                      {signal}
-                    </span>
-                  </div>
-
-                  <span className="text-[0.46rem] uppercase tracking-[0.18em] text-white/20">
-                    muted
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
       <motion.div
-        className="absolute left-[34%] top-[49%] h-px w-[38%] origin-center"
+        className="orbit-focus-lens-field absolute right-[5.8%] top-[16%] h-[63%] w-[36%] rounded-[3.4rem]"
         style={{
-          background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.24), ${accent}, transparent)`,
-          boxShadow: `0 0 16px ${accent}55`,
+          background: `radial-gradient(ellipse at ${54 + pointer.x * 5}% ${
+            48 + pointer.y * 4
+          }%, rgba(255,255,255,0.07), ${accent}14 22%, rgba(0,0,0,0.36) 58%, rgba(0,0,0,0.04) 100%)`,
+          boxShadow: `inset 0 0 90px rgba(255,255,255,0.032), 0 0 105px ${accent}14`,
         }}
+        initial={{ opacity: 0, scale: 0.96, filter: "blur(18px)" }}
         animate={{
-          opacity: [0.06, 0.22, 0.06],
-          scaleX: [0.78, 1, 0.78],
+          opacity: pointer.active ? [0.28, 0.46, 0.32] : [0.18, 0.32, 0.22],
+          scale: pointer.active ? [0.98, 1.025, 0.99] : [0.97, 1.01, 0.98],
+          x: fieldDriftX * 0.4,
+          y: fieldDriftY * 0.35,
+          filter: pointer.active
+            ? ["blur(9px)", "blur(5px)", "blur(9px)"]
+            : ["blur(14px)", "blur(9px)", "blur(14px)"],
         }}
         transition={{
-          duration: 6.2,
-          repeat: Infinity,
-          ease: "easeInOut",
+          opacity: { duration: 7.2, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: 8.1, repeat: Infinity, ease: "easeInOut" },
+          filter: { duration: 7.2, repeat: Infinity, ease: "easeInOut" },
+          x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
         }}
       />
 
       <motion.div
-        className="absolute left-[50%] top-[52%] h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.035]"
+        className="absolute left-[35%] top-[48.6%] h-px w-[39%] origin-left"
+        style={{
+          background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.12), ${accent}, rgba(255,255,255,0.48), transparent)`,
+          boxShadow: `0 0 22px ${accent}44`,
+        }}
+        initial={{ opacity: 0, scaleX: 0.62, filter: "blur(8px)" }}
+        animate={{
+          opacity: pointer.active ? [0.16, 0.48, 0.2] : [0.08, 0.28, 0.1],
+          scaleX: pointer.active ? [0.82, 1.04, 0.9] : [0.76, 0.98, 0.8],
+          x: fieldDriftX * 0.35,
+          filter: pointer.active
+            ? ["blur(2px)", "blur(0.5px)", "blur(2px)"]
+            : ["blur(5px)", "blur(2px)", "blur(5px)"],
+        }}
+        transition={{
+          opacity: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
+          scaleX: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
+          filter: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
+          x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+        }}
+      >
+        {[0, 1, 2, 3, 4].map((dot) => (
+          <motion.span
+            key={dot}
+            className="absolute top-1/2 h-1 w-1 -translate-y-1/2 rounded-full"
+            style={{
+              background: dot === activeSignalIndex + 1 ? accent : "rgba(255,255,255,0.28)",
+              boxShadow: dot === activeSignalIndex + 1 ? `0 0 16px ${accent}` : "none",
+            }}
+            animate={{
+              left: ["0%", "96%"],
+              opacity: [0, 0.76, 0],
+              scale: [0.74, 1.18, 0.74],
+            }}
+            transition={{
+              duration: 3.8,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: dot * 0.38,
+            }}
+          />
+        ))}
+      </motion.div>
+
+      <motion.div
+        className="absolute right-[16%] top-[22.5%] z-[23] h-[22.5rem] w-[22.5rem] rounded-full"
+        initial={{ opacity: 0, scale: 0.88, filter: "blur(16px)" }}
+        animate={{
+          opacity: 1,
+          scale: pointer.active ? 1.015 : 1,
+          x: fieldDriftX * 0.32,
+          y: fieldDriftY * 0.32,
+          filter: "blur(0px)",
+        }}
+        transition={{ duration: 0.8, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.div
+          className="orbit-focus-aperture absolute inset-0 rounded-full"
+          style={{
+            background: `conic-gradient(from ${
+              pointer.x * 18
+            }deg, transparent, ${accent}28, rgba(255,255,255,0.08), transparent 42%, ${accent}18, transparent 72%)`,
+            boxShadow: `0 0 82px ${accent}18, inset 0 0 70px rgba(255,255,255,0.038)`,
+          }}
+          animate={{
+            rotate: [0, 1.8, 0],
+            opacity: pointer.active ? [0.38, 0.62, 0.42] : [0.25, 0.44, 0.28],
+          }}
+          transition={{
+            rotate: { duration: 9.2, repeat: Infinity, ease: "easeInOut" },
+            opacity: { duration: 5.6, repeat: Infinity, ease: "easeInOut" },
+          }}
+        />
+
+        <motion.div
+          className="absolute inset-[2.3rem] rounded-full border border-white/[0.06]"
+          animate={{
+            scale: pointer.active ? [0.98, 1.04, 0.99] : [0.96, 1.02, 0.97],
+            opacity: pointer.active ? [0.22, 0.46, 0.28] : [0.14, 0.3, 0.18],
+          }}
+          transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute inset-[4.9rem] rounded-full border border-white/[0.08]"
+          style={{ boxShadow: `inset 0 0 45px ${accent}10` }}
+          animate={{
+            scale: pointer.active ? [0.94, 1.06, 0.96] : [0.92, 1.02, 0.94],
+            opacity: pointer.active ? [0.24, 0.52, 0.3] : [0.14, 0.34, 0.18],
+          }}
+          transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {focusApertureTicks.map((tick, index) => (
+          <motion.span
+            key={tick.rotate}
+            className="absolute w-px rounded-full"
+            style={{
+              left: "50%",
+              top: "50%",
+              height: tick.height,
+              transform: `translate(-50%, -50%) rotate(${tick.rotate}deg) translateY(-10.2rem)`,
+              background: index % 8 === 0 ? accent : "rgba(255,255,255,0.32)",
+              boxShadow: index % 8 === 0 ? `0 0 12px ${accent}` : "none",
+            }}
+            animate={{
+              opacity: [
+                tick.opacity * (0.7 + focusPressure * 0.25),
+                tick.opacity * (1.15 + focusPressure * 0.45),
+                tick.opacity * (0.72 + focusPressure * 0.25),
+              ],
+              scaleY: [0.82, 1.16, 0.86],
+            }}
+            transition={{
+              duration: 4.4 + (index % 5) * 0.18,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: index * 0.035,
+            }}
+          />
+        ))}
+
+        <motion.div
+          className="absolute left-1/2 top-1/2 flex h-[8.6rem] w-[8.6rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/[0.085] bg-black/[0.24] text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          animate={{
+            scale: pointer.active ? [0.99, 1.045, 1] : [0.98, 1.02, 0.99],
+            boxShadow: [
+              `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 34px ${accent}12`,
+              `inset 0 1px 0 rgba(255,255,255,0.1), 0 0 58px ${accent}24`,
+              `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 34px ${accent}12`,
+            ],
+          }}
+          transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <motion.span
+            className="absolute inset-3 rounded-full border"
+            style={{ borderColor: accent }}
+            animate={{
+              opacity: [0.05, 0.22 + focusPressure * 0.12, 0.06],
+              scale: [0.84, 1.18, 0.86],
+            }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <span className="relative text-[0.48rem] uppercase tracking-[0.3em] text-white/30">
+            Priority
+          </span>
+          <span
+            className="relative mt-2 h-2 w-2 rounded-full"
+            style={{
+              background: accent,
+              boxShadow: `0 0 20px ${accent}`,
+            }}
+          />
+          <span className="relative mt-2 text-[0.58rem] uppercase tracking-[0.24em] text-white/58">
+            locked
+          </span>
+        </motion.div>
+      </motion.div>
+
+      {focusNoiseFragments.map((item, index) => {
+        const mutedOpacity = pointer.active ? 0.22 + (1 - focusPressure) * 0.2 : 0.52;
+        const x = pointer.active ? pointer.x * item.repelX : 0;
+        const y = pointer.active ? pointer.y * item.repelY : 0;
+
+        return (
+          <motion.div
+            key={item.label}
+            className={`orbit-focus-noise-text absolute z-[24] ${item.className}`}
+            initial={{ opacity: 0, y: 10, filter: "blur(12px)" }}
+            animate={{
+              opacity: item.value === "selected" ? 0.78 : mutedOpacity,
+              x,
+              y,
+              filter:
+                item.value === "selected"
+                  ? "blur(0px)"
+                  : pointer.active
+                    ? "blur(1.8px)"
+                    : "blur(0.6px)",
+            }}
+            transition={{
+              duration: 0.75,
+              delay: item.delay,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <motion.p
+              className="text-[0.48rem] uppercase tracking-[0.28em] text-white/24"
+              animate={{ opacity: [0.22, 0.42, 0.24] }}
+              transition={{
+                duration: 4.8 + index * 0.25,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              {item.label}
+            </motion.p>
+            <motion.p
+              className="mt-1 text-[0.68rem] uppercase tracking-[0.2em]"
+              style={{ color: item.tone, textShadow: `0 0 16px ${item.tone}` }}
+              animate={{ y: [0, -1.4, 0] }}
+              transition={{
+                duration: 5.6 + index * 0.3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              {item.value}
+            </motion.p>
+          </motion.div>
+        );
+      })}
+
+      <motion.div
+        className="orbit-focus-priority absolute z-[25] w-[26rem] rounded-[1.9rem] px-5 py-4"
+        style={{
+          right: "7.2%",
+          top: "36.5%",
+        }}
+        initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(14px)" }}
+        animate={{
+          opacity: 1,
+          y: pointer.active ? pointer.y * 4 : 0,
+          x: pointer.active ? pointer.x * 4 : 0,
+          scale: pointer.active ? 1.01 : 1,
+          filter: "blur(0px)",
+        }}
+        transition={{ duration: 0.78, delay: 0.58, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[0.56rem] uppercase tracking-[0.32em] text-white/30">
+              Attention gate
+            </p>
+            <motion.p
+              key={activeSignal.label}
+              className="mt-1 text-[0.74rem] uppercase tracking-[0.2em]"
+              style={{
+                color: accent,
+                textShadow: `0 0 16px ${accent}`,
+              }}
+              initial={{ opacity: 0, y: 4, filter: "blur(8px)" }}
+              animate={{ opacity: 0.92, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {activeSignal.label}
+            </motion.p>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.025] px-3 py-2">
+            <motion.span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: accent, boxShadow: `0 0 14px ${accent}` }}
+              animate={{
+                opacity: [0.36, 0.96, 0.42],
+                scale: [0.88, 1.18, 0.9],
+              }}
+              transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <span className="text-[0.5rem] uppercase tracking-[0.22em] text-white/42">
+              Live quiet
+            </span>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-4 border-t border-white/[0.065] pt-3">
+          <FocusSignalLine
+            key={activeSignal.detail}
+            text={activeSignal.detail}
+            accent={accent}
+          />
+          <div className="mt-3 flex items-center gap-3">
+            <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/[0.055]">
+              <motion.span
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  background: `linear-gradient(90deg, rgba(255,255,255,0.18), ${accent}, rgba(255,255,255,0.72))`,
+                  boxShadow: `0 0 18px ${accent}44`,
+                }}
+                initial={{ width: "24%" }}
+                animate={{
+                  width: `${Math.round((Number(activeSignal.metric) + focusPressure * 0.04) * 100)}%`,
+                }}
+                transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+            <span className="w-10 text-right text-[0.56rem] uppercase tracking-[0.18em] text-white/46">
+              {activeSignal.metric}
+            </span>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-4 grid gap-2">
+          {focusMutedSignals.map((signal, index) => (
+            <motion.div
+              key={signal.label}
+              className="orbit-focus-mute-row grid grid-cols-[1fr_auto] items-center gap-4 rounded-full border border-white/[0.055] bg-black/[0.18] px-3.5 py-2"
+              initial={{ opacity: 0, x: 12, filter: "blur(8px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{
+                duration: 0.54,
+                delay: 0.82 + index * 0.1,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <div className="relative min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-white/20" />
+                  <span className="truncate text-[0.56rem] uppercase tracking-[0.2em] text-white/34">
+                    {signal.label}
+                  </span>
+                </div>
+                <div className="mt-1 h-px overflow-hidden bg-white/[0.04]">
+                  <motion.span
+                    className="block h-full"
+                    style={{
+                      background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+                    }}
+                    initial={{ width: "8%" }}
+                    animate={{ width: `${signal.level}%`, opacity: [0.16, 0.42, 0.18] }}
+                    transition={{
+                      width: {
+                        duration: 0.82,
+                        delay: 0.96 + index * 0.1,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
+                      opacity: {
+                        duration: 3.8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: signal.delay,
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+
+              <span className="text-[0.48rem] uppercase tracking-[0.18em] text-white/26">
+                {signal.value}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-[12.5%] right-[16%] z-[24] flex items-center gap-3 rounded-full border border-white/[0.06] bg-black/[0.14] px-4 py-2 backdrop-blur-[14px]"
+        initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
+        animate={{
+          opacity: pointer.active ? 0.82 : 0.55,
+          y: pointer.active ? -2 : 0,
+          filter: "blur(0px)",
+        }}
+        transition={{ duration: 0.72, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{
+            background: accent,
+            boxShadow: `0 0 14px ${accent}`,
+          }}
+        />
+        <span className="text-[0.54rem] uppercase tracking-[0.26em] text-white/38">
+          noise below threshold / context preserved
+        </span>
+      </motion.div>
+
+      <motion.div
+        className="absolute left-[49.5%] top-[51.5%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.035]"
         style={{
           boxShadow: `0 0 54px ${accent}18`,
         }}
         animate={{
-          opacity: [0.04, 0.12, 0.04],
-          scale: [0.92, 1.08, 0.92],
+          opacity: [0.04, 0.14 + focusPressure * 0.08, 0.05],
+          scale: [0.92, 1.08 + focusPressure * 0.04, 0.92],
         }}
         transition={{
           duration: 8.4,
@@ -2521,6 +2910,7 @@ export function OrbitExperience() {
   const activeMode = orbitModes[activeIndex] ?? orbitModes[0]!;
   const copy = fieldCopy[activeMode.id] ?? fieldCopy.vision!;
   const isAccessField = activeMode.id === "access";
+  const isVisionField = activeMode.id === "vision";
   const isRecallField = activeMode.id === "recall";
   const isTranslateField = activeMode.id === "translate";
   const isCreateField = activeMode.id === "create";
@@ -2725,6 +3115,16 @@ export function OrbitExperience() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_56%_42%,rgba(255,255,255,0.11),transparent_30%),linear-gradient(90deg,rgba(0,0,0,0.68)_0%,rgba(0,0,0,0.38)_34%,rgba(0,0,0,0.18)_58%,rgba(0,0,0,0.58)_100%)]" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,transparent_48%,rgba(0,0,0,0.7)_100%)]" />
               <div className="absolute inset-0 opacity-[0.012] [background-image:linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] [background-size:92px_92px]" />
+
+              <OrbitVisualMaturityLayer
+                accent={activeMode.accent}
+                isVisionField={isVisionField}
+                isInspectOpen={isInspectOpen}
+              />
+
+              {isVisionField && !isInspectOpen ? (
+                <VisionDeHudScrim accent={activeMode.accent} />
+              ) : null}
 
               {viewportTier === "desktop" && !isInspectStabilizing ? (
                 <AnimatePresence initial={false}>
