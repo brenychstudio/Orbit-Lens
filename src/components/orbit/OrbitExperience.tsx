@@ -2362,7 +2362,7 @@ function OrbitFieldRail({
     totalModes > 1 ? 8 + activeIndex * (84 / (totalModes - 1)) : 50;
 
   return (
-    <div className="absolute inset-x-4 bottom-4 z-30 overflow-hidden rounded-full border border-white/[0.075] bg-[#05080a]/[0.72] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.055),inset_0_-1px_0_rgba(255,255,255,0.025),0_26px_110px_rgba(0,0,0,0.46)] sm:inset-x-6 md:px-5">
+    <div className="orbit-dehud-rail-frame absolute inset-x-4 bottom-4 z-30 overflow-hidden rounded-full px-4 py-3 sm:inset-x-6 md:px-5">
       <div
         className="pointer-events-none absolute inset-0 opacity-80"
         style={{
@@ -2412,11 +2412,11 @@ function OrbitFieldRail({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-[0.5rem] uppercase tracking-[0.3em] text-white/26">
+              <p className="orbit-dehud-muted-label text-[0.5rem] uppercase tracking-[0.3em]">
                 Active Field
               </p>
               <span className="hidden h-px w-5 bg-white/[0.08] sm:block" />
-              <p className="hidden text-[0.5rem] uppercase tracking-[0.24em] text-white/22 sm:block">
+              <p className="orbit-dehud-muted-label hidden text-[0.5rem] uppercase tracking-[0.24em] sm:block">
                 {activeLabel} / {totalLabel}
               </p>
             </div>
@@ -2427,7 +2427,7 @@ function OrbitFieldRail({
           </div>
         </div>
 
-        <div className="relative hidden h-10 overflow-hidden rounded-full border border-white/[0.065] bg-black/[0.28] md:block">
+        <div className="orbit-dehud-rail-track relative hidden h-10 overflow-hidden rounded-full md:block">
           <div
             className="pointer-events-none absolute inset-0 opacity-70"
             style={{
@@ -2435,7 +2435,7 @@ function OrbitFieldRail({
                 "linear-gradient(180deg, rgba(255,255,255,0.035), transparent 42%, rgba(0,0,0,0.18))",
             }}
           />
-          <div className="pointer-events-none absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-white/[0.075]" />
+          <div className="orbit-dehud-rail-line pointer-events-none absolute inset-x-5 top-1/2 -translate-y-1/2" />
           <div className="pointer-events-none absolute inset-x-5 top-[calc(50%+6px)] h-px bg-white/[0.025]" />
 
           <motion.div
@@ -2445,10 +2445,10 @@ function OrbitFieldRail({
               width: `${Math.max(activePosition - 8, 1)}%`,
               background: `linear-gradient(90deg, rgba(255,255,255,0.03), ${accent}, rgba(255,255,255,0.34))`,
               transformOrigin: "left center",
-              boxShadow: `0 0 12px ${accent}33`,
+              boxShadow: `0 0 8px ${accent}22`,
             }}
             animate={{
-              opacity: [0.24, 0.48, 0.24],
+              opacity: [0.18, 0.34, 0.18],
             }}
             transition={{
               duration: 4.8,
@@ -2460,13 +2460,13 @@ function OrbitFieldRail({
           <motion.div
             className="pointer-events-none absolute top-1/2 h-[3px] w-24 -translate-y-1/2 rounded-full"
             style={{
-              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.72), ${accent}, transparent)`,
-              boxShadow: `0 0 22px ${accent}`,
+              background: `linear-gradient(90deg, transparent, ${accent}, rgba(255,255,255,0.52), ${accent}, transparent)`,
+              boxShadow: `0 0 14px ${accent}44`,
               filter: "saturate(1.08)",
             }}
             animate={{
               left: ["6%", "78%", "6%"],
-              opacity: [0.14, 0.42, 0.14],
+              opacity: [0.08, 0.24, 0.08],
               scaleX: [0.94, 1.06, 0.94],
             }}
             transition={{
@@ -2495,15 +2495,11 @@ function OrbitFieldRail({
               >
                 <span className="absolute inset-0 flex items-center justify-center">
                   <span
-                    className="absolute h-[13px] w-[13px] rounded-full border transition duration-500"
+                    className={`orbit-dehud-rail-node absolute h-[13px] w-[13px] rounded-full transition duration-500 ${
+                      isActive ? "orbit-dehud-rail-node-active" : ""
+                    }`}
                     style={{
-                      borderColor: isActive
-                        ? "rgba(255,255,255,0.32)"
-                        : "rgba(255,255,255,0.1)",
-                      background: isActive
-                        ? "rgba(255,255,255,0.055)"
-                        : "rgba(255,255,255,0.018)",
-                      boxShadow: isActive ? `0 0 18px ${accent}` : "none",
+                      color: isActive ? accent : "rgba(255,255,255,0.24)",
                     }}
                   />
 
@@ -2511,7 +2507,6 @@ function OrbitFieldRail({
                     className="absolute h-1.5 w-1.5 rounded-full"
                     style={{
                       background: isActive ? accent : "rgba(255,255,255,0.22)",
-                      boxShadow: isActive ? `0 0 10px ${accent}` : "none",
                     }}
                     animate={
                       isActive
@@ -2542,7 +2537,7 @@ function OrbitFieldRail({
         </div>
 
         <div className="flex items-center justify-between gap-3 md:justify-end">
-          <p className="hidden max-w-[15rem] text-[0.68rem] leading-5 text-white/38 lg:block">
+          <p className="orbit-dehud-muted-label hidden max-w-[15rem] text-[0.68rem] leading-5 lg:block">
             {copy.bottomCard}
           </p>
 
@@ -2550,7 +2545,7 @@ function OrbitFieldRail({
             type="button"
             onClick={onInspect}
             aria-label="Inspect Orbit Lens optics"
-            className="group relative inline-flex shrink-0 items-center gap-3 overflow-hidden rounded-full border border-white/[0.075] bg-white/[0.025] px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.29em] text-white/48 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/76 md:px-5"
+            className="orbit-dehud-control group relative inline-flex shrink-0 items-center gap-3 overflow-hidden rounded-full px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.29em] text-white/48 transition duration-500 hover:text-white/76 md:px-5"
           >
             <span
               className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100"
@@ -2560,10 +2555,10 @@ function OrbitFieldRail({
             />
             <span className="relative flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white/[0.08]">
               <span
-                className="h-1.5 w-1.5 rounded-full"
+                className="orbit-dehud-control-dot h-1.5 w-1.5 rounded-full"
                 style={{
+                  color: accent,
                   background: accent,
-                  boxShadow: `0 0 12px ${accent}`,
                 }}
               />
             </span>
@@ -2993,7 +2988,7 @@ export function OrbitExperience() {
       <section className="mobile-stability-mode relative z-10 flex min-h-screen items-start justify-center px-2.5 py-3 sm:px-4 md:items-center md:px-8 md:py-6">
         <div className="mx-auto w-full max-w-[1488px]">
           <motion.div
-            className="orbit-shell-material orbit-shell-frame orbit-shell-motion-root relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border p-3 sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
+            className="orbit-shell-material orbit-dehud-hardware-edge orbit-shell-frame orbit-shell-motion-root relative isolate w-full origin-center select-none overflow-hidden rounded-[2rem] border p-3 sm:p-4 md:rounded-[3.2rem] md:p-5 xl:rounded-[3.8rem] xl:p-6"
             data-inspect-open={isInspectOpen ? "true" : "false"}
             animate={{
               scale: isInspectOpen ? inspectScale : 1,
@@ -3036,7 +3031,7 @@ export function OrbitExperience() {
 
             <ShellChrome accent={activeMode.accent} />
 
-            <div className="orbit-status-strip orbit-status-strip-etched orbit-glass-panel mb-3 flex items-center justify-between gap-4 rounded-full border px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[18px] sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
+            <div className="orbit-dehud-top-strip mb-3 flex items-center justify-between gap-4 overflow-hidden rounded-full px-3 py-2.5 text-[0.56rem] uppercase tracking-[0.22em] text-white/44 backdrop-blur-[18px] sm:px-4 md:mb-4 md:py-3 md:text-[0.66rem] md:tracking-[0.26em]">
               <span>
                 {isInspectOpen ? "Optics Inspection Field" : "Orbit Field Interface"}
               </span>
@@ -3044,14 +3039,14 @@ export function OrbitExperience() {
               <div className="flex items-center gap-4">
                 <Link
                   href="/spatial"
-                  className="group relative hidden items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.026] px-3 py-1.5 text-[0.5rem] uppercase tracking-[0.22em] text-white/42 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-white/76 md:inline-flex"
+                  className="orbit-dehud-control group relative hidden items-center gap-2 rounded-full px-3 py-1.5 text-[0.5rem] uppercase tracking-[0.22em] text-white/42 transition duration-500 hover:text-white/76 md:inline-flex"
                   aria-label="Enter Orbit Lens Spatial Mode"
                 >
                   <span
-                    className="h-1.5 w-1.5 rounded-full transition duration-500 group-hover:scale-110"
+                    className="orbit-dehud-control-dot h-1.5 w-1.5 rounded-full transition duration-500 group-hover:scale-110"
                     style={{
+                      color: activeMode.accent,
                       background: activeMode.accent,
-                      boxShadow: `0 0 12px ${activeMode.accent}`,
                     }}
                   />
                   <span>Spatial Mode</span>
@@ -3376,20 +3371,20 @@ export function OrbitExperience() {
                 ))}
               </div>
 
-              <p className="hidden text-[0.54rem] uppercase tracking-[0.3em] text-white/20 md:block">
+              <p className="orbit-dehud-muted-label hidden text-[0.54rem] uppercase tracking-[0.3em] md:block">
                 Swipe / wheel / keyboard to shift field
               </p>
 
               <Link
                 href="/spatial"
-                className="absolute bottom-1 right-5 z-30 inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-[0.48rem] uppercase tracking-[0.2em] text-white/38 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/72 md:hidden"
+                className="orbit-dehud-control !absolute bottom-1 right-5 z-30 inline-flex items-center gap-2 rounded-full px-3 py-2 text-[0.48rem] uppercase tracking-[0.2em] text-white/38 transition duration-500 hover:text-white/72 md:hidden"
                 aria-label="Enter Orbit Lens Spatial Mode"
               >
                 <span
-                  className="h-1.5 w-1.5 rounded-full"
+                  className="orbit-dehud-control-dot h-1.5 w-1.5 rounded-full"
                   style={{
+                    color: activeMode.accent,
                     background: activeMode.accent,
-                    boxShadow: `0 0 10px ${activeMode.accent}`,
                   }}
                 />
                 Spatial

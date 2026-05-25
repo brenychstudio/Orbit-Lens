@@ -1044,4 +1044,134 @@ button {
   filter: saturate(0.8);
 }
 
+:root {
+  --orbit-glass-primary: rgba(5, 8, 10, 0.52);
+  --orbit-glass-secondary: rgba(255, 255, 255, 0.022);
+  --orbit-glass-tertiary: rgba(255, 255, 255, 0.014);
+
+  --orbit-line-ghost: rgba(255, 255, 255, 0.045);
+  --orbit-line-soft: rgba(255, 255, 255, 0.07);
+  --orbit-line-machined: rgba(255, 255, 255, 0.105);
+
+  --orbit-shadow-deep: rgba(0, 0, 0, 0.68);
+  --orbit-shadow-soft: rgba(0, 0, 0, 0.38);
+
+  --orbit-ivory-muted: rgba(244, 239, 230, 0.52);
+  --orbit-ivory-soft: rgba(244, 239, 230, 0.72);
+}
+
+.orbit-dehud-top-strip {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.048);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.012)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.006), rgba(255, 255, 255, 0.018));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.015),
+    0 14px 44px rgba(0, 0, 0, 0.22);
+}
+
+.orbit-dehud-top-strip::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 1px 1.5rem auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.11), transparent);
+  opacity: 0.5;
+}
+
+.orbit-dehud-control {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.012)),
+    rgba(3, 6, 9, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.012),
+    0 16px 48px rgba(0, 0, 0, 0.28);
+}
+
+.orbit-dehud-control::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0.5px 1rem auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.13), transparent);
+  opacity: 0.45;
+}
+
+.orbit-dehud-control:hover {
+  border-color: rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.018)),
+    rgba(3, 6, 9, 0.34);
+}
+
+.orbit-dehud-control-dot {
+  box-shadow:
+    0 0 12px currentColor,
+    0 0 28px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.orbit-dehud-rail-frame {
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008)),
+    rgba(3, 6, 9, 0.52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.012),
+    0 24px 70px rgba(0, 0, 0, 0.38);
+}
+
+.orbit-dehud-rail-track {
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.035), transparent),
+    rgba(0, 0, 0, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.01);
+}
+
+.orbit-dehud-rail-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.13), transparent);
+  opacity: 0.36;
+}
+
+.orbit-dehud-rail-node {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.018);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.orbit-dehud-rail-node-active {
+  border-color: rgba(255, 255, 255, 0.13);
+  background:
+    radial-gradient(circle, currentColor 0 22%, rgba(255, 255, 255, 0.035) 24%, transparent 62%);
+  box-shadow:
+    0 0 16px color-mix(in srgb, currentColor 38%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.orbit-dehud-muted-label {
+  color: rgba(244, 239, 230, 0.32);
+  text-shadow: none;
+}
+
+.orbit-dehud-hardware-edge {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.016),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    0 34px 130px rgba(0, 0, 0, 0.72),
+    0 0 80px rgba(120, 170, 210, 0.048);
+}
+
 

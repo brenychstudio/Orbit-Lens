@@ -22,10 +22,10 @@ export function OrbitVisualMaturityLayer({
         }}
         animate={{
           opacity: isInspectOpen
-            ? 0.12
+            ? 0.08
             : isVisionField
-              ? [0.14, 0.28, 0.14]
-              : [0.08, 0.18, 0.08],
+              ? [0.1, 0.22, 0.1]
+              : [0.055, 0.14, 0.055],
           scale: isVisionField ? [0.96, 1.05, 0.96] : [0.98, 1.02, 0.98],
           x: isVisionField ? [-10, 16, -10] : [-6, 8, -6],
           y: isVisionField ? [4, -10, 4] : [2, -5, 2],
@@ -113,7 +113,7 @@ export function VisionDeHudScrim({ accent }: { accent: string }) {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.04) 32%, transparent 56%, rgba(0,0,0,0.12) 100%)",
+            "linear-gradient(90deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.06) 34%, transparent 58%, rgba(0,0,0,0.18) 100%)",
         }}
       />
 
@@ -121,7 +121,7 @@ export function VisionDeHudScrim({ accent }: { accent: string }) {
         className="absolute inset-y-0 right-0 w-[38%]"
         style={{
           background:
-            "linear-gradient(90deg, transparent, rgba(0,0,0,0.12) 44%, rgba(0,0,0,0.28))",
+            "linear-gradient(90deg, transparent, rgba(0,0,0,0.16) 44%, rgba(0,0,0,0.34))",
         }}
       />
 

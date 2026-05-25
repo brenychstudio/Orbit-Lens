@@ -18,8 +18,8 @@ export function ShellChrome({ accent }: ShellChromeProps) {
       <div className="absolute inset-x-24 bottom-px h-px bg-gradient-to-r from-transparent via-white/07 to-transparent" />
 
       {/* Graphite thickness, almost invisible */}
-      <div className="absolute inset-x-12 top-[2px] h-[2.8rem] rounded-t-[3rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.018),transparent)] opacity-45 md:rounded-t-[3.8rem]" />
-      <div className="absolute inset-x-10 bottom-0 h-[3.8rem] rounded-b-[3rem] bg-[linear-gradient(0deg,rgba(0,0,0,0.24),transparent)] opacity-70 md:rounded-b-[3.8rem]" />
+      <div className="absolute inset-x-12 top-[2px] h-[2.8rem] rounded-t-[3rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.018),transparent)] opacity-[0.42] md:rounded-t-[3.8rem]" />
+      <div className="absolute inset-x-16 bottom-[1px] h-[2.8rem] rounded-b-[3rem] bg-[linear-gradient(0deg,rgba(0,0,0,0.24),transparent)] opacity-60 md:rounded-b-[3.8rem]" />
 
       {/* Slow optical glint, low presence */}
       <motion.div
