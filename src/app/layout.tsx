@@ -1,37 +1,58 @@
-﻿import "./globals.css";
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
 
-export const metadata = {
-  metadataBase: new URL("https://orbit-lens-cue.pages.dev/"),
-  title: "Orbit Lens — AI Spatial Glasses Interface Concept",
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://orbit-lens.brenychstudio.com";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  applicationName: "Orbit Lens",
+  title: {
+    default: "Orbit Lens — AI Spatial Glasses Concept",
+    template: "%s — Orbit Lens",
+  },
   description:
-    "A fictional AI spatial glasses product concept. Orbit Lens explores calm field-of-view intelligence, translucent interface layers and gesture-led product storytelling.",
+    "A fictional AI spatial glasses product concept and premium interactive interface prototype by Brenych Studio.",
+  keywords: [
+    "Orbit Lens",
+    "AI spatial glasses",
+    "AR eyewear concept",
+    "WebXR interface",
+    "interactive product storytelling",
+    "premium front-end system",
+    "Brenych Studio",
+  ],
+  authors: [{ name: "Brenych Studio" }],
+  creator: "Brenych Studio",
+  publisher: "Brenych Studio",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Orbit Lens — AI Spatial Glasses Interface Concept",
-    description:
-      "A fictional AI spatial glasses product concept with a cinematic field-of-view interface, optical inspection mode and gesture-led spatial storytelling.",
-    url: "https://orbit-lens-cue.pages.dev/",
-    siteName: "Orbit Lens",
-    images: [
-      {
-        url: "/og/orbit-lens-og-1200x630.webp",
-        width: 1200,
-        height: 630,
-        alt: "Orbit Lens AI spatial glasses interface concept",
-      },
-    ],
-    locale: "en_US",
     type: "website",
+    url: "/",
+    siteName: "Orbit Lens",
+    title: "Orbit Lens — AI Spatial Glasses Concept",
+    description:
+      "A fictional AI spatial glasses product concept where the website behaves like the product interface.",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Orbit Lens — AI Spatial Glasses Interface Concept",
+    title: "Orbit Lens — AI Spatial Glasses Concept",
     description:
-      "A fictional AI spatial glasses product concept with cinematic spatial interface layers.",
-    images: ["/og/orbit-lens-og-1200x630.webp"],
+      "A premium interactive product interface prototype for fictional AI spatial glasses.",
   },
-  icons: {
-    icon: "/favicon.ico",
+  robots: {
+    index: true,
+    follow: true,
   },
+  category: "technology",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#030407",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -45,4 +66,3 @@ export default function RootLayout({
     </html>
   );
 }
-
