@@ -716,125 +716,38 @@ const focusPrioritySignals = [
   },
 ] as const;
 
-const focusMutedSignals = [
-  {
-    label: "calendar noise",
-    value: "deferred",
-    level: 68,
-    delay: 0.12,
-  },
-  {
-    label: "social alerts",
-    value: "folded",
-    level: 82,
-    delay: 0.24,
-  },
-  {
-    label: "ambient prompts",
-    value: "background",
-    level: 58,
-    delay: 0.36,
-  },
-  {
-    label: "low priority",
-    value: "muted",
-    level: 76,
-    delay: 0.48,
-  },
-] as const;
-
-const focusNoiseFragments = [
-  {
-    label: "Calendar",
-    value: "quieted",
-    className: "left-[51.5%] top-[27%]",
-    repelX: -13,
-    repelY: 7,
-    delay: 0.18,
-    tone: "rgba(255,255,255,0.36)",
-  },
-  {
-    label: "Social",
-    value: "held",
-    className: "right-[12%] top-[29.5%]",
-    repelX: 10,
-    repelY: 5,
-    delay: 0.32,
-    tone: "rgba(220,235,255,0.42)",
-  },
-  {
-    label: "Prompt",
-    value: "dimmed",
-    className: "left-[58%] top-[63%]",
-    repelX: -9,
-    repelY: -8,
-    delay: 0.48,
-    tone: "rgba(255,255,255,0.31)",
-  },
-  {
-    label: "Thread",
-    value: "below",
-    className: "right-[9.5%] top-[68%]",
-    repelX: 12,
-    repelY: -6,
-    delay: 0.62,
-    tone: "rgba(220,235,255,0.35)",
-  },
-  {
-    label: "Signal",
-    value: "selected",
-    className: "right-[24%] top-[21%]",
-    repelX: 6,
-    repelY: 8,
-    delay: 0.76,
-    tone: "rgba(255,255,255,0.52)",
-  },
-] as const;
-
 const focusApertureTicks = Array.from({ length: 32 }, (_, index) => ({
   rotate: index * 11.25,
   height: index % 8 === 0 ? 22 : index % 4 === 0 ? 15 : 8,
   opacity: index % 8 === 0 ? 0.48 : index % 4 === 0 ? 0.3 : 0.17,
 }));
 
-function FocusSignalLine({ text, accent }: { text: string; accent: string }) {
-  const chars = Array.from(text);
-
-  return (
-    <span className="relative block min-h-5 text-[0.72rem] leading-5 text-white/64">
-      {chars.map((char, index) => (
-        <motion.span
-          key={`${text}-${index}`}
-          className="inline-block"
-          initial={{ opacity: 0, y: 3, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{
-            duration: 0.24,
-            delay: index * 0.026,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
-          {char === " " ? "\u00A0" : char}
-        </motion.span>
-      ))}
-
-      <motion.span
-        className="ml-1 inline-block h-3.5 w-px translate-y-[2px]"
-        style={{
-          background: accent,
-          boxShadow: `0 0 12px ${accent}`,
-        }}
-        animate={{ opacity: [0.18, 0.76, 0.18] }}
-        transition={{
-          duration: 0.95,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: chars.length * 0.026,
-        }}
-      />
-    </span>
-  );
-}
+const focusEchoWords = [
+  {
+    label: "quieted",
+    className: "left-[58.5%] top-[27.5%]",
+    delay: 0.22,
+    tone: "rgba(255,255,255,0.28)",
+  },
+  {
+    label: "held",
+    className: "right-[14.4%] top-[38.5%]",
+    delay: 1.1,
+    tone: "rgba(218,232,255,0.34)",
+  },
+  {
+    label: "manual",
+    className: "left-[61.5%] top-[60.8%]",
+    delay: 2.1,
+    tone: "rgba(230,221,188,0.3)",
+  },
+  {
+    label: "selected",
+    className: "right-[20%] top-[25.4%]",
+    delay: 2.95,
+    tone: "rgba(255,255,255,0.36)",
+  },
+] as const;
 
 function FocusQuietingSystem({ accent }: { accent: string }) {
   const focusRef = useRef<HTMLDivElement | null>(null);
@@ -925,85 +838,36 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
       aria-hidden="true"
     >
       <motion.div
-        className="orbit-focus-lens-field absolute right-[5.8%] top-[16%] h-[63%] w-[36%] rounded-[3.4rem]"
+        className="absolute right-[14.1%] top-[18.8%] z-[22] h-[28.5rem] w-[28.5rem] rounded-full"
         style={{
-          background: `radial-gradient(ellipse at ${54 + pointer.x * 5}% ${
-            48 + pointer.y * 4
-          }%, rgba(255,255,255,0.07), ${accent}14 22%, rgba(0,0,0,0.36) 58%, rgba(0,0,0,0.04) 100%)`,
-          boxShadow: `inset 0 0 90px rgba(255,255,255,0.032), 0 0 105px ${accent}14`,
+          background: `radial-gradient(circle at ${50 + pointer.x * 6}% ${50 + pointer.y * 5}%, ${accent}46 0%, rgba(255,255,255,0.14) 14%, rgba(255,255,255,0.06) 32%, rgba(0,0,0,0.04) 52%, transparent 76%)`,
+          boxShadow: `0 0 160px ${accent}34`,
         }}
-        initial={{ opacity: 0, scale: 0.96, filter: "blur(18px)" }}
+        initial={{ opacity: 0, scale: 0.92, filter: "blur(18px)" }}
         animate={{
-          opacity: pointer.active ? [0.28, 0.46, 0.32] : [0.18, 0.32, 0.22],
-          scale: pointer.active ? [0.98, 1.025, 0.99] : [0.97, 1.01, 0.98],
-          x: fieldDriftX * 0.4,
-          y: fieldDriftY * 0.35,
-          filter: pointer.active
-            ? ["blur(9px)", "blur(5px)", "blur(9px)"]
-            : ["blur(14px)", "blur(9px)", "blur(14px)"],
+          opacity: pointer.active ? [0.42, 0.72, 0.5] : [0.34, 0.58, 0.4],
+          scale: pointer.active ? [0.99, 1.08, 1] : [0.98, 1.05, 0.99],
+          x: fieldDriftX * 0.22,
+          y: fieldDriftY * 0.18,
+          filter: ["blur(14px)", "blur(6px)", "blur(14px)"],
         }}
         transition={{
-          opacity: { duration: 7.2, repeat: Infinity, ease: "easeInOut" },
-          scale: { duration: 8.1, repeat: Infinity, ease: "easeInOut" },
-          filter: { duration: 7.2, repeat: Infinity, ease: "easeInOut" },
+          opacity: { duration: 6.8, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: 8.6, repeat: Infinity, ease: "easeInOut" },
+          filter: { duration: 6.8, repeat: Infinity, ease: "easeInOut" },
           x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
           y: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
         }}
       />
 
       <motion.div
-        className="absolute left-[35%] top-[48.6%] h-px w-[39%] origin-left"
-        style={{
-          background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.12), ${accent}, rgba(255,255,255,0.48), transparent)`,
-          boxShadow: `0 0 22px ${accent}44`,
-        }}
-        initial={{ opacity: 0, scaleX: 0.62, filter: "blur(8px)" }}
-        animate={{
-          opacity: pointer.active ? [0.16, 0.48, 0.2] : [0.08, 0.28, 0.1],
-          scaleX: pointer.active ? [0.82, 1.04, 0.9] : [0.76, 0.98, 0.8],
-          x: fieldDriftX * 0.35,
-          filter: pointer.active
-            ? ["blur(2px)", "blur(0.5px)", "blur(2px)"]
-            : ["blur(5px)", "blur(2px)", "blur(5px)"],
-        }}
-        transition={{
-          opacity: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
-          scaleX: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
-          filter: { duration: 4.8, repeat: Infinity, ease: "easeInOut" },
-          x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-        }}
-      >
-        {[0, 1, 2, 3, 4].map((dot) => (
-          <motion.span
-            key={dot}
-            className="absolute top-1/2 h-1 w-1 -translate-y-1/2 rounded-full"
-            style={{
-              background: dot === activeSignalIndex + 1 ? accent : "rgba(255,255,255,0.28)",
-              boxShadow: dot === activeSignalIndex + 1 ? `0 0 16px ${accent}` : "none",
-            }}
-            animate={{
-              left: ["0%", "96%"],
-              opacity: [0, 0.76, 0],
-              scale: [0.74, 1.18, 0.74],
-            }}
-            transition={{
-              duration: 3.8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: dot * 0.38,
-            }}
-          />
-        ))}
-      </motion.div>
-
-      <motion.div
-        className="absolute right-[16%] top-[22.5%] z-[23] h-[22.5rem] w-[22.5rem] rounded-full"
+        className="absolute right-[14.4%] top-[16.8%] z-[23] h-[29rem] w-[29rem] rounded-full"
         initial={{ opacity: 0, scale: 0.88, filter: "blur(16px)" }}
         animate={{
           opacity: 1,
-          scale: pointer.active ? 1.015 : 1,
-          x: fieldDriftX * 0.32,
-          y: fieldDriftY * 0.32,
+          scale: pointer.active ? 1.04 : 1.01,
+          x: fieldDriftX * 0.26,
+          y: fieldDriftY * 0.18,
           filter: "blur(0px)",
         }}
         transition={{ duration: 0.8, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
@@ -1013,12 +877,12 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
           style={{
             background: `conic-gradient(from ${
               pointer.x * 18
-            }deg, transparent, ${accent}28, rgba(255,255,255,0.08), transparent 42%, ${accent}18, transparent 72%)`,
-            boxShadow: `0 0 82px ${accent}18, inset 0 0 70px rgba(255,255,255,0.038)`,
+            }deg, transparent, ${accent}58, rgba(255,255,255,0.24), transparent 36%, ${accent}3a, rgba(255,255,255,0.12) 62%, transparent 74%)`,
+            boxShadow: `0 0 154px ${accent}40, inset 0 0 104px rgba(255,255,255,0.1)`,
           }}
           animate={{
             rotate: [0, 1.8, 0],
-            opacity: pointer.active ? [0.38, 0.62, 0.42] : [0.25, 0.44, 0.28],
+            opacity: pointer.active ? [0.72, 1, 0.8] : [0.58, 0.86, 0.66],
           }}
           transition={{
             rotate: { duration: 9.2, repeat: Infinity, ease: "easeInOut" },
@@ -1027,20 +891,46 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
         />
 
         <motion.div
-          className="absolute inset-[2.3rem] rounded-full border border-white/[0.06]"
+          className="absolute inset-[4.8rem] rounded-full"
+          style={{
+            background: `radial-gradient(circle, rgba(255,255,255,0.14), ${accent}22 28%, transparent 66%)`,
+            filter: "blur(10px)",
+          }}
           animate={{
-            scale: pointer.active ? [0.98, 1.04, 0.99] : [0.96, 1.02, 0.97],
-            opacity: pointer.active ? [0.22, 0.46, 0.28] : [0.14, 0.3, 0.18],
+            opacity: pointer.active ? [0.28, 0.52, 0.32] : [0.2, 0.4, 0.24],
+            scale: pointer.active ? [0.92, 1.04, 0.95] : [0.9, 1, 0.92],
+          }}
+          transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute inset-[1.2rem] rounded-full"
+          style={{
+            border: `1px solid ${accent}44`,
+            boxShadow: `0 0 34px ${accent}26`,
+          }}
+          animate={{
+            opacity: pointer.active ? [0.34, 0.68, 0.4] : [0.24, 0.48, 0.3],
+            scale: pointer.active ? [0.98, 1.05, 0.99] : [0.97, 1.03, 0.98],
+          }}
+          transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute inset-[2.5rem] rounded-full border border-white/[0.07]"
+          animate={{
+            scale: pointer.active ? [0.995, 1.09, 1] : [0.98, 1.06, 0.985],
+            opacity: pointer.active ? [0.46, 0.8, 0.52] : [0.34, 0.58, 0.38],
           }}
           transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
         />
 
         <motion.div
-          className="absolute inset-[4.9rem] rounded-full border border-white/[0.08]"
-          style={{ boxShadow: `inset 0 0 45px ${accent}10` }}
+          className="absolute inset-[5.3rem] rounded-full border border-white/[0.09]"
+          style={{ boxShadow: `inset 0 0 72px ${accent}2c` }}
           animate={{
-            scale: pointer.active ? [0.94, 1.06, 0.96] : [0.92, 1.02, 0.94],
-            opacity: pointer.active ? [0.24, 0.52, 0.3] : [0.14, 0.34, 0.18],
+            scale: pointer.active ? [0.98, 1.12, 1] : [0.96, 1.08, 0.98],
+            opacity: pointer.active ? [0.42, 0.74, 0.48] : [0.3, 0.54, 0.34],
           }}
           transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -1053,17 +943,17 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
               left: "50%",
               top: "50%",
               height: tick.height,
-              transform: `translate(-50%, -50%) rotate(${tick.rotate}deg) translateY(-10.2rem)`,
-              background: index % 8 === 0 ? accent : "rgba(255,255,255,0.32)",
-              boxShadow: index % 8 === 0 ? `0 0 12px ${accent}` : "none",
+              transform: `translate(-50%, -50%) rotate(${tick.rotate}deg) translateY(-12.3rem)`,
+              background: index % 8 === 0 ? accent : "rgba(255,255,255,0.46)",
+              boxShadow: index % 8 === 0 ? `0 0 18px ${accent}` : "none",
             }}
             animate={{
               opacity: [
-                tick.opacity * (0.7 + focusPressure * 0.25),
-                tick.opacity * (1.15 + focusPressure * 0.45),
-                tick.opacity * (0.72 + focusPressure * 0.25),
+                tick.opacity * (1.14 + focusPressure * 0.38),
+                tick.opacity * (1.56 + focusPressure * 0.62),
+                tick.opacity * (1.18 + focusPressure * 0.38),
               ],
-              scaleY: [0.82, 1.16, 0.86],
+              scaleY: [0.92, 1.32, 0.96],
             }}
             transition={{
               duration: 4.4 + (index % 5) * 0.18,
@@ -1075,267 +965,117 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
         ))}
 
         <motion.div
-          className="absolute left-1/2 top-1/2 flex h-[8.6rem] w-[8.6rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/[0.085] bg-black/[0.24] text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          className="absolute left-1/2 top-1/2 flex h-[4.8rem] w-[4.8rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/[0.08] bg-black/[0.1] text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
           animate={{
-            scale: pointer.active ? [0.99, 1.045, 1] : [0.98, 1.02, 0.99],
+            scale: pointer.active ? [0.99, 1.06, 1] : [0.98, 1.03, 0.99],
             boxShadow: [
-              `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 34px ${accent}12`,
-              `inset 0 1px 0 rgba(255,255,255,0.1), 0 0 58px ${accent}24`,
-              `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 34px ${accent}12`,
+              `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px ${accent}12`,
+              `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 42px ${accent}24`,
+              `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px ${accent}12`,
             ],
           }}
           transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
         >
           <motion.span
-            className="absolute inset-3 rounded-full border"
+            className="absolute inset-2 rounded-full border"
             style={{ borderColor: accent }}
             animate={{
-              opacity: [0.05, 0.22 + focusPressure * 0.12, 0.06],
-              scale: [0.84, 1.18, 0.86],
+              opacity: [0.05, 0.26 + focusPressure * 0.12, 0.06],
+              scale: [0.82, 1.2, 0.84],
             }}
             transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
           />
-          <span className="relative text-[0.48rem] uppercase tracking-[0.3em] text-white/30">
-            Priority
-          </span>
           <span
-            className="relative mt-2 h-2 w-2 rounded-full"
+            className="relative h-2.5 w-2.5 rounded-full"
             style={{
               background: accent,
-              boxShadow: `0 0 20px ${accent}`,
+              boxShadow: `0 0 26px ${accent}`,
             }}
           />
-          <span className="relative mt-2 text-[0.58rem] uppercase tracking-[0.24em] text-white/58">
+          <span className="relative mt-2 text-[0.5rem] uppercase tracking-[0.22em] text-white/52">
             locked
           </span>
         </motion.div>
       </motion.div>
 
-      {focusNoiseFragments.map((item, index) => {
-        const mutedOpacity = pointer.active ? 0.22 + (1 - focusPressure) * 0.2 : 0.52;
-        const x = pointer.active ? pointer.x * item.repelX : 0;
-        const y = pointer.active ? pointer.y * item.repelY : 0;
-
-        return (
-          <motion.div
-            key={item.label}
-            className={`orbit-focus-noise-text absolute z-[24] ${item.className}`}
-            initial={{ opacity: 0, y: 10, filter: "blur(12px)" }}
-            animate={{
-              opacity: item.value === "selected" ? 0.78 : mutedOpacity,
-              x,
-              y,
-              filter:
-                item.value === "selected"
-                  ? "blur(0px)"
-                  : pointer.active
-                    ? "blur(1.8px)"
-                    : "blur(0.6px)",
-            }}
-            transition={{
-              duration: 0.75,
-              delay: item.delay,
-              ease: [0.22, 1, 0.36, 1],
+      {focusEchoWords.map((word, index) => (
+        <motion.div
+          key={word.label}
+          className={`absolute z-[24] ${word.className}`}
+          initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
+          animate={{
+            opacity: [0, 0.18, 0.34, 0.12, 0],
+            y: [8, 2, -2, -4, -8],
+            x: pointer.active ? fieldDriftX * (0.08 + index * 0.015) : 0,
+            filter: ["blur(10px)", "blur(2px)", "blur(0px)", "blur(2px)", "blur(10px)"],
+          }}
+          transition={{
+            duration: 8.8 + index * 0.9,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: word.delay,
+            x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+          }}
+        >
+          <span
+            className="text-[0.56rem] uppercase tracking-[0.3em]"
+            style={{
+              color: word.tone,
+              textShadow: `0 0 16px ${word.tone}`,
             }}
           >
-            <motion.p
-              className="text-[0.48rem] uppercase tracking-[0.28em] text-white/24"
-              animate={{ opacity: [0.22, 0.42, 0.24] }}
-              transition={{
-                duration: 4.8 + index * 0.25,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              {item.label}
-            </motion.p>
-            <motion.p
-              className="mt-1 text-[0.68rem] uppercase tracking-[0.2em]"
-              style={{ color: item.tone, textShadow: `0 0 16px ${item.tone}` }}
-              animate={{ y: [0, -1.4, 0] }}
-              transition={{
-                duration: 5.6 + index * 0.3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              {item.value}
-            </motion.p>
-          </motion.div>
-        );
-      })}
+            {word.label}
+          </span>
+        </motion.div>
+      ))}
 
       <motion.div
-        className="absolute right-[8.5%] top-[38%] z-[25] w-[30rem]"
+        className="absolute right-[10.6%] top-[30.2%] z-[25] w-[12rem] text-right"
         initial={{ opacity: 0, y: 14, filter: "blur(14px)" }}
         animate={{
-          opacity: 0.9,
-          y: pointer.active ? pointer.y * 3 : 0,
-          x: pointer.active ? pointer.x * 5 : 0,
+          opacity: pointer.active ? 0.7 : 0.58,
+          y: pointer.active ? pointer.y * 1.6 : 0,
+          x: pointer.active ? pointer.x * 2.2 : 0,
           filter: "blur(0px)",
         }}
         transition={{ duration: 0.78, delay: 0.58, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="flex items-center gap-4">
-          <p className="text-[0.54rem] uppercase tracking-[0.32em] text-white/32">
-            Attention gate
-          </p>
-          <motion.span
-            className="h-px flex-1"
-            style={{
-              background: `linear-gradient(90deg, rgba(255,255,255,0.16), ${accent}, transparent)`,
-              boxShadow: `0 0 14px ${accent}22`,
-            }}
-            animate={{ opacity: [0.14, 0.46, 0.16], scaleX: [0.82, 1, 0.88] }}
-            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <span className="text-[0.5rem] uppercase tracking-[0.22em] text-white/34">
-            Live quiet
-          </span>
-        </div>
+        <p className="text-[0.46rem] uppercase tracking-[0.28em] text-white/24">
+          Attention gate
+        </p>
 
         <motion.p
           key={activeSignal.label}
-          className="mt-2 text-[0.76rem] uppercase tracking-[0.2em]"
+          className="mt-2 text-[0.62rem] uppercase tracking-[0.18em]"
           style={{
             color: accent,
-            textShadow: `0 0 16px ${accent}`,
+            textShadow: `0 0 10px ${accent}`,
           }}
           initial={{ opacity: 0, y: 4, filter: "blur(8px)" }}
-          animate={{ opacity: 0.88, y: 0, filter: "blur(0px)" }}
+          animate={{ opacity: 0.74, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
         >
           {activeSignal.label}
         </motion.p>
 
-        <div className="mt-2 max-w-[23rem]">
-          <FocusSignalLine
-            key={activeSignal.detail}
-            text={activeSignal.detail}
-            accent={accent}
+        <div className="mt-2 flex items-center justify-end gap-2">
+          <motion.span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: accent, boxShadow: `0 0 12px ${accent}` }}
+            animate={{
+              opacity: [0.34, 0.86, 0.38],
+              scale: [0.86, 1.14, 0.9],
+            }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
           />
-        </div>
-
-        <div className="mt-3 flex items-center gap-3">
-          <div className="relative h-px flex-1 overflow-hidden bg-white/[0.055]">
-            <motion.span
-              className="absolute inset-y-0 left-0"
-              style={{
-                background: `linear-gradient(90deg, rgba(255,255,255,0.16), ${accent}, rgba(255,255,255,0.62))`,
-                boxShadow: `0 0 18px ${accent}44`,
-              }}
-              initial={{ width: "24%" }}
-              animate={{
-                width: `${Math.round((Number(activeSignal.metric) + focusPressure * 0.04) * 100)}%`,
-              }}
-              transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-            />
-          </div>
-          <span className="w-10 text-right text-[0.56rem] uppercase tracking-[0.18em] text-white/42">
+          <span className="text-[0.46rem] uppercase tracking-[0.18em] text-white/26">
+            quiet score
+          </span>
+          <span className="text-[0.5rem] uppercase tracking-[0.18em] text-white/36">
             {activeSignal.metric}
           </span>
         </div>
       </motion.div>
-
-      <motion.div
-        className="absolute bottom-[18.5%] right-[8.6%] z-[24] grid w-[28rem] gap-2"
-        initial={{ opacity: 0, y: 16, filter: "blur(12px)" }}
-        animate={{
-          opacity: pointer.active ? 0.66 : 0.42,
-          y: pointer.active ? pointer.y * 3 : 0,
-          x: pointer.active ? pointer.x * 4 : 0,
-          filter: pointer.active ? "blur(0.4px)" : "blur(0px)",
-        }}
-        transition={{ duration: 0.76, delay: 0.82, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {focusMutedSignals.map((signal, index) => (
-          <motion.div
-            key={signal.label}
-            className="grid grid-cols-[1fr_auto] items-center gap-4 border-t border-white/[0.045] py-1.5"
-            initial={{ opacity: 0, x: 12, filter: "blur(8px)" }}
-            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-            transition={{
-              duration: 0.54,
-              delay: 0.92 + index * 0.1,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-          >
-            <div className="relative min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-white/18" />
-                <span className="truncate text-[0.54rem] uppercase tracking-[0.2em] text-white/30">
-                  {signal.label}
-                </span>
-              </div>
-              <div className="mt-1 h-px overflow-hidden bg-white/[0.035]">
-                <motion.span
-                  className="block h-full"
-                  style={{
-                    background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
-                  }}
-                  initial={{ width: "8%" }}
-                  animate={{ width: `${signal.level}%`, opacity: [0.12, 0.32, 0.14] }}
-                  transition={{
-                    width: {
-                      duration: 0.82,
-                      delay: 1.02 + index * 0.1,
-                      ease: [0.22, 1, 0.36, 1],
-                    },
-                    opacity: {
-                      duration: 3.8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: signal.delay,
-                    },
-                  }}
-                />
-              </div>
-            </div>
-
-            <span className="text-[0.47rem] uppercase tracking-[0.18em] text-white/24">
-              {signal.value}
-            </span>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      <motion.div
-        className="absolute bottom-[12.5%] right-[16%] z-[24] flex items-center gap-3 rounded-full border border-white/[0.06] bg-black/[0.14] px-4 py-2 backdrop-blur-[14px]"
-        initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
-        animate={{
-          opacity: pointer.active ? 0.82 : 0.55,
-          y: pointer.active ? -2 : 0,
-          filter: "blur(0px)",
-        }}
-        transition={{ duration: 0.72, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <span
-          className="h-1.5 w-1.5 rounded-full"
-          style={{
-            background: accent,
-            boxShadow: `0 0 14px ${accent}`,
-          }}
-        />
-        <span className="text-[0.54rem] uppercase tracking-[0.26em] text-white/38">
-          noise below threshold / context preserved
-        </span>
-      </motion.div>
-
-      <motion.div
-        className="absolute left-[49.5%] top-[51.5%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.035]"
-        style={{
-          boxShadow: `0 0 54px ${accent}18`,
-        }}
-        animate={{
-          opacity: [0.04, 0.14 + focusPressure * 0.08, 0.05],
-          scale: [0.92, 1.08 + focusPressure * 0.04, 0.92],
-        }}
-        transition={{
-          duration: 8.4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
     </motion.div>
   );
 }

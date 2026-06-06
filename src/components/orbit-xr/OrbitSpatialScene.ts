@@ -65,6 +65,24 @@ const xrOpticsAssets = (rawOpticsAssets as unknown as readonly XROpticsAsset[])
       orbitSpatialTheme.productImage,
   }));
 
+const inspectGalleryPositions = [
+  new THREE.Vector3(-3.06, 0.04, -0.28),
+  new THREE.Vector3(-1.52, 0.28, -0.1),
+  new THREE.Vector3(0, 0.46, 0.06),
+  new THREE.Vector3(1.52, 0.28, -0.1),
+  new THREE.Vector3(3.06, 0.04, -0.28),
+] as const;
+
+const inspectGalleryRotations = [
+  new THREE.Euler(0, 0.22, -0.03),
+  new THREE.Euler(0, 0.12, -0.012),
+  new THREE.Euler(0, 0, 0),
+  new THREE.Euler(0, -0.12, 0.012),
+  new THREE.Euler(0, -0.22, 0.03),
+] as const;
+
+const inspectGalleryScales = [0.86, 0.93, 1.02, 0.93, 0.86] as const;
+
 function colorFromAccent(accent: string) {
   const match = accent.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
 
@@ -130,11 +148,17 @@ function drawTextPanel(
   context.strokeRect(72, 72, canvas.width - 144, canvas.height - 144);
 
   context.beginPath();
-  context.moveTo(110, 610);
-  context.lineTo(1490, 610);
+  context.moveTo(110, 664);
+  context.lineTo(1490, 664);
   context.strokeStyle = "rgba(255,255,255,0.09)";
   context.lineWidth = 1;
   context.stroke();
+
+  context.strokeStyle = "rgba(255,255,255,0.05)";
+  context.strokeRect(694, 332, 612, 360);
+
+  context.strokeStyle = "rgba(255,255,255,0.028)";
+  context.strokeRect(722, 360, 556, 304);
 
   context.font =
     "500 32px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
@@ -144,7 +168,7 @@ function drawTextPanel(
 
   context.letterSpacing = "0px";
   context.font =
-    "300 104px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+    "300 86px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
   context.fillStyle = "rgba(244,239,230,0.96)";
 
   const words = mode.title.split(" ");
@@ -155,7 +179,7 @@ function drawTextPanel(
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     const width = context.measureText(testLine).width;
 
-    if (width > 1050 && currentLine) {
+    if (width > 760 && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -168,20 +192,49 @@ function drawTextPanel(
   }
 
   lines.slice(0, 3).forEach((line, index) => {
-    context.fillText(line, 110, 278 + index * 98);
+    context.fillText(line, 110, 246 + index * 82);
   });
 
   context.font =
-    "400 38px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-  context.fillStyle = "rgba(244,239,230,0.68)";
-  context.fillText(mode.tagline, 110, 692);
+    "400 32px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  context.fillStyle = "rgba(244,239,230,0.56)";
+  context.fillText(mode.tagline, 110, 564);
 
   context.font =
-    "500 24px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-  context.letterSpacing = "4px";
-  context.fillStyle = "rgba(244,239,230,0.42)";
-  context.fillText(mode.signal.toUpperCase(), 110, 778);
+    "400 22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  context.fillStyle = "rgba(244,239,230,0.22)";
 
+  const descriptionWords = mode.description.split(" ");
+  const descriptionLines: string[] = [];
+  let currentDescriptionLine = "";
+
+  descriptionWords.forEach((word) => {
+    const testLine = currentDescriptionLine
+      ? `${currentDescriptionLine} ${word}`
+      : word;
+    const width = context.measureText(testLine).width;
+
+    if (width > 520 && currentDescriptionLine) {
+      descriptionLines.push(currentDescriptionLine);
+      currentDescriptionLine = word;
+    } else {
+      currentDescriptionLine = testLine;
+    }
+  });
+
+  if (currentDescriptionLine) {
+    descriptionLines.push(currentDescriptionLine);
+  }
+
+  descriptionLines.slice(0, 2).forEach((line, index) => {
+    context.fillText(line, 110, 618 + index * 30);
+  });
+
+  context.font =
+    "500 21px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+  context.letterSpacing = "4px";
+  context.fillStyle = "rgba(244,239,230,0.24)";
+  context.fillText(mode.signal.toUpperCase(), 110, 786);
   context.letterSpacing = "0px";
 
   texture.needsUpdate = true;
@@ -534,34 +587,34 @@ function createProductStage() {
   productTexture.anisotropy = 8;
 
   const imagePlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.86, 1.6),
+    new THREE.PlaneGeometry(3.22, 1.82),
     new THREE.MeshBasicMaterial({
       map: productTexture,
       transparent: true,
-      opacity: 0.86,
+      opacity: 0.96,
       side: THREE.DoubleSide,
       depthWrite: false,
     }),
   );
-  imagePlane.position.set(0, -0.02, 0.012);
+  imagePlane.position.set(0, 0.04, 0.018);
   group.add(imagePlane);
 
-  const plate = createGlassPlane(3.02, 1.68, "#030609", 0.3);
+  const plate = createGlassPlane(3.46, 1.96, "#030609", 0.24);
   plate.position.z = -0.01;
   group.add(plate);
 
   const edge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(3.02, 1.68)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(3.5, 2)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.14,
     }),
   );
   edge.position.z = 0.018;
   group.add(edge);
 
-  group.position.set(0, -0.9, -1.78);
+  group.position.set(0.56, -0.78, 0.056);
 
   return { group, productTexture };
 }
@@ -606,7 +659,7 @@ function createInspectCard({
   imageTexture.colorSpace = THREE.SRGBColorSpace;
   imageTexture.anisotropy = 8;
 
-  const card = createGlassPlane(1.26, 0.82, "#05080a", 0.42);
+  const card = createGlassPlane(1.56, 1.02, "#05080a", 0.46);
   card.name = "xr inspect card backing";
   card.userData.inspectIndex = index;
   card.renderOrder = 30 + index;
@@ -628,14 +681,14 @@ function createInspectCard({
   );
   image.name = "xr inspect card image";
   image.userData.inspectIndex = index;
-  image.position.set(0, 0.06, 0.035);
-  image.scale.set(1.14, 0.64, 1);
+  image.position.set(0, 0.08, 0.04);
+  image.scale.set(1.4, 0.78, 1);
   image.renderOrder = 32 + index;
   image.userData.texture = imageTexture;
   group.add(image);
 
   const edge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.28, 0.84)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.58, 1.04)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -667,8 +720,8 @@ function createInspectCard({
   const label = createLabelSprite(asset.title);
   label.name = "xr inspect card label";
   label.userData.inspectIndex = index;
-  label.position.set(0, -0.46, 0.07);
-  label.scale.set(0.5, 0.12, 1);
+  label.position.set(0, -0.56, 0.07);
+  label.scale.set(0.6, 0.145, 1);
   label.renderOrder = 35 + index;
   const labelMaterial = label.material as THREE.SpriteMaterial;
   labelMaterial.depthTest = false;
@@ -676,11 +729,11 @@ function createInspectCard({
   group.add(label);
 
   const positions = [
-    new THREE.Vector3(-2.28, -0.18, -0.72),
-    new THREE.Vector3(-1.12, 0.12, -0.62),
-    new THREE.Vector3(0, 0.28, -0.54),
-    new THREE.Vector3(1.12, 0.12, -0.62),
-    new THREE.Vector3(2.28, -0.18, -0.72),
+    new THREE.Vector3(-2.86, -0.08, -0.5),
+    new THREE.Vector3(-1.42, 0.26, -0.38),
+    new THREE.Vector3(0, 0.44, -0.28),
+    new THREE.Vector3(1.42, 0.26, -0.38),
+    new THREE.Vector3(2.86, -0.08, -0.5),
   ];
 
   const rotations = [
@@ -692,14 +745,14 @@ function createInspectCard({
   ];
 
   const fallbackPosition = new THREE.Vector3(
-    THREE.MathUtils.lerp(-2.2, 2.2, index / Math.max(xrOpticsAssets.length - 1, 1)),
-    -0.62,
-    -0.66,
+    THREE.MathUtils.lerp(-2.8, 2.8, index / Math.max(xrOpticsAssets.length - 1, 1)),
+    -0.3,
+    -0.46,
   );
 
   group.position.copy(positions[index] ?? fallbackPosition);
   group.rotation.copy(rotations[index] ?? new THREE.Euler(0, 0, 0));
-  group.scale.setScalar(index === 2 ? 0.88 : 0.78);
+  group.scale.setScalar(index === 2 ? 1.04 : 0.92);
 
   group.userData.basePosition = group.position.clone();
   group.userData.baseRotation = group.rotation.clone();
@@ -723,7 +776,7 @@ export function createOrbitSpatialScene({
     powerPreference: "high-performance",
   });
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.1));
   renderer.setSize(mount.clientWidth, mount.clientHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.xr.enabled = true;
@@ -736,20 +789,20 @@ export function createOrbitSpatialScene({
   scene.fog = new THREE.FogExp2(orbitSpatialTheme.background, 0.052);
 
   const camera = new THREE.PerspectiveCamera(
-    58,
+    52,
     mount.clientWidth / Math.max(mount.clientHeight, 1),
     0.05,
     90,
   );
-  camera.position.set(0, 1.44, 2.58);
+  camera.position.set(0, 1.36, 2.16);
 
   const rig = new THREE.Group();
   rig.add(camera);
   scene.add(rig);
 
   const root = new THREE.Group();
-  root.position.set(0, 0.98, -1.92);
-  root.scale.setScalar(0.78);
+  root.position.set(0, 1.04, -1.54);
+  root.scale.setScalar(0.98);
   scene.add(root);
 
   const currentMode = {
@@ -767,7 +820,7 @@ export function createOrbitSpatialScene({
   drawTextPanel(context, texture, currentMode.index);
 
   const panelGroup = new THREE.Group();
-  panelGroup.position.set(0, 0.2, -2.28);
+  panelGroup.position.set(0, 0.36, -1.84);
   root.add(panelGroup);
 
   const panelMaterial = new THREE.MeshBasicMaterial({
@@ -778,25 +831,25 @@ export function createOrbitSpatialScene({
     depthWrite: false,
   });
 
-  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(5.55, 3.1), panelMaterial);
+  const mainPanel = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 3.86), panelMaterial);
   panelGroup.add(mainPanel);
 
-  const backing = createGlassPlane(5.72, 3.25, "#020407", 0.5);
+  const backing = createGlassPlane(7.02, 4.08, "#020407", 0.56);
   backing.position.z = -0.025;
   panelGroup.add(backing);
 
-  const leftWing = createGlassPlane(1.38, 2.7, "#071018", 0.26);
-  leftWing.position.set(-3.16, -0.02, 0.02);
+  const leftWing = createGlassPlane(1.58, 3.18, "#071018", 0.22);
+  leftWing.position.set(-3.82, 0.02, 0.03);
   leftWing.rotation.y = 0.34;
   panelGroup.add(leftWing);
 
-  const rightWing = createGlassPlane(1.38, 2.7, "#071018", 0.26);
-  rightWing.position.set(3.16, -0.02, 0.02);
+  const rightWing = createGlassPlane(1.58, 3.18, "#071018", 0.22);
+  rightWing.position.set(3.82, 0.02, 0.03);
   rightWing.rotation.y = -0.34;
   panelGroup.add(rightWing);
 
   const panelEdge = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.PlaneGeometry(5.62, 3.16)),
+    new THREE.EdgesGeometry(new THREE.PlaneGeometry(6.88, 3.94)),
     new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -807,21 +860,21 @@ export function createOrbitSpatialScene({
   panelGroup.add(panelEdge);
 
   const scanline = createLine(
-    [new THREE.Vector3(-2.12, -0.46, 0.03), new THREE.Vector3(2.12, -0.46, 0.03)],
+    [new THREE.Vector3(-2.52, -0.54, 0.03), new THREE.Vector3(2.52, -0.54, 0.03)],
     activeAccent,
-    0.34,
+    0.38,
   );
   panelGroup.add(scanline);
 
   const { group: productStage, productTexture } = createProductStage();
-  root.add(productStage);
+  panelGroup.add(productStage);
 
   const textureLoader = new THREE.TextureLoader();
 
   const inspectGroup = new THREE.Group();
   inspectGroup.name = "XR Inspect Optics layer";
   inspectGroup.visible = false;
-  inspectGroup.position.set(0, 0.08, -0.58);
+  inspectGroup.position.set(0, 0.34, -0.12);
   root.add(inspectGroup);
 
   const inspectHitObjects: THREE.Object3D[] = [];
@@ -859,7 +912,7 @@ export function createOrbitSpatialScene({
   inspectGroup.add(inspectHandHoverFrame);
 
   const halo = new THREE.Mesh(
-    new THREE.TorusGeometry(0.78, 0.003, 12, 160),
+    new THREE.TorusGeometry(0.96, 0.004, 12, 180),
     new THREE.MeshBasicMaterial({
       color: activeAccent,
       transparent: true,
@@ -868,15 +921,15 @@ export function createOrbitSpatialScene({
     }),
   );
   halo.rotation.x = Math.PI / 2.16;
-  halo.position.set(0, -0.86, -1.74);
+  halo.position.set(0, -0.58, -1.34);
   root.add(halo);
 
   const railPoints: THREE.Vector3[] = [];
   for (let i = 0; i <= 96; i += 1) {
     const t = i / 96;
-    const x = THREE.MathUtils.lerp(-2.05, 2.05, t);
-    const y = -1.42 - Math.sin(t * Math.PI) * 0.12;
-    const z = -1.48 - Math.sin(t * Math.PI) * 0.08;
+    const x = THREE.MathUtils.lerp(-2.4, 2.4, t);
+    const y = -1.16 - Math.sin(t * Math.PI) * 0.12;
+    const z = -1.18 - Math.sin(t * Math.PI) * 0.08;
     railPoints.push(new THREE.Vector3(x, y, z));
   }
 
@@ -1052,7 +1105,7 @@ export function createOrbitSpatialScene({
     root.add(node);
 
     const label = createLabelSprite(String(index + 1).padStart(2, "0"));
-    label.position.set(x, y - 0.14, z + 0.005);
+    label.position.set(x, y - 0.18, z + 0.005);
     label.material.opacity = index === currentMode.index ? 0.58 : 0.22;
     nodeLabels.push(label);
     root.add(label);
@@ -1848,13 +1901,13 @@ export function createOrbitSpatialScene({
     const elapsed = clock.elapsedTime;
 
     root.rotation.y = Math.sin(elapsed * 0.16) * 0.01;
-    root.position.y = 0.98 + Math.sin(elapsed * 0.28) * 0.006;
+    root.position.y = 1.04 + Math.sin(elapsed * 0.28) * 0.008;
 
-    panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.018;
-    panelMaterial.opacity = 0.9 + Math.sin(elapsed * 0.7) * 0.018;
+    panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.016;
+    panelMaterial.opacity = 0.93 + Math.sin(elapsed * 0.7) * 0.02;
 
-    productStage.rotation.y = Math.sin(elapsed * 0.34) * 0.035;
-    productStage.position.y = -0.9 + Math.sin(elapsed * 0.52) * 0.008;
+    productStage.rotation.y = Math.sin(elapsed * 0.34) * 0.032;
+    productStage.position.y = -0.78 + Math.sin(elapsed * 0.52) * 0.01;
 
     inspectState.weight = THREE.MathUtils.damp(
       inspectState.weight,
@@ -1866,8 +1919,8 @@ export function createOrbitSpatialScene({
     inspectGroup.visible = inspectState.weight > 0.01;
     setObjectOpacity(inspectGroup, inspectState.weight);
 
-    const normalSceneWeight = 1 - inspectState.weight * 0.46;
-    const productOpacityWeight = 1 - inspectState.weight * 0.28;
+    const normalSceneWeight = 1 - inspectState.weight * 0.88;
+    const productOpacityWeight = 1 - inspectState.weight * 0.86;
     const productDisplayWeight = 1 - inspectState.weight * 0.12;
 
     setObjectOpacity(panelGroup, normalSceneWeight);
@@ -1891,33 +1944,46 @@ export function createOrbitSpatialScene({
       const isHandHovered = handInspectInteraction.hoveredIndex === index;
       const drift = Math.sin(elapsed * 0.62 + index * 0.9) * 0.028;
 
-      const targetPosition = isFocused
-        ? new THREE.Vector3(0, 0.02, -1.12)
+      const galleryPosition = inspectGalleryPositions[index] ?? basePosition;
+      const galleryRotation = inspectGalleryRotations[index] ?? baseRotation;
+      const galleryScale = inspectGalleryScales[index] ?? baseScale;
+      const isInspectLayoutActive = inspectState.weight > 0.08;
+
+      const targetPosition = isInspectLayoutActive
+        ? isFocused
+          ? new THREE.Vector3(0, 0.2, 0.18)
+          : new THREE.Vector3(
+              galleryPosition.x,
+              galleryPosition.y + drift * 0.45,
+              galleryPosition.z,
+            )
         : new THREE.Vector3(basePosition.x, basePosition.y + drift, basePosition.z);
 
       card.position.lerp(targetPosition, isFocused ? 0.09 : 0.045);
 
       card.rotation.x = THREE.MathUtils.lerp(
         card.rotation.x,
-        isFocused ? 0 : baseRotation.x,
+        isFocused ? 0 : isInspectLayoutActive ? galleryRotation.x : baseRotation.x,
         0.075,
       );
       card.rotation.y = THREE.MathUtils.lerp(
         card.rotation.y,
-        isFocused ? 0 : baseRotation.y,
+        isFocused ? 0 : isInspectLayoutActive ? galleryRotation.y : baseRotation.y,
         0.075,
       );
       card.rotation.z = THREE.MathUtils.lerp(
         card.rotation.z,
-        isFocused ? 0 : baseRotation.z,
+        isFocused ? 0 : isInspectLayoutActive ? galleryRotation.z : baseRotation.z,
         0.075,
       );
 
       const targetScale = isFocused
-        ? 1.04
+        ? 1.1
         : isHandHovered
-          ? baseScale * 1.12
-          : baseScale;
+          ? (isInspectLayoutActive ? galleryScale : baseScale) * 1.08
+          : isInspectLayoutActive
+            ? galleryScale
+            : baseScale;
 
       card.scale.setScalar(
         THREE.MathUtils.lerp(
@@ -1944,7 +2010,8 @@ export function createOrbitSpatialScene({
               item.opacity =
                 item.userData.baseOpacity *
                 inspectState.weight *
-                (isHandHovered && !isFocused ? 1.18 : 1);
+                (isFocused ? 1 : isInspectLayoutActive ? 0.86 : 1) *
+                (isHandHovered && !isFocused ? 1.12 : 1);
             });
 
             return;
@@ -1958,7 +2025,8 @@ export function createOrbitSpatialScene({
             material.opacity =
               material.userData.baseOpacity *
               inspectState.weight *
-              (isHandHovered && !isFocused ? 1.18 : 1);
+              (isFocused ? 1 : isInspectLayoutActive ? 0.86 : 1) *
+              (isHandHovered && !isFocused ? 1.12 : 1);
           }
         }
       });

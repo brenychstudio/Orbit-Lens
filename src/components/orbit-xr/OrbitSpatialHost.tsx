@@ -121,14 +121,14 @@ export function OrbitSpatialHost() {
 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_28%,rgba(0,0,0,0.72))]" />
 
-      <section className="relative z-10 flex min-h-screen items-center justify-center px-5 py-8">
-        <div className="relative aspect-[16/8.3] w-[min(94vw,110rem)] overflow-hidden rounded-[3.2rem] border border-white/[0.075] bg-[#05080a]/70 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(255,255,255,0.025),0_44px_180px_rgba(0,0,0,0.7)]">
+      <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-4 md:px-5 md:py-6">
+        <div className="relative aspect-[16/8.6] w-[min(97vw,122rem)] overflow-hidden rounded-[3.35rem] border border-white/[0.075] bg-[#05080a]/74 p-4 md:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-1px_0_rgba(255,255,255,0.025),0_52px_210px_rgba(0,0,0,0.74)]">
           <div className="pointer-events-none absolute inset-0 rounded-[3.2rem] ring-1 ring-white/[0.035]" />
           <div className="pointer-events-none absolute inset-[1px] rounded-[3rem] ring-1 ring-white/[0.018]" />
           <div className="pointer-events-none absolute inset-x-16 top-px h-px bg-gradient-to-r from-transparent via-white/16 to-transparent" />
           <div className="pointer-events-none absolute inset-x-20 bottom-px h-px bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
 
-          <div className="relative z-20 mb-3 flex items-center justify-between rounded-full border border-white/[0.055] bg-white/[0.025] px-5 py-2 text-[0.55rem] uppercase tracking-[0.28em] text-white/36 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+          <div className="relative z-20 mb-4 flex items-center justify-between rounded-full border border-white/[0.055] bg-white/[0.025] px-5 py-2.5 text-[0.56rem] uppercase tracking-[0.28em] text-white/36 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:px-6">
             <div className="flex items-center gap-3">
               <span>Orbit Spatial Interface</span>
               <span className="hidden h-px w-8 bg-white/[0.08] md:block" />
@@ -142,7 +142,7 @@ export function OrbitSpatialHost() {
                 type="button"
                 onClick={handleStartVR}
                 disabled={!xrSupport.isSupported}
-                className="group relative inline-flex items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.026] px-3 py-1.5 text-[0.5rem] uppercase tracking-[0.22em] text-white/44 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-white/78 disabled:cursor-not-allowed disabled:opacity-35"
+                className="group relative inline-flex items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.026] px-3.5 py-1.5 text-[0.52rem] uppercase tracking-[0.22em] text-white/44 transition duration-500 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-white/78 disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <span
                   className="h-1.5 w-1.5 rounded-full transition duration-500 group-hover:scale-110"
@@ -161,33 +161,33 @@ export function OrbitSpatialHost() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-[2.45rem] border border-white/[0.065] bg-black shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <div ref={mountRef} className="relative h-[min(74vh,50rem)] w-full" />
+          <div className="relative overflow-hidden rounded-[2.7rem] border border-white/[0.065] bg-black shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <div ref={mountRef} className="relative h-[min(80vh,58rem)] w-full" />
 
-            <div className="pointer-events-none absolute inset-0 rounded-[2.45rem] bg-[radial-gradient(circle_at_46%_22%,transparent,rgba(0,0,0,0.22)_48%,rgba(0,0,0,0.58)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 rounded-[2.7rem] bg-[radial-gradient(circle_at_46%_22%,transparent,rgba(0,0,0,0.18)_44%,rgba(0,0,0,0.5)_100%)]" />
 
-            <div className="pointer-events-none absolute left-8 top-8 z-20 hidden max-w-[16.5rem] rounded-[1.5rem] border border-white/[0.055] bg-black/22 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)] backdrop-blur-sm lg:block">
+            <div className="pointer-events-none absolute left-9 top-9 z-20 hidden max-w-[15rem] rounded-[1.6rem] border border-white/[0.05] bg-black/18 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-sm lg:block">
               <p
-                className="text-[0.58rem] uppercase tracking-[0.3em]"
+                className="text-[0.62rem] uppercase tracking-[0.3em]"
                 style={{ color: activeMode.accent }}
               >
                 {activeMode.eyebrow}
               </p>
-              <h1 className="mt-2 text-lg font-light leading-tight tracking-[-0.04em] text-white/72">
+              <h1 className="mt-2 text-[1.55rem] font-light leading-[0.98] tracking-[-0.04em] text-white/74">
                 {activeMode.title}
               </h1>
-              <p className="mt-2 text-[0.64rem] leading-4 text-white/34">
+              <p className="mt-3 text-[0.76rem] leading-5 text-white/34">
                 {activeMode.tagline}
               </p>
             </div>
 
-            <div className="absolute inset-x-8 bottom-6 z-30 rounded-full border border-white/[0.065] bg-[#05080a]/72 px-4 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_20px_80px_rgba(0,0,0,0.42)]">
+            <div className="absolute inset-x-8 bottom-6 z-30 rounded-full border border-white/[0.065] bg-[#05080a]/74 px-5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_20px_80px_rgba(0,0,0,0.42)]">
               <div className="grid items-center gap-3 md:grid-cols-[0.85fr_1.5fr_auto]">
                 <div className="min-w-0">
                   <p className="text-[0.5rem] uppercase tracking-[0.28em] text-white/26">
                     Active spatial field
                   </p>
-                  <p className="mt-1 truncate text-[0.62rem] uppercase tracking-[0.22em] text-white/62">
+                  <p className="mt-1 truncate text-[0.68rem] uppercase tracking-[0.22em] text-white/66">
                     {activeMode.signal}
                   </p>
                 </div>
@@ -202,7 +202,7 @@ export function OrbitSpatialHost() {
                         type="button"
                         onClick={() => setActiveIndex(index)}
                         aria-label={`Open ${mode.id} spatial mode`}
-                        className="group relative flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.018] transition duration-300 hover:border-white/[0.18] hover:bg-white/[0.05]"
+                        className="group relative flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.018] transition duration-300 hover:border-white/[0.18] hover:bg-white/[0.05]"
                       >
                         <span
                           className="h-1.5 w-1.5 rounded-full transition duration-300"
@@ -229,7 +229,7 @@ export function OrbitSpatialHost() {
                   <button
                     type="button"
                     onClick={handleToggleInspect}
-                    className="group relative inline-flex items-center gap-2 rounded-full border border-white/[0.085] bg-white/[0.025] px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.22em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
+                    className="group relative inline-flex items-center gap-2 rounded-full border border-white/[0.085] bg-white/[0.025] px-4.5 py-2.5 text-[0.54rem] uppercase tracking-[0.22em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
                     aria-pressed={isInspectOpen}
                   >
                     <span
@@ -244,7 +244,7 @@ export function OrbitSpatialHost() {
 
                   <Link
                     href="/"
-                    className="rounded-full border border-white/[0.085] bg-white/[0.025] px-4 py-2.5 text-[0.52rem] uppercase tracking-[0.22em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
+                    className="rounded-full border border-white/[0.085] bg-white/[0.025] px-4.5 py-2.5 text-[0.54rem] uppercase tracking-[0.22em] text-white/52 transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.045] hover:text-white/82"
                   >
                     Back to web
                   </Link>
