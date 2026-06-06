@@ -1166,135 +1166,137 @@ function FocusQuietingSystem({ accent }: { accent: string }) {
       })}
 
       <motion.div
-        className="orbit-lowheight-right-panel orbit-focus-priority absolute z-[25] w-[26rem] rounded-[1.9rem] px-5 py-4"
-        style={{
-          right: "7.2%",
-          top: "36.5%",
-        }}
-        initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(14px)" }}
+        className="absolute right-[8.5%] top-[38%] z-[25] w-[30rem]"
+        initial={{ opacity: 0, y: 14, filter: "blur(14px)" }}
         animate={{
-          opacity: 1,
-          y: pointer.active ? pointer.y * 4 : 0,
-          x: pointer.active ? pointer.x * 4 : 0,
-          scale: pointer.active ? 1.01 : 1,
+          opacity: 0.9,
+          y: pointer.active ? pointer.y * 3 : 0,
+          x: pointer.active ? pointer.x * 5 : 0,
           filter: "blur(0px)",
         }}
         transition={{ duration: 0.78, delay: 0.58, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[0.56rem] uppercase tracking-[0.32em] text-white/30">
-              Attention gate
-            </p>
-            <motion.p
-              key={activeSignal.label}
-              className="mt-1 text-[0.74rem] uppercase tracking-[0.2em]"
-              style={{
-                color: accent,
-                textShadow: `0 0 16px ${accent}`,
-              }}
-              initial={{ opacity: 0, y: 4, filter: "blur(8px)" }}
-              animate={{ opacity: 0.92, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {activeSignal.label}
-            </motion.p>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.025] px-3 py-2">
-            <motion.span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ background: accent, boxShadow: `0 0 14px ${accent}` }}
-              animate={{
-                opacity: [0.36, 0.96, 0.42],
-                scale: [0.88, 1.18, 0.9],
-              }}
-              transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <span className="text-[0.5rem] uppercase tracking-[0.22em] text-white/42">
-              Live quiet
-            </span>
-          </div>
+        <div className="flex items-center gap-4">
+          <p className="text-[0.54rem] uppercase tracking-[0.32em] text-white/32">
+            Attention gate
+          </p>
+          <motion.span
+            className="h-px flex-1"
+            style={{
+              background: `linear-gradient(90deg, rgba(255,255,255,0.16), ${accent}, transparent)`,
+              boxShadow: `0 0 14px ${accent}22`,
+            }}
+            animate={{ opacity: [0.14, 0.46, 0.16], scaleX: [0.82, 1, 0.88] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <span className="text-[0.5rem] uppercase tracking-[0.22em] text-white/34">
+            Live quiet
+          </span>
         </div>
 
-        <div className="relative z-10 mt-4 border-t border-white/[0.065] pt-3">
+        <motion.p
+          key={activeSignal.label}
+          className="mt-2 text-[0.76rem] uppercase tracking-[0.2em]"
+          style={{
+            color: accent,
+            textShadow: `0 0 16px ${accent}`,
+          }}
+          initial={{ opacity: 0, y: 4, filter: "blur(8px)" }}
+          animate={{ opacity: 0.88, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {activeSignal.label}
+        </motion.p>
+
+        <div className="mt-2 max-w-[23rem]">
           <FocusSignalLine
             key={activeSignal.detail}
             text={activeSignal.detail}
             accent={accent}
           />
-          <div className="mt-3 flex items-center gap-3">
-            <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/[0.055]">
-              <motion.span
-                className="absolute inset-y-0 left-0 rounded-full"
-                style={{
-                  background: `linear-gradient(90deg, rgba(255,255,255,0.18), ${accent}, rgba(255,255,255,0.72))`,
-                  boxShadow: `0 0 18px ${accent}44`,
-                }}
-                initial={{ width: "24%" }}
-                animate={{
-                  width: `${Math.round((Number(activeSignal.metric) + focusPressure * 0.04) * 100)}%`,
-                }}
-                transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </div>
-            <span className="w-10 text-right text-[0.56rem] uppercase tracking-[0.18em] text-white/46">
-              {activeSignal.metric}
-            </span>
-          </div>
         </div>
 
-        <div className="relative z-10 mt-4 grid gap-2">
-          {focusMutedSignals.map((signal, index) => (
-            <motion.div
-              key={signal.label}
-              className="orbit-focus-mute-row grid grid-cols-[1fr_auto] items-center gap-4 rounded-full border border-white/[0.055] bg-black/[0.18] px-3.5 py-2"
-              initial={{ opacity: 0, x: 12, filter: "blur(8px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              transition={{
-                duration: 0.54,
-                delay: 0.82 + index * 0.1,
-                ease: [0.22, 1, 0.36, 1],
+        <div className="mt-3 flex items-center gap-3">
+          <div className="relative h-px flex-1 overflow-hidden bg-white/[0.055]">
+            <motion.span
+              className="absolute inset-y-0 left-0"
+              style={{
+                background: `linear-gradient(90deg, rgba(255,255,255,0.16), ${accent}, rgba(255,255,255,0.62))`,
+                boxShadow: `0 0 18px ${accent}44`,
               }}
-            >
-              <div className="relative min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="h-1 w-1 rounded-full bg-white/20" />
-                  <span className="truncate text-[0.56rem] uppercase tracking-[0.2em] text-white/34">
-                    {signal.label}
-                  </span>
-                </div>
-                <div className="mt-1 h-px overflow-hidden bg-white/[0.04]">
-                  <motion.span
-                    className="block h-full"
-                    style={{
-                      background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
-                    }}
-                    initial={{ width: "8%" }}
-                    animate={{ width: `${signal.level}%`, opacity: [0.16, 0.42, 0.18] }}
-                    transition={{
-                      width: {
-                        duration: 0.82,
-                        delay: 0.96 + index * 0.1,
-                        ease: [0.22, 1, 0.36, 1],
-                      },
-                      opacity: {
-                        duration: 3.8,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: signal.delay,
-                      },
-                    }}
-                  />
-                </div>
-              </div>
-
-              <span className="text-[0.48rem] uppercase tracking-[0.18em] text-white/26">
-                {signal.value}
-              </span>
-            </motion.div>
-          ))}
+              initial={{ width: "24%" }}
+              animate={{
+                width: `${Math.round((Number(activeSignal.metric) + focusPressure * 0.04) * 100)}%`,
+              }}
+              transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </div>
+          <span className="w-10 text-right text-[0.56rem] uppercase tracking-[0.18em] text-white/42">
+            {activeSignal.metric}
+          </span>
         </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-[18.5%] right-[8.6%] z-[24] grid w-[28rem] gap-2"
+        initial={{ opacity: 0, y: 16, filter: "blur(12px)" }}
+        animate={{
+          opacity: pointer.active ? 0.66 : 0.42,
+          y: pointer.active ? pointer.y * 3 : 0,
+          x: pointer.active ? pointer.x * 4 : 0,
+          filter: pointer.active ? "blur(0.4px)" : "blur(0px)",
+        }}
+        transition={{ duration: 0.76, delay: 0.82, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {focusMutedSignals.map((signal, index) => (
+          <motion.div
+            key={signal.label}
+            className="grid grid-cols-[1fr_auto] items-center gap-4 border-t border-white/[0.045] py-1.5"
+            initial={{ opacity: 0, x: 12, filter: "blur(8px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            transition={{
+              duration: 0.54,
+              delay: 0.92 + index * 0.1,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <div className="relative min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-white/18" />
+                <span className="truncate text-[0.54rem] uppercase tracking-[0.2em] text-white/30">
+                  {signal.label}
+                </span>
+              </div>
+              <div className="mt-1 h-px overflow-hidden bg-white/[0.035]">
+                <motion.span
+                  className="block h-full"
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+                  }}
+                  initial={{ width: "8%" }}
+                  animate={{ width: `${signal.level}%`, opacity: [0.12, 0.32, 0.14] }}
+                  transition={{
+                    width: {
+                      duration: 0.82,
+                      delay: 1.02 + index * 0.1,
+                      ease: [0.22, 1, 0.36, 1],
+                    },
+                    opacity: {
+                      duration: 3.8,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: signal.delay,
+                    },
+                  }}
+                />
+              </div>
+            </div>
+
+            <span className="text-[0.47rem] uppercase tracking-[0.18em] text-white/24">
+              {signal.value}
+            </span>
+          </motion.div>
+        ))}
       </motion.div>
 
       <motion.div
@@ -2071,37 +2073,47 @@ function RecallConsoleV2({ accent }: { accent: string }) {
       label: "Place Context",
       value: "Recognized",
       tone: "rgba(237, 218, 168, 0.86)",
-      labelClass: "left-[50.2%] top-[55.8%]",
-      valueClass: "left-[50.2%] top-[58.5%]",
+      labelClass: "left-[48.5%] top-[52.5%]",
+      valueClass: "left-[48.5%] top-[55.2%]",
       align: "left" as const,
     },
     {
       label: "Voice Fragment",
       value: "Indexed",
       tone: "rgba(154, 193, 255, 0.88)",
-      labelClass: "right-[10.8%] top-[55.9%]",
-      valueClass: "right-[10.8%] top-[58.6%]",
+      labelClass: "right-[12.8%] top-[51.2%]",
+      valueClass: "right-[12.8%] top-[53.9%]",
       align: "right" as const,
     },
     {
       label: "Memory State",
       value: "Manual Only",
       tone: "rgba(222, 195, 145, 0.86)",
-      labelClass: "left-[53.8%] top-[65.1%]",
-      valueClass: "left-[53.8%] top-[67.8%]",
+      labelClass: "left-[52.8%] top-[69.8%]",
+      valueClass: "left-[52.8%] top-[72.5%]",
       align: "left" as const,
     },
     {
       label: "Recording",
       value: "Inactive",
       tone: "rgba(255, 255, 255, 0.72)",
-      labelClass: "left-[67.6%] top-[61.2%]",
-      valueClass: "left-[67.6%] top-[63.9%]",
+      labelClass: "left-[68.8%] top-[62.2%]",
+      valueClass: "left-[68.8%] top-[64.9%]",
       align: "left" as const,
     },
   ];
 
-  const waveform = [16, 26, 18, 34, 22, 31, 18, 28, 24, 38, 20, 30, 16, 26, 22, 34];
+  const waveform = [
+    18, 32, 21, 42, 28, 54, 24, 36, 46, 30, 62, 34, 26, 48, 22, 58, 32, 40,
+    24, 50, 28, 64, 36, 44, 20, 38, 30, 56, 26, 46, 34, 60, 22, 42, 30, 52,
+  ];
+
+  const spokenMarkers = [
+    { word: "ask", className: "left-[8%] top-[17%]", delay: 0.18 },
+    { word: "place", className: "left-[30%] top-[31%]", delay: 0.38 },
+    { word: "voice", className: "right-[27%] top-[18%]", delay: 0.58 },
+    { word: "temporary", className: "right-[9%] top-[39%]", delay: 0.78 },
+  ];
 
   return (
     <motion.div
@@ -2112,67 +2124,179 @@ function RecallConsoleV2({ accent }: { accent: string }) {
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.div
-        className="absolute right-[6.5%] top-[18.2%] w-[29rem]"
-        initial={{ opacity: 0, y: 18, filter: "blur(18px)" }}
+        className="absolute right-[7.2%] top-[18.5%] z-[24] w-[31rem]"
+        initial={{ opacity: 0, y: 14, filter: "blur(16px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         exit={{ opacity: 0, y: -10, filter: "blur(12px)" }}
-        transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.86, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="relative pl-8">
+          <motion.span
+            className="absolute left-0 top-1.5 h-2 w-2 rounded-full"
+            style={{
+              background: "rgba(237, 218, 168, 0.82)",
+              boxShadow: "0 0 20px rgba(237, 218, 168, 0.36)",
+            }}
+            animate={{ opacity: [0.42, 1, 0.48], scale: [0.9, 1.2, 0.92] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div className="flex items-center gap-4">
+            <p
+              className="text-[0.56rem] uppercase tracking-[0.34em]"
+              style={{ color: "rgba(237, 218, 168, 0.7)" }}
+            >
+              Recall Layer
+            </p>
+            <span className="h-px flex-1 bg-gradient-to-r from-white/18 via-white/[0.06] to-transparent" />
+            <p className="text-[0.5rem] uppercase tracking-[0.26em] text-white/32">
+              User Initiated
+            </p>
+          </div>
+
+          <p className="mt-3 max-w-[28rem] text-[1rem] leading-7 text-white/64 drop-shadow-[0_10px_28px_rgba(0,0,0,0.74)]">
+            {typedText}
+            <motion.span
+              className="ml-1 inline-block h-5 w-px align-[-0.18rem]"
+              style={{ background: accent }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </p>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute right-[6.6%] top-[34.8%] z-[23] h-[24rem] w-[39rem]"
+        initial={{ opacity: 0, scale: 0.98, filter: "blur(18px)" }}
+        animate={{
+          opacity: [0.72, 0.96, 0.78],
+          scale: isTypedComplete ? [0.99, 1.015, 0.995] : 0.99,
+          filter: isTypedComplete ? "blur(0px)" : "blur(4px)",
+        }}
+        transition={{
+          opacity: { duration: 6.4, repeat: Infinity, ease: "easeInOut" },
+          scale: isTypedComplete
+            ? { duration: 7.2, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+          filter: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+        }}
       >
         <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: `radial-gradient(ellipse at 52% 48%, ${accent}22 0%, rgba(255,255,255,0.06) 19%, rgba(0,0,0,0.05) 48%, transparent 74%)`,
+            boxShadow: `0 0 92px ${accent}12`,
+          }}
           animate={{
-            y: [0, -4, 0],
-            x: [0, 1.5, 0],
+            opacity: [0.16, 0.34, 0.18],
+            scale: [0.96, 1.04, 0.97],
+            filter: ["blur(16px)", "blur(9px)", "blur(16px)"],
           }}
-          transition={{
-            duration: 9.5,
-            repeat: Infinity,
-            ease: "easeInOut",
+          transition={{ duration: 8.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute left-[6%] right-[8%] top-[48%] h-px origin-left"
+          style={{
+            background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.16), ${accent}, rgba(255,255,255,0.42), transparent)`,
+            boxShadow: `0 0 20px ${accent}44`,
           }}
-          style={{ willChange: "transform" }}
+          animate={{ opacity: [0.12, 0.44, 0.16], scaleX: [0.74, 1.03, 0.8] }}
+          transition={{ duration: 4.4, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <div className="absolute left-[7%] top-[30%] flex h-[10.4rem] w-[76%] items-end gap-[0.4rem] overflow-hidden">
+          {waveform.map((height, index) => (
+            <motion.span
+              key={`${height}-${index}`}
+              className="w-px rounded-full"
+              style={{
+                height,
+                background:
+                  index % 7 === 0
+                    ? "rgba(237, 218, 168, 0.96)"
+                    : index % 5 === 0
+                      ? "rgba(154, 193, 255, 0.78)"
+                      : "rgba(255,255,255,0.42)",
+                boxShadow:
+                  index % 7 === 0
+                    ? "0 0 18px rgba(237, 218, 168, 0.42)"
+                    : "none",
+              }}
+              animate={{
+                scaleY: [0.36, 1, 0.48],
+                opacity: [0.24, 0.92, 0.32],
+              }}
+              transition={{
+                duration: 1.4 + (index % 9) * 0.08,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: index * 0.035,
+              }}
+            />
+          ))}
+        </div>
+
+        <motion.div
+          className="absolute left-[12%] top-[72%] flex items-center gap-4"
+          animate={{ opacity: [0.42, 0.84, 0.48], x: [0, 4, 0] }}
+          transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut" }}
         >
-          <GlassPane className="px-6 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_30px_90px_rgba(0,0,0,0.42)]">
-            <div className="flex items-center justify-between gap-5">
-              <div className="flex items-center gap-2">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{
-                    background: "rgba(237, 218, 168, 0.78)",
-                    boxShadow: "0 0 18px rgba(237, 218, 168, 0.22)",
-                  }}
-                />
-                <p
-                  className="text-[0.58rem] uppercase tracking-[0.3em]"
-                  style={{ color: "rgba(237, 218, 168, 0.72)" }}
-                >
-                  Recall Layer
-                </p>
-              </div>
-
-              <p className="text-[0.55rem] uppercase tracking-[0.26em] text-white/34">
-                User Initiated
-              </p>
-            </div>
-
-            <div className="mt-4 border-t border-white/[0.08] pt-4">
-              <p className="max-w-[24.5rem] text-[1.02rem] leading-8 text-white/68">
-                {typedText}
-                <motion.span
-                  className="ml-1 inline-block h-5 w-px align-[-0.18rem]"
-                  style={{ background: accent }}
-                  animate={{ opacity: [0, 1, 0] }}
-                  transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut" }}
-                />
-              </p>
-            </div>
-          </GlassPane>
+          <span className="text-[0.52rem] uppercase tracking-[0.28em] text-white/32">
+            Voice fragment 01
+          </span>
+          <span className="h-px w-20 bg-gradient-to-r from-white/14 to-transparent" />
+          <span className="text-[0.5rem] uppercase tracking-[0.24em] text-white/24">
+            Local / not continuous
+          </span>
         </motion.div>
+
+        {spokenMarkers.map((marker) => (
+          <motion.span
+            key={marker.word}
+            className={`absolute text-[0.54rem] uppercase tracking-[0.32em] text-white/24 ${marker.className}`}
+            initial={{ opacity: 0, y: 8, filter: "blur(8px)" }}
+            animate={{
+              opacity: isTypedComplete ? [0.18, 0.46, 0.2] : 0,
+              y: isTypedComplete ? [0, -1.4, 0] : 8,
+              filter: isTypedComplete ? "blur(0px)" : "blur(8px)",
+            }}
+            transition={{
+              duration: 5.2,
+              delay: isTypedComplete ? marker.delay : 0,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            {marker.word}
+          </motion.span>
+        ))}
+
+        {[18, 42, 67, 86].map((left, index) => (
+          <motion.span
+            key={left}
+            className="absolute top-[48%] h-3 w-px -translate-y-1/2"
+            style={{
+              left: `${left}%`,
+              background: index === 1 ? accent : "rgba(255,255,255,0.18)",
+              boxShadow: index === 1 ? `0 0 12px ${accent}` : "none",
+            }}
+            animate={{ opacity: [0.2, 0.72, 0.24], scaleY: [0.72, 1.35, 0.8] }}
+            transition={{
+              duration: 3.8 + index * 0.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: index * 0.28,
+            }}
+          />
+        ))}
       </motion.div>
 
       {/* Scattered text overlays */}
       {statusRows.map((row, index) => (
         <Fragment key={row.label}>
           <motion.div
-            className={`absolute z-[22] ${row.labelClass} ${
+            className={`absolute z-[24] ${row.labelClass} ${
               row.align === "right" ? "text-right" : "text-left"
             }`}
             initial={{
@@ -2211,7 +2335,7 @@ function RecallConsoleV2({ accent }: { accent: string }) {
           </motion.div>
 
           <motion.div
-            className={`absolute z-[22] ${row.valueClass} ${
+            className={`absolute z-[24] ${row.valueClass} ${
               row.align === "right" ? "text-right" : "text-left"
             }`}
             initial={{
@@ -2255,91 +2379,6 @@ function RecallConsoleV2({ accent }: { accent: string }) {
         </Fragment>
       ))}
 
-      {/* Separate voice fragment pod */}
-      <motion.div
-        className="absolute left-[51.2%] top-[77.2%] w-[14.2rem] -translate-y-1/2"
-        initial={{ opacity: 0, y: 12, filter: "blur(12px)" }}
-        animate={{
-          opacity: isTypedComplete ? 1 : 0,
-          y: isTypedComplete ? 0 : 12,
-          filter: isTypedComplete ? "blur(0px)" : "blur(12px)",
-        }}
-        transition={{
-          duration: 0.7,
-          delay: isTypedComplete ? 0.72 : 0,
-          ease: [0.22, 1, 0.36, 1],
-        }}
-      >
-        <motion.div
-          animate={{
-            y: [0, -3, 0],
-            x: [0, 1, 0],
-          }}
-          transition={{
-            duration: 7.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          style={{ willChange: "transform" }}
-        >
-          <GlassPane className="px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_18px_50px_rgba(0,0,0,0.34)]">
-            <div className="mb-2 flex items-center justify-between gap-4">
-              <p className="text-[0.54rem] uppercase tracking-[0.28em] text-white/30">
-                Voice Fragment 01
-              </p>
-              <p className="text-[0.5rem] uppercase tracking-[0.24em] text-white/24">
-                Local / Not Continuous
-              </p>
-            </div>
-
-            <div className="flex h-9 items-center gap-[0.28rem] overflow-hidden">
-              {waveform.map((height, index) => (
-                <motion.span
-                  key={`${height}-${index}`}
-                  className="w-px rounded-full"
-                  style={{
-                    height,
-                    background:
-                      index % 4 === 0
-                        ? "rgba(237, 218, 168, 0.64)"
-                        : "rgba(255,255,255,0.34)",
-                    boxShadow:
-                      index % 4 === 0
-                        ? "0 0 12px rgba(237, 218, 168, 0.24)"
-                        : "none",
-                  }}
-                  animate={{
-                    scaleY: [0.52, 1, 0.62],
-                    opacity: [0.28, 0.78, 0.34],
-                  }}
-                  transition={{
-                    duration: 1.6 + index * 0.03,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: index * 0.045,
-                  }}
-                />
-              ))}
-
-              <motion.span
-                className="ml-2 h-px flex-1"
-                style={{
-                  background: `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.16), transparent)`,
-                }}
-                animate={{
-                  opacity: [0.16, 0.48, 0.16],
-                  scaleX: [0.92, 1, 0.92],
-                }}
-                transition={{
-                  duration: 3.2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-            </div>
-          </GlassPane>
-        </motion.div>
-      </motion.div>
     </motion.div>
   );
 }
