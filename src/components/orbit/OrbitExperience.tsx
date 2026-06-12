@@ -2846,7 +2846,7 @@ export function OrbitExperience() {
                       background: activeMode.accent,
                     }}
                   />
-                  <span>Spatial Mode</span>
+                  <span>Enter Spatial / VR</span>
                 </Link>
 
                 <span>{currentProgress}</span>
@@ -3199,7 +3199,7 @@ export function OrbitExperience() {
                     background: activeMode.accent,
                   }}
                 />
-                Spatial
+                Spatial / VR
               </Link>
             </div>
           </motion.div>

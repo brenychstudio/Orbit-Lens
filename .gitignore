@@ -48,3 +48,5 @@ next-env.d.ts
 *.tmp
 src/**/*.bak
 public/interface/new/
+
+certificates

@@ -28,7 +28,7 @@ export async function checkXRSupport(): Promise<XRSupportState> {
       isChecking: false,
       isSupported: false,
       isSecureContext,
-      reason: "WebXR requires HTTPS or localhost.",
+      reason: "WebXR requires HTTPS. Start the dev server with npm run dev:https and open the https:// URL on the glasses.",
     };
   }
 

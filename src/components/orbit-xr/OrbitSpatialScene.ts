@@ -263,9 +263,18 @@ const HAND_SELECT_COOLDOWN_MS = 720;
 const HAND_INSPECT_SELECT_COOLDOWN_MS = 680;
 const HAND_NAV_SELECT_COOLDOWN_MS = 760;
 const HAND_NAV_HOVER_LATCH_MS = 620;
-const HAND_POINTER_ORIGIN_LERP = 0.2;
-const HAND_POINTER_DIRECTION_LERP = 0.075;
+const HAND_POINTER_ORIGIN_LERP = 0.42;
+const HAND_POINTER_DIRECTION_LERP = 0.24;
 const WHISPER_PINCH_THRESHOLD = 0.55;
+
+const DESKTOP_ROOT_POSITION = new THREE.Vector3(0, 1.04, -1.54);
+const IMMERSIVE_ROOT_POSITION = new THREE.Vector3(0, 1.34, -4.08);
+const DESKTOP_ROOT_SCALE = 0.98;
+const IMMERSIVE_ROOT_SCALE = 0.64;
+const DESKTOP_VR_NAV_POSITION = new THREE.Vector3(0, -0.62, -0.42);
+const IMMERSIVE_VR_NAV_POSITION = new THREE.Vector3(0, -1.18, 0.08);
+
+const xrTargetRayQuaternion = new THREE.Quaternion();
 
 function isWhisperPinchActive(handPresence: {
   getSide: (side: "left" | "right") =>
@@ -331,6 +340,59 @@ function readXRHandJointPosition({
 
   const position = jointPose.transform.position;
   target.set(position.x, position.y, position.z);
+
+  return true;
+}
+
+function readXRTargetRayPose({
+  frame,
+  referenceSpace,
+  inputSource,
+  positionTarget,
+  directionTarget,
+}: {
+  frame: XRFrame;
+  referenceSpace: XRReferenceSpace;
+  inputSource: XRInputSource;
+  positionTarget: THREE.Vector3;
+  directionTarget: THREE.Vector3;
+}) {
+  const targetRaySpace = inputSource.targetRaySpace;
+
+  if (!targetRaySpace) {
+    return false;
+  }
+
+  const getPose = frame.getPose;
+
+  if (typeof getPose !== "function") {
+    return false;
+  }
+
+  const pose = getPose.call(frame, targetRaySpace, referenceSpace);
+
+  if (!pose) {
+    return false;
+  }
+
+  const position = pose.transform.position;
+  const orientation = pose.transform.orientation;
+
+  positionTarget.set(position.x, position.y, position.z);
+  xrTargetRayQuaternion.set(
+    orientation.x,
+    orientation.y,
+    orientation.z,
+    orientation.w,
+  );
+
+  directionTarget.set(0, 0, -1).applyQuaternion(xrTargetRayQuaternion);
+
+  if (directionTarget.lengthSq() < 0.00001) {
+    return false;
+  }
+
+  directionTarget.normalize();
 
   return true;
 }
@@ -407,6 +469,11 @@ function createHandPointerVisual(accentColor: THREE.Color) {
   function setVisible(isVisible: boolean) {
     line.visible = isVisible;
     reticle.visible = isVisible;
+
+    if (!isVisible) {
+      material.opacity = 0;
+      reticleMaterial.opacity = 0;
+    }
   }
 
   function setAccent(nextAccent: THREE.Color) {
@@ -473,12 +540,20 @@ function createHandPointerVisual(accentColor: THREE.Color) {
     reticleMaterial.dispose();
   }
 
+  function reset() {
+    hasSmoothedOnce = false;
+    material.opacity = 0;
+    reticleMaterial.opacity = 0;
+    reticle.visible = false;
+  }
+
   return {
     line,
     reticle,
     setVisible,
     setAccent,
     update,
+    reset,
     dispose,
   };
 }
@@ -801,8 +876,8 @@ export function createOrbitSpatialScene({
   scene.add(rig);
 
   const root = new THREE.Group();
-  root.position.set(0, 1.04, -1.54);
-  root.scale.setScalar(0.98);
+  root.position.copy(DESKTOP_ROOT_POSITION);
+  root.scale.setScalar(DESKTOP_ROOT_SCALE);
   scene.add(root);
 
   const currentMode = {
@@ -968,7 +1043,7 @@ export function createOrbitSpatialScene({
 
   const vrNavGroup = new THREE.Group();
   vrNavGroup.name = "VR runtime navigation console";
-  vrNavGroup.position.set(0, -0.62, -0.42);
+  vrNavGroup.position.copy(DESKTOP_VR_NAV_POSITION);
   vrNavGroup.visible = false;
   root.add(vrNavGroup);
 
@@ -1500,7 +1575,11 @@ export function createOrbitSpatialScene({
 
       handPointerVisuals.forEach((visual) => {
         visual.setVisible(false);
+        visual.reset();
       });
+
+      handPointerHasSmooth[0] = false;
+      handPointerHasSmooth[1] = false;
 
       return;
     }
@@ -1526,7 +1605,11 @@ export function createOrbitSpatialScene({
 
       handPointerVisuals.forEach((visual) => {
         visual.setVisible(false);
+        visual.reset();
       });
+
+      handPointerHasSmooth[0] = false;
+      handPointerHasSmooth[1] = false;
 
       return;
     }
@@ -1539,9 +1622,13 @@ export function createOrbitSpatialScene({
         return;
       }
 
-      const pointerIndex = sourceIndex % handPointerVisuals.length;
+      const pointerIndex =
+        inputSource.handedness === "left"
+          ? 0
+          : inputSource.handedness === "right"
+            ? 1
+            : sourceIndex % handPointerVisuals.length;
       const pointerVisual = handPointerVisuals[pointerIndex];
-
       const hasIndexTip = readXRHandJointPosition({
         frame,
         referenceSpace,
@@ -1549,61 +1636,76 @@ export function createOrbitSpatialScene({
         jointName: "index-finger-tip",
         target: handIndexTipWorld,
       });
+      const hasTargetRay = readXRTargetRayPose({
+        frame,
+        referenceSpace,
+        inputSource,
+        positionTarget: handPointerOrigin,
+        directionTarget: handPointerDirection,
+      });
 
-      const hasAimBase =
-        readXRHandJointPosition({
-          frame,
-          referenceSpace,
-          inputSource,
-          jointName: "index-finger-metacarpal",
-          target: handPointerBase,
-        }) ||
-        readXRHandJointPosition({
-          frame,
-          referenceSpace,
-          inputSource,
-          jointName: "wrist",
-          target: handPointerBase,
-        });
+      if (hasTargetRay && hasIndexTip) {
+        handPointerOrigin
+          .copy(handIndexTipWorld)
+          .addScaledVector(handPointerDirection, 0.02);
+      } else {
+        const hasAimBase =
+          readXRHandJointPosition({
+            frame,
+            referenceSpace,
+            inputSource,
+            jointName: "index-finger-metacarpal",
+            target: handPointerBase,
+          }) ||
+          readXRHandJointPosition({
+            frame,
+            referenceSpace,
+            inputSource,
+            jointName: "wrist",
+            target: handPointerBase,
+          });
 
-      const hasAim =
-        readXRHandJointPosition({
-          frame,
-          referenceSpace,
-          inputSource,
-          jointName: "index-finger-phalanx-proximal",
-          target: handPointerAim,
-        }) ||
-        readXRHandJointPosition({
-          frame,
-          referenceSpace,
-          inputSource,
-          jointName: "index-finger-phalanx-intermediate",
-          target: handPointerAim,
-        }) ||
-        hasIndexTip;
+        const hasAim =
+          readXRHandJointPosition({
+            frame,
+            referenceSpace,
+            inputSource,
+            jointName: "index-finger-phalanx-proximal",
+            target: handPointerAim,
+          }) ||
+          readXRHandJointPosition({
+            frame,
+            referenceSpace,
+            inputSource,
+            jointName: "index-finger-phalanx-intermediate",
+            target: handPointerAim,
+          }) ||
+          hasIndexTip;
 
-      if (!hasIndexTip || !hasAimBase || !hasAim) {
-        pointerVisual.setVisible(false);
-        handPointerHasSmooth[pointerIndex] = false;
-        return;
+        if (!hasIndexTip || !hasAimBase || !hasAim) {
+          pointerVisual.setVisible(false);
+          pointerVisual.reset();
+          handPointerHasSmooth[pointerIndex] = false;
+          return;
+        }
+
+        handPointerDirection.subVectors(handPointerAim, handPointerBase);
+
+        if (handPointerDirection.lengthSq() < 0.00001) {
+          pointerVisual.setVisible(false);
+          pointerVisual.reset();
+          handPointerHasSmooth[pointerIndex] = false;
+          return;
+        }
+
+        handPointerDirection.normalize();
+
+          handPointerOrigin
+          .copy(handPointerAim)
+          .addScaledVector(handPointerDirection, 0.04);
       }
 
       hasAnyHand = true;
-
-      handPointerDirection.subVectors(handPointerAim, handPointerBase);
-
-      if (handPointerDirection.lengthSq() < 0.00001) {
-        pointerVisual.setVisible(false);
-        handPointerHasSmooth[pointerIndex] = false;
-        return;
-      }
-
-      handPointerDirection.normalize();
-
-      handPointerOrigin
-        .copy(handPointerAim)
-        .addScaledVector(handPointerDirection, 0.04);
 
       const smoothOrigin = handPointerSmoothOrigins[pointerIndex];
       const smoothDirection = handPointerSmoothDirections[pointerIndex];
@@ -1662,6 +1764,7 @@ export function createOrbitSpatialScene({
     if (!hasAnyHand) {
       handPointerVisuals.forEach((visual) => {
         visual.setVisible(false);
+        visual.reset();
       });
 
       handPointerHasSmooth[0] = false;
@@ -1900,8 +2003,61 @@ export function createOrbitSpatialScene({
     const delta = Math.min(clock.getDelta(), 0.05);
     const elapsed = clock.elapsedTime;
 
+    const targetRootPosition = vrNavState.isImmersive
+      ? IMMERSIVE_ROOT_POSITION
+      : DESKTOP_ROOT_POSITION;
+    const targetRootScale = vrNavState.isImmersive
+      ? IMMERSIVE_ROOT_SCALE
+      : DESKTOP_ROOT_SCALE;
+    const targetVrNavPosition = vrNavState.isImmersive
+      ? IMMERSIVE_VR_NAV_POSITION
+      : DESKTOP_VR_NAV_POSITION;
+
     root.rotation.y = Math.sin(elapsed * 0.16) * 0.01;
-    root.position.y = 1.04 + Math.sin(elapsed * 0.28) * 0.008;
+    root.position.x = THREE.MathUtils.damp(
+      root.position.x,
+      targetRootPosition.x,
+      4.8,
+      delta,
+    );
+    root.position.y = THREE.MathUtils.damp(
+      root.position.y,
+      targetRootPosition.y + Math.sin(elapsed * 0.28) * 0.008,
+      4.8,
+      delta,
+    );
+    root.position.z = THREE.MathUtils.damp(
+      root.position.z,
+      targetRootPosition.z,
+      4.8,
+      delta,
+    );
+    const nextRootScale = THREE.MathUtils.damp(
+      root.scale.x,
+      targetRootScale,
+      4.8,
+      delta,
+    );
+    root.scale.setScalar(nextRootScale);
+
+    vrNavGroup.position.x = THREE.MathUtils.damp(
+      vrNavGroup.position.x,
+      targetVrNavPosition.x,
+      5.2,
+      delta,
+    );
+    vrNavGroup.position.y = THREE.MathUtils.damp(
+      vrNavGroup.position.y,
+      targetVrNavPosition.y,
+      5.2,
+      delta,
+    );
+    vrNavGroup.position.z = THREE.MathUtils.damp(
+      vrNavGroup.position.z,
+      targetVrNavPosition.z,
+      5.2,
+      delta,
+    );
 
     panelGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.016;
     panelMaterial.opacity = 0.93 + Math.sin(elapsed * 0.7) * 0.02;

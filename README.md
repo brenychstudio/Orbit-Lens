@@ -141,6 +141,20 @@ Run development server:
 npm run dev
 ```
 
+Run development server for WebXR testing on the LAN:
+
+```bash
+npm run dev:https
+```
+
+This starts `next dev` with HTTPS and a LAN host so the `/spatial` route can be tested in glasses. If your network IP is different from the auto-detected one, override it with:
+
+```bash
+npm run dev:https -- --host 192.168.1.135
+```
+
+Open the HTTPS URL printed in the terminal, for example `https://192.168.1.135:3000/`.
+
 Build:
 
 ```bash
